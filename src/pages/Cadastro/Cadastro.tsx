@@ -27,7 +27,7 @@ export default function Cadastro() {
     const [modalAberto, setModalAberto] = useState(false);
 
     const cadastroService = new CadastroService();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
@@ -67,12 +67,12 @@ export default function Cadastro() {
         flow: "auth-code",
         onSuccess: async (response) => {
             const verificacaoCode = response.code;
-            
+
             await cadastroService.cadastrarComGoogle({
                 code: verificacaoCode,
             });
 
-            navigate("/teste-apos-login")
+            navigate("/dashboard");
         },
         onError: () => {
             console.error("Login com Google falhou");
@@ -263,7 +263,7 @@ export default function Cadastro() {
                         type="submit"
                         className={`w-full md:w-2/3 text-white text-lg py-4 px-4 bg-linear-to-r from-[#218f84] via-[#2dd3c3] to-[#2fd3c2] rounded-full hover:from-[#2fd3c2] hover:via-[#2dd3c3] hover:to-[#218f84] transition-colors duration-300 ${carregando ? "cursor-not-allowed" : "cursor-pointer"} flex justify-center items-center gap-4`}
                         disabled={carregando}
-                    > 
+                    >
                         {carregando ? (
                             <>
                                 <IconeCarregamento

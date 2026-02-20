@@ -89,19 +89,19 @@ export default function Login() {
         setErrorLogin(false);
         setCarregando(false);
 
-        navigate("/teste-apos-login");
+        navigate("/dashboard");
     }
 
     const loginComGoogle = useGoogleLogin({
         flow: "auth-code",
         onSuccess: async (response) => {
             const verificacaoCode = response.code;
-            
+
             await loginService.loginComGoogle({
                 code: verificacaoCode,
             });
 
-            navigate("/teste-apos-login")
+            navigate("/dashboard");
         },
         onError: () => {
             console.error("Login com Google falhou");

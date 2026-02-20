@@ -19,7 +19,7 @@ httpClient.interceptors.request.use(
 
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
 );
 
 // ✅ RESPONSE
@@ -29,12 +29,12 @@ httpClient.interceptors.response.use(
         if (error.response?.status === 401) {
             localStorage.removeItem("accessToken");
 
-            // ❗ EVITE window.location.href
-            // Isso reinicia o React inteiro
-
-            // deixe o router cuidar disso futuramente
+            // Redireciona para login se não estiver já nela
+            if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+            }
         }
 
         return Promise.reject(error);
-    }
+    },
 );
