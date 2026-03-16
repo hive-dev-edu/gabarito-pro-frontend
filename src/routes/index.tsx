@@ -17,6 +17,7 @@ import LayoutProtegido from "../shared/components/LayoutProtegido";
 import PaginaAvaliacoes from "../pages/Avaliacoes/Avaliacoes";
 import CriarAvaliacao from "../pages/Avaliacoes/Criar";
 import PaginaRascunhos from "../pages/Avaliacoes/Rascunhos";
+import PaginaVersoes from "../pages/Avaliacoes/Versoes";
 
 
 export default function AppRoutes() {
@@ -51,6 +52,7 @@ export default function AppRoutes() {
                 <Route path="/avaliacoes" element={<PaginaAvaliacoes />} />
                 <Route path="/avaliacoes/criar" element={<CriarAvaliacao />} />
                 <Route path="/avaliacoes/rascunhos" element={<PaginaRascunhos />} />
+                <Route path="/avaliacoes/:id/versoes" element={<PaginaVersoes />} />
             </Route>
         </Routes>
     );
