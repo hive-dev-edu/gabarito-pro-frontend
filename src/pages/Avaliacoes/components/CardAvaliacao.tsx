@@ -19,6 +19,7 @@ interface Props {
 }
 
 export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, deleting = false }: Props) {
+  console.debug("[DEBUG] CardAvaliacao props:", avaliacao);
   const dataFormatada = avaliacao.date
     ? new Date(avaliacao.date).toLocaleDateString("pt-BR")
     : "Sem data";
@@ -53,9 +54,13 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
       try {
         setLoadingDetails(true);
         const full = await AvaliacoesService.getById(avaliacao.id);
+        // eslint-disable-next-line no-console
+        console.debug("[DEBUG] AvaliacoesService.getById result:", full);
         if (!mounted) return;
         setQuestionsCount(full.questions?.length ?? full.questionsCount ?? 0);
-        setClassNameState(full.className ?? "");
+        if (full.className && String(full.className).trim()) {
+          setClassNameState(full.className);
+        }
         setTotalScoreState(Number(full.totalScore ?? 0));
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -76,22 +81,21 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
     let mounted = true;
 
     async function fetchClassNameIfNeeded() {
-      // se já temos nome, nada a fazer
       if (classNameState && classNameState.trim()) return;
 
-      // tenta usar avaliacao.className primeiro
       if (avaliacao.className && avaliacao.className.trim()) {
         if (mounted) setClassNameState(avaliacao.className);
         return;
       }
 
-      // se não houver classId, nada a fazer
       const classId = (avaliacao as any).classId ?? (avaliacao as any).class_id ?? null;
       if (!classId) return;
 
       try {
         setLoadingDetails(true);
         const resp = await httpClient.get(`/classes/${classId}`);
+        // eslint-disable-next-line no-console
+        console.debug("[DEBUG] GET /classes/:id response:", resp?.data, "for classId:", classId);
         if (!mounted) return;
         const name = resp?.data?.name ?? resp?.data?.title ?? resp?.data?.className ?? "";
         if (name && mounted) setClassNameState(name);
@@ -108,9 +112,8 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
     return () => {
       mounted = false;
     };
-  }, [avaliacao.classId, avaliacao.className, avaliacao.className]);
+  }, [avaliacao.classId, avaliacao.id, classNameState]);
 
-  // deletion flow is handled by parent via onRequestDelete
 
   return (
     <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
