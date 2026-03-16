@@ -1,6 +1,5 @@
 import axios from "axios";
 import { httpClient } from "../../../utils/httpClient";
-import { obterPayloadToken } from "../../../utils/auth";
 import type {
   Avaliacao,
   CreateAvaliacaoDTO,
@@ -123,64 +122,22 @@ class AvaliacoesService {
     page = 1,
     limit = 10
   ): Promise<PaginatedAvaliacoesResponse> {
-    const payload = obterPayloadToken();
-    const currentUserId = payload?.id ?? payload?.sub;
+    const response = await httpClient.get("/assessments", {
+      params: { status: "PUBLISHED", page, limit },
+    });
 
-    const params: any = {
-      status: "PUBLISHED",
-      page,
-      limit,
-    };
-
-    if (currentUserId) params.teacherId = currentUserId;
-
-    const response = await httpClient.get("/assessments", { params });
-
-    // DEBUG: log raw response to inspect fields (remove after debugging)
-    // eslint-disable-next-line no-console
-    console.debug("[DEBUG] GET /assessments (PUBLISHED) response:", response.data);
-
-    const normalized = normalizePaginatedResponse(response.data);
-
-    if (currentUserId) {
-      normalized.data = normalized.data.filter(
-        (a) => a.teacherId === currentUserId || a.teacherId === String(currentUserId)
-      );
-    }
-
-    return normalized;
+    return normalizePaginatedResponse(response.data);
   }
 
   async getDrafts(
     page = 1,
     limit = 10
   ): Promise<PaginatedAvaliacoesResponse> {
-    const payload = obterPayloadToken();
-    const currentUserId = payload?.id ?? payload?.sub;
+    const response = await httpClient.get("/assessments", {
+      params: { status: "DRAFT", page, limit },
+    });
 
-    const params: any = {
-      status: "DRAFT",
-      page,
-      limit,
-    };
-
-    if (currentUserId) params.teacherId = currentUserId;
-
-    const response = await httpClient.get("/assessments", { params });
-
-    // DEBUG: log raw response to inspect fields (remove after debugging)
-    // eslint-disable-next-line no-console
-    console.debug("[DEBUG] GET /assessments (DRAFT) response:", response.data);
-
-    const normalized = normalizePaginatedResponse(response.data);
-
-    if (currentUserId) {
-      normalized.data = normalized.data.filter(
-        (a) => a.teacherId === currentUserId || a.teacherId === String(currentUserId)
-      );
-    }
-
-    return normalized;
+    return normalizePaginatedResponse(response.data);
   }
 
   async getById(id: string): Promise<Avaliacao> {

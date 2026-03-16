@@ -4,9 +4,11 @@ import {
   Eye,
   FileText,
   GraduationCap,
+  Layers,
   Trophy,
   Trash2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Avaliacao } from "../types/avaliacao.types";
 import AvaliacoesService from "../services/avaliacoes.service";
 import { httpClient } from "../../../utils/httpClient";
@@ -20,6 +22,7 @@ interface Props {
 
 export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, deleting = false }: Props) {
   console.debug("[DEBUG] CardAvaliacao props:", avaliacao);
+  const navigate = useNavigate();
   const dataFormatada = avaliacao.date
     ? new Date(avaliacao.date).toLocaleDateString("pt-BR")
     : "Sem data";
@@ -175,6 +178,14 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
             title="Visualizar prévia"
           >
             <Eye size={20} />
+          </button>
+
+          <button
+            onClick={() => navigate(`/avaliacoes/${avaliacao.id}/versoes`)}
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+            title="Gerenciar versões"
+          >
+            <Layers size={20} />
           </button>
 
           <button
