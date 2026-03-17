@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, Layers, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, FileDown, Layers, Plus, Trash2 } from "lucide-react";
+import QRCode from "qrcode";
 import VersoesService from "./services/versoes.service";
 import AvaliacoesService from "./services/avaliacoes.service";
 import ModalGerarVersoes from "./components/ModalGerarVersoes";
 import ModalConfirmDelete from "./components/ModalConfirmDelete";
 import ModalVisualizarVersao from "./components/ModalVisualizarVersao";
+import ModalPdfProva from "./components/ModalPdfProva";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import { formatarData } from "./utils/formatadores";
-import type { VersaoAvaliacao, DadosImpressaoVersao, PrintDataResponse } from "./types/versao.types";
+import type { VersaoAvaliacao, DadosImpressaoVersao } from "./types/versao.types";
+import { usePrintData } from "./hooks/usePrintData";
+import ProvaPdfDocument from "./components/ProvaPdfDocument";
+import { BlobProvider } from "@react-pdf/renderer";
 
 export default function PaginaVersoes() {
   const { id } = useParams<{ id: string }>();
@@ -19,13 +24,21 @@ export default function PaginaVersoes() {
   const [erro, setErro] = useState("");
   const [nomeAvaliacao, setNomeAvaliacao] = useState("");
 
-  // Cache do print-data (buscado uma vez, na primeira visualização)
-  const [printData, setPrintData] = useState<PrintDataResponse | null>(null);
+  const {
+    data: printData,
+    loading: carregandoPrintData,
+    error: erroPrintData,
+    refetch: recarregarPrintData,
+    reset: resetPrintData,
+  } = usePrintData(id, { enabled: versoes.length > 0 });
 
   // Visualização de versão
   const [versaoSelecionada, setVersaoSelecionada] = useState<DadosImpressaoVersao | null>(null);
   const [visualizarAberto, setVisualizarAberto] = useState(false);
-  const [carregandoVersao, setCarregandoVersao] = useState(false);
+  const [versionNumberSelecionado, setVersionNumberSelecionado] = useState<number | null>(null);
+  const [pdfAberto, setPdfAberto] = useState(false);
+  const [qrCodes, setQrCodes] = useState<Record<string, string | undefined>>({});
+  const [gerandoQrCodes, setGerandoQrCodes] = useState(false);
 
   // Geração
   const [gerarAberto, setGerarAberto] = useState(false);
@@ -42,7 +55,7 @@ export default function PaginaVersoes() {
       setErro("");
       const lista = await VersoesService.listarPorAvaliacao(id);
       setVersoes(lista);
-      setPrintData(null); // invalida cache ao recarregar
+      resetPrintData(); // invalida cache ao recarregar
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao carregar versões.");
       setVersoes([]);
@@ -60,27 +73,82 @@ export default function PaginaVersoes() {
     }
   }, [id]);
 
-  async function handleVisualizarVersao(versionNumber: number) {
-    setVisualizarAberto(true);
-    setVersaoSelecionada(null);
+  useEffect(() => {
+    if (!erroPrintData) return;
+    if (erroPrintData.includes("sem versoes geradas")) return;
+    setErro(erroPrintData);
+  }, [erroPrintData]);
 
-    const cached = printData;
-    if (cached) {
-      setVersaoSelecionada(cached.versions.find((v) => v.versionNumber === versionNumber) ?? null);
+  useEffect(() => {
+    if (versoes.length > 0 && !printData && !carregandoPrintData && !erroPrintData) {
+      recarregarPrintData();
+    }
+  }, [versoes.length, printData, carregandoPrintData, erroPrintData, recarregarPrintData]);
+
+  useEffect(() => {
+    if (!versionNumberSelecionado || !printData) {
+      setVersaoSelecionada(null);
       return;
     }
 
-    if (!id) return;
-    try {
-      setCarregandoVersao(true);
-      const dados = await VersoesService.obterDadosImpressao(id);
-      setPrintData(dados);
-      setVersaoSelecionada(dados.versions.find((v) => v.versionNumber === versionNumber) ?? null);
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : "Erro ao carregar dados da versão.");
-      setVisualizarAberto(false);
-    } finally {
-      setCarregandoVersao(false);
+    const versao =
+      printData.versions.find((v) => v.versionNumber === versionNumberSelecionado) ?? null;
+    setVersaoSelecionada(versao);
+  }, [printData, versionNumberSelecionado]);
+
+  useEffect(() => {
+    // Capture o valor atual em uma variável local para type narrowing
+    const currentPrintData = printData;
+    
+    if (!currentPrintData) {
+      setQrCodes({});
+      setGerandoQrCodes(false);
+      return;
+    }
+
+    let cancelado = false;
+    
+    async function gerarQrCodes() {
+      try {
+        setGerandoQrCodes(true);
+        // Use currentPrintData em vez de printData
+        const urls = await Promise.all(
+          currentPrintData.versions.map((v) => QRCode.toDataURL(v.versionId))
+        );
+        if (cancelado) return;
+        
+        const mapa: Record<string, string> = {};
+        currentPrintData.versions.forEach((v, index) => {
+          mapa[v.versionId] = urls[index];
+        });
+        setQrCodes(mapa);
+      } catch (error) {
+        if (!cancelado) {
+          setErro(
+            error instanceof Error
+              ? error.message
+              : "Erro ao gerar QR Codes das versoes."
+          );
+          setQrCodes({});
+        }
+      } finally {
+        if (!cancelado) setGerandoQrCodes(false);
+      }
+    }
+
+    gerarQrCodes();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [printData]);
+
+  async function handleVisualizarVersao(versionNumber: number) {
+    setVisualizarAberto(true);
+    setVersionNumberSelecionado(versionNumber);
+
+    if (!printData || erroPrintData) {
+      await recarregarPrintData();
     }
   }
 
@@ -91,6 +159,7 @@ export default function PaginaVersoes() {
       await VersoesService.gerar(id, quantidade);
       setGerarAberto(false);
       await carregarVersoes();
+      await recarregarPrintData();
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao gerar versões.");
       setGerarAberto(false);
@@ -106,7 +175,7 @@ export default function PaginaVersoes() {
       await VersoesService.excluirTodas(id);
       setExcluirAberto(false);
       setVersoes([]);
-      setPrintData(null);
+      resetPrintData();
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao excluir versões.");
       setExcluirAberto(false);
@@ -148,6 +217,51 @@ export default function PaginaVersoes() {
                 <Trash2 size={18} />
                 Excluir Todas
               </button>
+            )}
+
+            {versoes.length > 0 && (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                {printData ? (
+                  <BlobProvider
+                    document={<ProvaPdfDocument data={printData} qrCodes={qrCodes} />}
+                  >
+                    {({ url, loading }) => (
+                      <a
+                        href={url ?? undefined}
+                        download={`prova-${id ?? "avaliacao"}.pdf`}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50"
+                        aria-disabled={loading || gerandoQrCodes}
+                        onClick={(event) => {
+                          if (loading || gerandoQrCodes || !url) {
+                            event.preventDefault();
+                          }
+                        }}
+                      >
+                        <FileDown size={18} />
+                        {loading || gerandoQrCodes ? "Preparando PDF..." : "Baixar PDF"}
+                      </a>
+                    )}
+                  </BlobProvider>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 opacity-60"
+                  >
+                    <FileDown size={18} />
+                    Preparando PDF...
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setPdfAberto(true)}
+                  disabled={!printData || carregandoPrintData || gerandoQrCodes}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  <Eye size={18} />
+                  Visualizar PDF
+                </button>
+              </div>
             )}
 
             <button
@@ -228,8 +342,19 @@ export default function PaginaVersoes() {
         aberto={visualizarAberto}
         versao={versaoSelecionada}
         assessment={printData?.assessment}
-        carregando={carregandoVersao}
-        onClose={() => setVisualizarAberto(false)}
+        carregando={carregandoPrintData}
+        onClose={() => {
+          setVisualizarAberto(false);
+          setVersionNumberSelecionado(null);
+        }}
+      />
+
+      <ModalPdfProva
+        aberto={pdfAberto}
+        data={printData}
+        qrCodes={qrCodes}
+        carregando={carregandoPrintData || gerandoQrCodes}
+        onClose={() => setPdfAberto(false)}
       />
 
       <ModalGerarVersoes
