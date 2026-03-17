@@ -113,12 +113,12 @@ export default function PaginaVersoes() {
         setGerandoQrCodes(true);
         // Use currentPrintData em vez de printData
         const urls = await Promise.all(
-          currentPrintData.versions.map((v) => QRCode.toDataURL(v.versionId))
+          currentPrintData!.versions.map((v) => QRCode.toDataURL(v.versionId))
         );
         if (cancelado) return;
         
         const mapa: Record<string, string> = {};
-        currentPrintData.versions.forEach((v, index) => {
+        currentPrintData!.versions.forEach((v, index) => {
           mapa[v.versionId] = urls[index];
         });
         setQrCodes(mapa);
