@@ -1,4 +1,5 @@
 import { useState } from "react";
+import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import { RedefinirSenhaService } from "./services/redefinirSenha.service";
 import { Eye, EyeClosed } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -15,6 +16,7 @@ export default function RedefinirSenha() {
 
     const [modalAberto, setModalAberto] = useState(false);
     const [message, setMessage] = useState("");
+    const [carregando, setCarregando] = useState(false);
 
     const navigate = useNavigate();
 
@@ -45,6 +47,8 @@ export default function RedefinirSenha() {
 
         setErrorRedefinirSenha("");
 
+        setCarregando(true);
+
         const token = searchParams.get("token");
 
         if (!token) {
@@ -54,19 +58,23 @@ export default function RedefinirSenha() {
 
         if (!validarFormulario()) return;
 
-        const resposta = await redefinirSenhaService.redefinirSenha({
-            token,
-            newPassword: novaSenha,
-        });
+        try {
+            const resposta = await redefinirSenhaService.redefinirSenha({
+                token,
+                newPassword: novaSenha,
+            });
 
-        if (!resposta.success) {
-            setErrorRedefinirSenha(resposta.message);
-            return;
+            if (!resposta.success) {
+                setErrorRedefinirSenha(resposta.message);
+                return;
+            }
+
+            setMessage(resposta.message);
+            setModalAberto(true);
+            setNovaSenha("");
+        } finally {
+            setCarregando(false);
         }
-
-        setMessage(resposta.message);
-        setModalAberto(true);
-        setNovaSenha("");
     }
 
     return (
@@ -118,9 +126,17 @@ export default function RedefinirSenha() {
 
                 <button
                     type="submit"
-                    className="w-1/2 p-4 border rounded-xl mt-4 cursor-pointer hover:shadow-2xl transition-shadow duration-300"
+                    className="w-1/2 p-4 border rounded-xl mt-4 cursor-pointer hover:shadow-2xl transition-shadow duration-300 flex items-center justify-center gap-2"
+                    disabled={carregando}
                 >
-                    Redefinir Senha
+                    {carregando ? (
+                        <>
+                            <IconeCarregamento w={1} h={1} color="black" />
+                            <p>Redefinindo...</p>
+                        </>
+                    ) : (
+                        "Redefinir Senha"
+                    )}
                 </button>
             </form>
 

@@ -1,0 +1,1 @@
+export type EducationLevel = "Ensino Fundamental" | "Ensino Médio";

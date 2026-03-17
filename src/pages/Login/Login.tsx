@@ -18,6 +18,7 @@ export default function Login() {
     const [errorLogin, setErrorLogin] = useState(false);
 
     const [carregando, setCarregando] = useState(false);
+    const [carregandoGoogle, setCarregandoGoogle] = useState(false);
 
     const navigate = useNavigate();
     const loginService = new LoginService();
@@ -97,14 +98,19 @@ export default function Login() {
         onSuccess: async (response) => {
             const verificacaoCode = response.code;
 
-            await loginService.loginComGoogle({
-                code: verificacaoCode,
-            });
+            try {
+                await loginService.loginComGoogle({
+                    code: verificacaoCode,
+                });
 
-            navigate("/dashboard");
+                navigate("/dashboard");
+            } finally {
+                setCarregandoGoogle(false);
+            }
         },
         onError: () => {
             console.error("Login com Google falhou");
+            setCarregandoGoogle(false);
         },
     });
 
@@ -221,13 +227,23 @@ export default function Login() {
 
                 <button
                     type="button"
-                    onClick={() => loginComGoogle()}
-                    className="w-full md:w-2/3 text-black text-lg py-4 px-4
+                    onClick={() => { setCarregandoGoogle(true); loginComGoogle(); }}
+                    disabled={carregandoGoogle}
+                    className={`w-full md:w-2/3 text-black text-lg py-4 px-4
         flex justify-evenly items-center border rounded-full
-        hover:bg-teal-50 transition-all duration-300 cursor-pointer"
+        hover:bg-teal-50 transition-all duration-300 ${carregandoGoogle ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                    <FcGoogle className="w-8 h-8" />
-                    Login com Google
+                    {carregandoGoogle ? (
+                        <>
+                            <IconeCarregamento w={18} h={18} color={"black"} />
+                            <p>Carregando...</p>
+                        </>
+                    ) : (
+                        <>
+                            <FcGoogle className="w-8 h-8" />
+                            Login com Google
+                        </>
+                    )}
                 </button>
 
                 <p className="text-sm mt-4">

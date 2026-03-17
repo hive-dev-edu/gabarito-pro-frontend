@@ -34,6 +34,9 @@ export default function ListagemQuestoes() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     // ── Filtros ──
+    const [myQuestions, setMyQuestions] = useState(
+        searchParams.get("myQuestions") !== "false",
+    );
     const [subject, setSubject] = useState(searchParams.get("subject") ?? "");
     const [schoolYear, setSchoolYear] = useState(
         searchParams.get("schoolYear") ?? "",
@@ -58,6 +61,7 @@ export default function ListagemQuestoes() {
 
             try {
                 const resposta = await questoesService.listar({
+                    myQuestions: myQuestions ? undefined : "false",
                     subject: subject || undefined,
                     schoolYear: schoolYear || undefined,
                     difficulty: difficulty || undefined,
@@ -76,17 +80,18 @@ export default function ListagemQuestoes() {
         }
 
         carregarQuestoes();
-    }, [subject, schoolYear, difficulty, page]);
+    }, [myQuestions, subject, schoolYear, difficulty, page]);
 
     // ── Sincronizar filtros com URL ──
     useEffect(() => {
         const params = new URLSearchParams();
+        if (!myQuestions) params.set("myQuestions", "false");
         if (subject) params.set("subject", subject);
         if (schoolYear) params.set("schoolYear", schoolYear);
         if (difficulty) params.set("difficulty", difficulty);
         if (page > 1) params.set("page", String(page));
         setSearchParams(params, { replace: true });
-    }, [subject, schoolYear, difficulty, page, setSearchParams]);
+    }, [myQuestions, subject, schoolYear, difficulty, page, setSearchParams]);
 
     // ── Handlers de filtro ──
     function handleFiltrar() {
@@ -94,6 +99,7 @@ export default function ListagemQuestoes() {
     }
 
     function handleLimparFiltros() {
+        setMyQuestions(true);
         setSubject("");
         setSchoolYear("");
         setDifficulty("");
@@ -136,6 +142,22 @@ export default function ListagemQuestoes() {
 
                 {/* Filtros */}
                 <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mb-6">
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <button
+                            onClick={() => {
+                                setMyQuestions((prev) => !prev);
+                                handleFiltrar();
+                            }}
+                            className={`px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200 cursor-pointer ${
+                                myQuestions
+                                    ? "bg-[#2EC5B6] text-white border-[#2EC5B6]"
+                                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                            }`}
+                        >
+                            Incluir minhas Questões
+                        </button>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -244,7 +266,7 @@ export default function ListagemQuestoes() {
                                                     {questao.subject}
                                                 </span>
                                                 <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-                                                    {questao.schoolYear}° ano
+                                                    {questao.schoolYear}
                                                 </span>
                                                 <span
                                                     className={`text-xs px-3 py-1 rounded-full ${
@@ -264,6 +286,17 @@ export default function ListagemQuestoes() {
                                                 </span>
                                             </div>
                                         </div>
+                                        <span
+                                            className={`text-xs px-3 py-1 rounded-full shrink-0 ${
+                                                questao.isPublic === false
+                                                    ? "bg-orange-100 text-orange-700"
+                                                    : "bg-emerald-100 text-emerald-700"
+                                            }`}
+                                        >
+                                            {questao.isPublic === false
+                                                ? "Privada"
+                                                : "Pública"}
+                                        </span>
                                     </div>
                                 </Link>
                             ))}

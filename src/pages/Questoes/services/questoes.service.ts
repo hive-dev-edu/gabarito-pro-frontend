@@ -4,6 +4,7 @@ import type {
     ListagemQuestoesResposta,
     Questao,
     FiltrosQuestao,
+    FiltrosQuestoesPrivadas,
     CriarQuestaoRequisicao,
     AtualizarQuestaoRequisicao,
 } from "../types/questoes.types";
@@ -16,6 +17,8 @@ export class QuestoesService {
         try {
             const params = new URLSearchParams();
 
+            if (filtros.myQuestions === "false")
+                params.set("myQuestions", "false");
             if (filtros.subject) params.set("subject", filtros.subject);
             if (filtros.schoolYear)
                 params.set("schoolYear", filtros.schoolYear);
@@ -34,7 +37,34 @@ export class QuestoesService {
         }
     }
 
-    // ── 2. Buscar questão por ID ──
+    // ── 2. Listar questões privadas (do usuário autenticado) ──
+    async listarPrivadas(
+        filtros: FiltrosQuestoesPrivadas = {},
+    ): Promise<ListagemQuestoesResposta> {
+        try {
+            const params = new URLSearchParams();
+
+            if (filtros.subject) params.set("subject", filtros.subject);
+            if (filtros.schoolYear)
+                params.set("schoolYear", filtros.schoolYear);
+            if (filtros.difficulty)
+                params.set("difficulty", filtros.difficulty);
+            params.set("page", String(filtros.page ?? 1));
+            params.set("limit", String(filtros.limit ?? 10));
+
+            const response = await httpClient.get(
+                `/questions/private?${params}`,
+            );
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                throw new Error("Erro ao listar questões privadas.");
+            }
+            throw new Error("Erro desconhecido ao listar questões privadas.");
+        }
+    }
+
+    // ── 3. Buscar questão por ID ──
     async buscarPorId(id: string): Promise<Questao> {
         try {
             const response = await httpClient.get(`/questions/${id}`);

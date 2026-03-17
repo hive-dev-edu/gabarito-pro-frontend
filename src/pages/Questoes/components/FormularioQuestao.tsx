@@ -4,6 +4,7 @@ import type {
     Dificuldade,
 } from "../types/questoes.types";
 import IconeCarregamento from "../../../shared/components/IconeCarregamento";
+import { Lock, Globe } from "lucide-react";
 
 // ── Props ──
 
@@ -210,18 +211,41 @@ export default function FormularioQuestao({
                 </div>
             </div>
 
-            {/* Pública */}
-            <div className="flex items-center gap-3">
-                <input
-                    type="checkbox"
-                    id="isPublic"
-                    checked={isPublic}
-                    onChange={(e) => setIsPublic(e.target.checked)}
-                    className="w-5 h-5 accent-[#2EC5B6]"
-                />
-                <label htmlFor="isPublic" className="text-sm text-gray-700">
-                    Questão pública (visível para todos)
+            {/* Visibilidade */}
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Visibilidade
                 </label>
+                <div className="inline-flex rounded-xl border border-gray-300 overflow-hidden">
+                    <button
+                        type="button"
+                        onClick={() => setIsPublic(false)}
+                        className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                            !isPublic
+                                ? "bg-gray-200 text-gray-900 border-r border-gray-300"
+                                : "bg-white text-gray-500 border-r border-gray-300 hover:bg-gray-50"
+                        }`}
+                    >
+                        <Lock size={16} />
+                        Privada
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsPublic(true)}
+                        className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors duration-200 cursor-pointer ${
+                            isPublic
+                                ? "bg-[#2EC5B6] text-white"
+                                : "bg-white text-gray-500 hover:bg-gray-50"
+                        }`}
+                    >
+                        <Globe size={16} />
+                        Pública
+                    </button>
+                </div>
+                <p className="mt-1.5 text-sm text-gray-500">
+                    Questões públicas podem ser encontradas e usadas por outros
+                    professores da comunidade.
+                </p>
             </div>
 
             {/* Alternativas */}
