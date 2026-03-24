@@ -13,6 +13,7 @@ import {
     ChevronRight,
     Plus,
     ArrowLeft,
+    Lock,
 } from "lucide-react";
 
 const questoesService = new QuestoesService();
@@ -131,13 +132,22 @@ export default function ListagemQuestoes() {
                         </div>
                     </div>
 
-                    <Link
-                        to="/questoes/criar"
-                        className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl hover:bg-teal-600 transition-colors duration-300 self-stretch sm:self-auto"
-                    >
-                        <Plus size={20} />
-                        Nova Questão
-                    </Link>
+                    <div className="flex gap-4">
+                        <Link
+                            to="/questoes/privadas"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-600 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-300 self-stretch sm:self-auto"
+                        >
+                            <Lock size={16} />
+                            Questões Privadas
+                        </Link>
+                        <Link
+                            to="/questoes/criar"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl hover:bg-teal-600 transition-colors duration-300 self-stretch sm:self-auto"
+                        >
+                            <Plus size={20} />
+                            Nova Questão
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Filtros */}
