@@ -33,7 +33,7 @@ export default function ModalPdfProva({
           </div>
           <button
             onClick={onClose}
-            className="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
           >
             <X size={20} />
           </button>

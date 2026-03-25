@@ -72,7 +72,7 @@ export default function ItemQuestaoSelecionada({
 
         <button
           onClick={() => remover(questao.questionId)}
-          className="shrink-0 rounded-2xl p-1 text-red-500 transition-colors hover:bg-red-50"
+          className="shrink-0 rounded-2xl p-1 text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
           title="Remover questão"
         >
           <Trash2 size={18} />

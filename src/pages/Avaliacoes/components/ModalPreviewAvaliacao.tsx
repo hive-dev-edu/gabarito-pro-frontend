@@ -86,7 +86,7 @@ export default function ModalPreviewAvaliacao({
 
           <button
             onClick={onClose}
-            className="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -226,7 +226,7 @@ export default function ModalPreviewAvaliacao({
         <div className="flex flex-col gap-3 border-t border-slate-200 bg-white px-5 py-4 sm:flex-row sm:justify-end">
           <button
             onClick={onClose}
-            className="rounded-2xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="rounded-2xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 cursor-pointer"
           >
             Fechar
           </button>
@@ -234,7 +234,7 @@ export default function ModalPreviewAvaliacao({
           <button
             onClick={handleEditar}
             disabled={!avaliacao?.id}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#27b3a6] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#27b3a6] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
           >
             <FilePenLine size={16} />
             Editar avaliação

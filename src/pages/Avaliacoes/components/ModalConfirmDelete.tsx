@@ -38,7 +38,7 @@ export default function ModalConfirmDelete({
 
           <button
             onClick={onCancel}
-            className="rounded-full p-1 text-slate-500 hover:bg-slate-100"
+            className="rounded-full p-1 text-slate-500 hover:bg-slate-100 cursor-pointer"
             aria-label="Fechar"
           >
             <X size={18} />
@@ -49,7 +49,7 @@ export default function ModalConfirmDelete({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 disabled:opacity-60 cursor-pointer"
           >
             Cancelar
           </button>
@@ -57,7 +57,7 @@ export default function ModalConfirmDelete({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 cursor-pointer"
           >
             {loading ? (
               <svg className="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">

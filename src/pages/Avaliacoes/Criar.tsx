@@ -354,7 +354,7 @@ export default function CriarAvaliacaoPage() {
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => navigate("/avaliacoes")}
-              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
               title="Voltar"
             >
               <ArrowLeft size={22} />
@@ -371,12 +371,6 @@ export default function CriarAvaliacaoPage() {
           </div>
         </div>
 
-        {erro && (
-          <div className="mb-5 rounded-3xl border border-red-300 bg-red-50 p-4 text-center text-red-700">
-            <p>{erro}</p>
-          </div>
-        )}
-
         {carregandoInicial ? (
           <div className="flex items-center justify-center py-20">
             <IconeCarregamento w={32} h={32} color="black" />
@@ -388,14 +382,6 @@ export default function CriarAvaliacaoPage() {
                 <h2 className="text-base font-semibold text-slate-800 sm:text-lg">
                   Dados da avaliação
                 </h2>
-
-                <button
-                  onClick={() => navigate("/avaliacoes/rascunhos")}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-50"
-                >
-                  <Bookmark size={16} />
-                  Rascunhos
-                </button>
               </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -431,7 +417,7 @@ export default function CriarAvaliacaoPage() {
                   <select
                     value={classId}
                     onChange={(e) => setClassId(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] cursor-pointer"
                   >
                     <option value="">Selecione uma turma</option>
                     {turmas.map((turma) => (
@@ -488,7 +474,7 @@ export default function CriarAvaliacaoPage() {
                     onChange={(e) =>
                       setDifficulty(e.target.value as Dificuldade | "")
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] cursor-pointer"
                   >
                     <option value="">Todas</option>
                     <option value="easy">Fácil</option>
@@ -518,12 +504,12 @@ export default function CriarAvaliacaoPage() {
               </div>
 
               <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={myQuestions}
                     onChange={(e) => setMyQuestions(e.target.checked)}
-                    className="rounded"
+                    className="rounded cursor-pointer"
                   />
                   Somente minhas questões
                 </label>
@@ -531,14 +517,14 @@ export default function CriarAvaliacaoPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleLimparFiltros}
-                    className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm text-slate-600 transition-colors duration-300 hover:bg-slate-50"
+                    className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm text-slate-600 transition-colors duration-300 hover:bg-slate-200 cursor-pointer"
                   >
                     Limpar filtros
                   </button>
 
                   <button
                     onClick={handleAplicarFiltros}
-                    className="rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6]"
+                    className="rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
                   >
                     Aplicar filtros
                   </button>
@@ -605,7 +591,7 @@ export default function CriarAvaliacaoPage() {
                                   <button
                                     onClick={() => adicionarQuestao(questao)}
                                     disabled={jaSelecionada}
-                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                                   >
                                     <Plus size={14} />
                                     {jaSelecionada
@@ -701,6 +687,12 @@ export default function CriarAvaliacaoPage() {
               </div>
             </div>
 
+            {erro && (
+              <div className="my-5 rounded-3xl border border-red-300 bg-red-50 p-4 text-center text-red-700">
+                <p>{erro}</p>
+              </div>
+            )}
+
             <div className="mt-5 rounded-3xl border border-[#DDEDEA] bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                 <div>
@@ -715,7 +707,7 @@ export default function CriarAvaliacaoPage() {
                   <button
                     onClick={() => salvar("DRAFT")}
                     disabled={salvando}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-200 disabled:opacity-60 cursor-pointer"
                   >
                     <Save size={16} />
                     Salvar rascunho
@@ -724,7 +716,7 @@ export default function CriarAvaliacaoPage() {
                   <button
                     onClick={() => salvar("PUBLISHED")}
                     disabled={salvando}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] disabled:opacity-60 cursor-pointer"
                   >
                     <SendHorizonal size={16} />
                     Publicar avaliação

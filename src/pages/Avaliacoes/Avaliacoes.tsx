@@ -222,7 +222,7 @@ export default function AvaliacoesPage() {
               <div className="flex items-end">
                 <button
                   onClick={handleLimparFiltros}
-                  className="w-full sm:w-auto px-5 py-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors duration-300 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-slate-200 transition-colors duration-300 cursor-pointer"
                 >
                   Limpar filtros
                 </button>
