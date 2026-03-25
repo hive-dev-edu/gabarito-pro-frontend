@@ -5,6 +5,7 @@ import type {
 } from "../types/questoes.types";
 import IconeCarregamento from "../../../shared/components/IconeCarregamento";
 import { Lock, Globe } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // ── Props ──
 
@@ -66,6 +67,8 @@ export default function FormularioQuestao({
         valoresIniciais?.alternatives ?? alternativasPadrao(),
     );
 
+    const navigate = useNavigate()
+    
     const [erros, setErros] = useState<string[]>([]);
 
     // ── Alternar texto da alternativa ──
@@ -292,20 +295,28 @@ export default function FormularioQuestao({
                 </div>
             )}
 
-            {/* Botão submit */}
-            <button
-                type="submit"
-                disabled={carregando}
-                className="w-full py-3.5 sm:py-4 bg-[#2EC5B6] text-white font-semibold rounded-xl cursor-pointer hover:bg-teal-600 transition-colors duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
-            >
-                {carregando ? (
-                    <>
-                        <IconeCarregamento /> Salvando...
-                    </>
-                ) : (
-                    textoBotao
-                )}
-            </button>
+            <span className="w-full flex gap-4">
+
+                {/* Botão Cancelar */}
+                <button onClick={() => navigate(-1)} className="w-1/4 py-3.5 sm:py-4 border border-gray-200 text-gray-500 font-semibold rounded-xl cursor-pointer hover:bg-slate-200 transition-colors duration-300 flex items-center justify-center text-sm sm:text-base">
+                    Cancelar
+                </button>
+
+                {/* Botão submit */}
+                <button
+                    type="submit"
+                    disabled={carregando}
+                    className="w-3/4 py-3.5 sm:py-4 bg-[#2EC5B6] text-white font-semibold rounded-xl cursor-pointer hover:bg-teal-600 transition-colors duration-300 disabled:opacity-50 flex items-center justify-center text-sm sm:text-base"
+                >
+                    {carregando ? (
+                        <>
+                            <IconeCarregamento /> Salvando...
+                        </>
+                    ) : (
+                        textoBotao
+                    )}
+                </button>
+            </span>
         </form>
     );
 }
