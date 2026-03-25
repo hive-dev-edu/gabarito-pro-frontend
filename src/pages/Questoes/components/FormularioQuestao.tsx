@@ -126,17 +126,6 @@ export default function FormularioQuestao({
     // ── Render ──
     return (
         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-            {/* Erros globais */}
-            {erros.length > 0 && (
-                <div className="bg-red-50 border border-red-300 text-red-700 p-4 rounded-xl">
-                    {erros.map((erro, i) => (
-                        <p key={i} className="text-sm">
-                            • {erro}
-                        </p>
-                    ))}
-                </div>
-            )}
-
             {/* Enunciado */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -291,6 +280,17 @@ export default function FormularioQuestao({
                     ))}
                 </div>
             </div>
+
+            {/* Erros globais */}
+            {erros.length > 0 && (
+                <div className="bg-red-50 border border-red-300 text-red-700 p-4 rounded-xl">
+                    {erros.map((erro, i) => (
+                        <p key={i} className="text-sm">
+                            • {erro}
+                        </p>
+                    ))}
+                </div>
+            )}
 
             {/* Botão submit */}
             <button
