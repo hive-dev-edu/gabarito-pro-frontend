@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import type { Questao } from "../../Questoes/types/questoes.types";
 
@@ -44,6 +45,9 @@ export default function ItemQuestaoSelecionada({
   atualizarPeso,
   remover,
 }: Props) {
+  const [isEditingWeight, setIsEditingWeight] = useState(false);
+  const [weightInput, setWeightInput] = useState(String(questao.weight ?? ""));
+
   return (
     <div className="rounded-2xl border border-[#DDEDEA] bg-white p-2 transition-all hover:border-[#B8EEE8] hover:shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -86,10 +90,46 @@ export default function ItemQuestaoSelecionada({
           type="number"
           min={0.5}
           step={0.5}
-          value={questao.weight}
-          onChange={(e) =>
-            atualizarPeso(questao.questionId, Number(e.target.value))
-          }
+          value={isEditingWeight ? weightInput : String(questao.weight)}
+          onFocus={() => {
+            setIsEditingWeight(true);
+            setWeightInput(String(questao.weight));
+          }}
+          onChange={(e) => {
+            const raw = e.target.value;
+            setWeightInput(raw);
+
+            if (raw.trim() === "") return;
+
+            const parsed = Number(raw);
+            if (!Number.isFinite(parsed) || parsed <= 0) return;
+
+            atualizarPeso(questao.questionId, parsed);
+          }}
+          onBlur={() => {
+            const raw = weightInput;
+
+            if (raw.trim() === "") {
+              setWeightInput(String(questao.weight));
+              setIsEditingWeight(false);
+              return;
+            }
+
+            const parsed = Number(raw);
+            if (!Number.isFinite(parsed) || parsed <= 0) {
+              setWeightInput(String(questao.weight));
+              setIsEditingWeight(false);
+              return;
+            }
+
+            const clamped = Math.max(0.1, parsed);
+            if (clamped !== parsed) {
+              setWeightInput(String(clamped));
+            }
+
+            atualizarPeso(questao.questionId, clamped);
+            setIsEditingWeight(false);
+          }}
           className="w-20 rounded-2xl border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
         />
       </div>
