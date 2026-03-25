@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  Bookmark,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -57,7 +56,8 @@ export default function CriarAvaliacaoPage() {
   const [subject, setSubject] = useState("");
   const [schoolYear, setSchoolYear] = useState("");
   const [difficulty, setDifficulty] = useState<Dificuldade | "">("");
-  const [myQuestions, setMyQuestions] = useState(false);
+  const [includeMyQuestions, setIncludeMyQuestions] = useState(false);
+  const [onlyMyQuestions, setOnlyMyQuestions] = useState(false);
   const [searchQuestao, setSearchQuestao] = useState("");
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -84,13 +84,7 @@ export default function CriarAvaliacaoPage() {
 
   async function carregarTurmas() {
     const resposta = await TurmasService.getAll(1, 100);
-    const lista = Array.isArray((resposta as any)?.data)
-      ? (resposta as any).data
-      : Array.isArray((resposta as any)?.items)
-        ? (resposta as any).items
-        : [];
-
-    setTurmas(lista);
+    setTurmas(Array.isArray(resposta?.data) ? resposta.data : []);
   }
 
   async function carregarQuestoes(currentPage = 1) {
@@ -98,14 +92,20 @@ export default function CriarAvaliacaoPage() {
     setErro("");
 
     try {
-      const resposta = await questoesService.listar({
+      const filtrosBase = {
         subject: subject || undefined,
         schoolYear: schoolYear || undefined,
         difficulty: difficulty || undefined,
-        myQuestions: myQuestions ? "true" : "false",
         page: currentPage,
         limit: limitQuestoes,
-      });
+      };
+
+      const resposta = onlyMyQuestions
+        ? await questoesService.listarPrivadas(filtrosBase)
+        : await questoesService.listar({
+            ...filtrosBase,
+            myQuestions: includeMyQuestions ? undefined : "false",
+          });
 
       const lista = Array.isArray(resposta?.data) ? resposta.data : [];
 
@@ -137,29 +137,56 @@ export default function CriarAvaliacaoPage() {
       setClassId(avaliacao?.classId ?? "");
 
       const selecionadas = Array.isArray(avaliacao?.questions)
-        ? avaliacao.questions.map((item: any) => ({
-          questionId: item.questionId,
-          weight: Number(item.weight ?? 1),
-          position: Number(item.position ?? 0),
-          statement: item.statement ?? item.question?.statement ?? "",
-          content: item.content ?? item.question?.content ?? "",
-          subject: item.subject ?? item.question?.subject ?? "",
-          schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
-          difficulty: item.difficulty ?? item.question?.difficulty ?? "",
-          alternatives:
-            item.alternatives ?? item.question?.alternatives ?? [],
-          question: item.question
-            ? item.question
-            : {
+        ? avaliacao.questions.map((item) => {
+            const fallbackQuestion: Questao = {
               id: item.questionId,
               statement: item.statement ?? "",
               content: item.content ?? "",
               subject: item.subject ?? "",
               schoolYear: item.schoolYear ?? "",
-              difficulty: item.difficulty ?? "",
+              difficulty: (item.difficulty ?? "easy") as Dificuldade,
               alternatives: item.alternatives ?? [],
-            },
-        }))
+              createdAt: "",
+              updatedAt: "",
+              authorId: undefined,
+              isPublic: undefined,
+            };
+
+            const questionFromItem: Questao | undefined = item.question
+              ? {
+                  id: String(item.question.id ?? item.questionId),
+                  statement: item.question.statement ?? item.statement ?? "",
+                  content: item.question.content ?? item.content ?? "",
+                  subject: item.question.subject ?? item.subject ?? "",
+                  schoolYear: item.question.schoolYear ?? item.schoolYear ?? "",
+                  difficulty: (
+                    item.question.difficulty ??
+                    item.difficulty ??
+                    "easy"
+                  ) as Dificuldade,
+                  alternatives: Array.isArray(item.question.alternatives)
+                    ? (item.question.alternatives as Questao["alternatives"])
+                    : fallbackQuestion.alternatives,
+                  createdAt: "",
+                  updatedAt: "",
+                  authorId: undefined,
+                  isPublic: undefined,
+                }
+              : undefined;
+
+            return {
+              questionId: item.questionId,
+              weight: Number(item.weight ?? 1),
+              position: Number(item.position ?? 0),
+              statement: item.statement ?? item.question?.statement ?? "",
+              content: item.content ?? item.question?.content ?? "",
+              subject: item.subject ?? item.question?.subject ?? "",
+              schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
+              difficulty: item.difficulty ?? item.question?.difficulty ?? "",
+              alternatives: item.alternatives ?? item.question?.alternatives ?? [],
+              question: questionFromItem ?? fallbackQuestion,
+            };
+          })
         : [];
 
       setQuestoesSelecionadas(
@@ -281,7 +308,8 @@ export default function CriarAvaliacaoPage() {
     setSubject("");
     setSchoolYear("");
     setDifficulty("");
-    setMyQuestions(false);
+    setIncludeMyQuestions(false);
+    setOnlyMyQuestions(false);
     setSearchQuestao("");
     setPageQuestoes(1);
 
@@ -504,15 +532,35 @@ export default function CriarAvaliacaoPage() {
               </div>
 
               <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={myQuestions}
-                    onChange={(e) => setMyQuestions(e.target.checked)}
-                    className="rounded cursor-pointer"
-                  />
-                  Somente minhas questões
-                </label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={onlyMyQuestions}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setOnlyMyQuestions(checked);
+                        if (checked) setIncludeMyQuestions(false);
+                      }}
+                      className="rounded cursor-pointer"
+                    />
+                    Somente minhas questões
+                  </label>
+
+                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={includeMyQuestions}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setIncludeMyQuestions(checked);
+                        if (checked) setOnlyMyQuestions(false);
+                      }}
+                      className="rounded cursor-pointer"
+                    />
+                    Incluir minhas questões
+                  </label>
+                </div>
 
                 <div className="flex gap-2">
                   <button
