@@ -381,7 +381,7 @@ export default function CriarAvaliacaoPage() {
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-4">
             <button
-              onClick={() => navigate("/avaliacoes")}
+              onClick={() => navigate(-1)}
               className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
               title="Voltar"
             >
