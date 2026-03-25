@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import IconeCarregamento from "../../../shared/components/IconeCarregamento";
 import { X } from "lucide-react";
 import type { CreateTurmaDTO, Turma } from "../types/turma.types";
@@ -15,6 +15,7 @@ interface TurmaFormModalProps {
   mode: "create" | "edit";
   turma: Turma | null;
   loading?: boolean;
+  submitError?: string;
   onClose: () => void;
   onSubmit: (data: CreateTurmaDTO) => Promise<void>;
 }
@@ -24,12 +25,32 @@ export default function TurmaFormModal({
   mode,
   turma,
   loading = false,
+  submitError,
   onClose,
   onSubmit,
 }: TurmaFormModalProps) {
-  const [name, setName] = useState("");
-  const [educationLevel, setEducationLevel] = useState<EducationLevel | "">("");
-  const [schoolYear, setSchoolYear] = useState("");
+  const initialForm = useMemo(() => {
+    if (mode === "edit" && turma) {
+      const parsed = parseGradeLevel(turma.gradeLevel);
+      return {
+        name: turma.name ?? "",
+        educationLevel: parsed.educationLevel,
+        schoolYear: parsed.schoolYear ?? "",
+      };
+    }
+
+    return {
+      name: "",
+      educationLevel: "" as EducationLevel | "",
+      schoolYear: "",
+    };
+  }, [mode, turma]);
+
+  const [name, setName] = useState(initialForm.name);
+  const [educationLevel, setEducationLevel] = useState<EducationLevel | "">(
+    initialForm.educationLevel
+  );
+  const [schoolYear, setSchoolYear] = useState(initialForm.schoolYear);
 
   const [errors, setErrors] = useState({
     name: "",
@@ -40,26 +61,6 @@ export default function TurmaFormModal({
   const schoolYearOptions = useMemo(() => {
     return getSchoolYearsByEducationLevel(educationLevel);
   }, [educationLevel]);
-
-  useEffect(() => {
-    if (mode === "edit" && turma) {
-      const parsed = parseGradeLevel(turma.gradeLevel);
-
-      setName(turma.name ?? "");
-      setEducationLevel(parsed.educationLevel);
-      setSchoolYear(parsed.schoolYear ?? "");
-    } else {
-      setName("");
-      setEducationLevel("");
-      setSchoolYear("");
-    }
-
-    setErrors({
-      name: "",
-      educationLevel: "",
-      schoolYear: "",
-    });
-  }, [mode, turma, isOpen]);
 
   if (!isOpen) return null;
 
@@ -221,34 +222,40 @@ export default function TurmaFormModal({
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#2EC5B6]/20 bg-[#2EC5B6]/5 p-4">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-gray-800">
-                    Valor salvo:
-                  </span>{" "}
-                  {schoolYear && educationLevel
-                    ? buildGradeLevel(schoolYear, educationLevel)
-                    : "Selecione o nível de ensino e o ano/série."}
-                </p>
-              </div>
+              {submitError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                  <p className="text-sm text-red-700" role="alert">{submitError}</p>
+                </div>
+              )}
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-8 bg-[#2EC5B6] hover:bg-[#27b3a6] text-white py-3 rounded-xl font-semibold transition-colors duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <IconeCarregamento w={1} h={1} />
-                  {mode === "create" ? "Criando turma..." : "Salvando alterações..."}
-                </>
-              ) : mode === "create" ? (
-                "Criar Turma"
-              ) : (
-                "Salvar Alterações"
-              )}
-            </button>
+            <span className="flex justify-between items-center w-full gap-4">
+
+              <button
+                onClick={onClose}
+                className="w-1/4 mt-8 border border-gray-200 hover:bg-slate-200 text-gray-500 py-3 rounded-xl font-semibold transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                type="button"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-3/4 mt-8 bg-[#2EC5B6] hover:bg-[#27b3a6] text-white py-3 rounded-xl font-semibold transition-colors duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <IconeCarregamento w={1} h={1} />
+                    {mode === "create" ? "Criando turma..." : "Salvando alterações..."}
+                  </>
+                ) : mode === "create" ? (
+                  "Criar Turma"
+                ) : (
+                  "Salvar Alterações"
+                )}
+              </button>
+            </span>
           </div>
         </form>
       </div>
