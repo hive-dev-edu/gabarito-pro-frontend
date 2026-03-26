@@ -55,7 +55,7 @@ export default function CardRascunho({
         <div className="flex shrink-0 gap-2">
           <button
             onClick={() => onEditar(avaliacao.id)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
             title="Continuar editando"
           >
             <Pencil size={17} />
@@ -64,7 +64,7 @@ export default function CardRascunho({
           <button
             onClick={() => onRequestDelete?.(avaliacao.id)}
             disabled={deleting}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#F6D5D5] bg-white text-red-500 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#F6D5D5] bg-white text-red-500 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-60 cursor-pointer"
             title="Excluir rascunho"
           >
             <Trash size={17} className={deleting ? "animate-spin" : undefined} />

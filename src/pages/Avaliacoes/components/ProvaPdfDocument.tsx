@@ -6,7 +6,9 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { Fragment } from "react";
 import type { PrintDataResponse } from "../types/versao.types";
+import GradeGabaritoOmr from "./GradeGabaritoOmr.tsx";
 
 interface Props {
   data: PrintDataResponse;
@@ -97,39 +99,71 @@ const styles = StyleSheet.create({
     lineHeight: 1.35,
     flex: 1,
   },
-  answerKeyTitle: {
-    marginTop: 8,
-    marginBottom: 6,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  answerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 6,
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  answerNumber: {
-    width: 18,
+  answerSheetPage: {
+    paddingTop: 28,
+    paddingBottom: 30,
+    paddingHorizontal: 28,
     fontSize: 10,
+    fontFamily: "Helvetica",
+    color: "#000000",
+    position: "relative",
+  },
+  omrMarker: {
+    width: 10,
+    height: 10,
+    backgroundColor: "#000000",
+    position: "absolute",
+  },
+  omrMarkerTopLeft: {
+    top: 8,
+    left: 8,
+  },
+  omrMarkerTopRight: {
+    top: 8,
+    right: 8,
+  },
+  omrMarkerBottomLeft: {
+    bottom: 8,
+    left: 8,
+  },
+  omrMarkerBottomRight: {
+    bottom: 8,
+    right: 8,
+  },
+  answerSheetHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
+    paddingBottom: 10,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  answerSheetTitle: {
+    fontSize: 16,
     fontWeight: "bold",
   },
-  answerBubble: {
+  answerSheetSubtitle: {
+    marginTop: 3,
+    fontSize: 10,
+  },
+  studentInfoSection: {
+    marginTop: 4,
+    marginBottom: 8,
+    gap: 6,
+  },
+  studentInfoRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginRight: 6,
+    flexWrap: "wrap",
+    gap: 14,
   },
-  bubbleCircle: {
-    width: 12,
-    height: 12,
-    borderWidth: 1,
-    borderColor: "#000000",
-    borderRadius: 6,
+  studentInfoItem: {
+    fontSize: 10,
   },
-  bubbleLetter: {
+  instructions: {
     fontSize: 9,
+    marginBottom: 10,
   },
 });
 
@@ -146,67 +180,90 @@ export default function ProvaPdfDocument({ data, qrCodes }: Props) {
     <Document>
       {versions.map((versao) => {
         const qrSrc = qrCodes[versao.versionId];
-        const lettersFallback = ["A", "B", "C", "D", "E"];
+        const totalQuestions = versao.questions.length;
 
         return (
-          <Page key={versao.versionId} size="A4" style={styles.page}>
-            <View style={styles.header}>
-              <View>
-                <Text style={styles.headerTitle}>
-                  {assessment.title || "Prova"}
-                </Text>
-                <Text style={styles.headerSub}>Versao {versao.versionNumber}</Text>
-                <View style={styles.metaRow}>
-                  {assessment.className ? (
-                    <Text style={styles.metaItem}>Turma: {assessment.className}</Text>
-                  ) : null}
-                  <Text style={styles.metaItem}>Data: {formatarDataBr(assessment.date)}</Text>
-                  <Text style={styles.metaItem}>Aluno:__________________________________</Text>
+          <Fragment key={versao.versionId}>
+            <Page size="A4" style={styles.page}>
+              <View style={styles.header}>
+                <View>
+                  <Text style={styles.headerTitle}>
+                    {assessment.title || "Prova"}
+                  </Text>
+                  <Text style={styles.headerSub}>Versao {versao.versionNumber}</Text>
+                  <View style={styles.metaRow}>
+                    {assessment.className ? (
+                      <Text style={styles.metaItem}>Turma: {assessment.className}</Text>
+                    ) : null}
+                    <Text style={styles.metaItem}>Data: {formatarDataBr(assessment.date)}</Text>
+                    <Text style={styles.metaItem}>Aluno:__________________________________</Text>
+                  </View>
+                </View>
+                <View style={styles.qrBox}>
+                  {qrSrc ? (
+                    <Image style={styles.qrImage} src={qrSrc} />
+                  ) : (
+                    <Text>QR</Text>
+                  )}
                 </View>
               </View>
-              <View style={styles.qrBox}>
-                {qrSrc ? (
-                  <Image style={styles.qrImage} src={qrSrc} />
-                ) : (
-                  <Text>QR</Text>
-                )}
-              </View>
-            </View>
 
-            <Text style={styles.sectionTitle}>Questões</Text>
-            {versao.questions.map((q) => (
-              <View key={`${versao.versionId}-${q.position}`} style={styles.questionBlock} wrap={false}>
-                <Text style={styles.questionText}>
-                  {q.position}. {q.statement || "Enunciado nao disponivel"}
-                </Text>
-                {q.alternatives.map((alt, idx) => (
-                  <View key={`${q.position}-${idx}`} style={styles.alternativeRow}>
-                    <Text style={styles.alternativeLetter}>{alt.letter}</Text>
-                    <Text style={styles.alternativeText}>{alt.text}</Text>
-                  </View>
-                ))}
-              </View>
-            ))}
-
-            <Text style={styles.answerKeyTitle}>Gabarito</Text>
-            {versao.questions.map((q) => {
-              const letters = q.alternatives.length
-                ? q.alternatives.map((alt) => alt.letter)
-                : lettersFallback;
-
-              return (
-                <View key={`gabarito-${versao.versionId}-${q.position}`} style={styles.answerRow}>
-                  <Text style={styles.answerNumber}>{q.position}</Text>
-                  {letters.map((letter) => (
-                    <View key={`${q.position}-${letter}`} style={styles.answerBubble}>
-                      <View style={styles.bubbleCircle} />
-                      <Text style={styles.bubbleLetter}>{letter}</Text>
+              <Text style={styles.sectionTitle}>Questões</Text>
+              {versao.questions.map((q) => (
+                <View key={`${versao.versionId}-${q.position}`} style={styles.questionBlock} wrap={false}>
+                  <Text style={styles.questionText}>
+                    {q.position}. {q.statement || "Enunciado nao disponivel"}
+                  </Text>
+                  {q.alternatives.map((alt, idx) => (
+                    <View key={`${q.position}-${idx}`} style={styles.alternativeRow}>
+                      <Text style={styles.alternativeLetter}>{alt.letter}</Text>
+                      <Text style={styles.alternativeText}>{alt.text}</Text>
                     </View>
                   ))}
                 </View>
-              );
-            })}
-          </Page>
+              ))}
+            </Page>
+
+            {/* Answer Sheet Page */}
+            <Page size="A4" style={styles.answerSheetPage}>
+              <View style={[styles.omrMarker, styles.omrMarkerTopLeft]} />
+              <View style={[styles.omrMarker, styles.omrMarkerTopRight]} />
+              <View style={[styles.omrMarker, styles.omrMarkerBottomLeft]} />
+              <View style={[styles.omrMarker, styles.omrMarkerBottomRight]} />
+
+              <View style={styles.answerSheetHeader}>
+                <View>
+                  <Text style={styles.answerSheetTitle}>CARTAO-RESPOSTA</Text>
+                </View>
+                <View style={styles.qrBox}>
+                  {qrSrc ? (
+                    <Image style={styles.qrImage} src={qrSrc} />
+                  ) : (
+                    <Text>QR</Text>
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.studentInfoSection}>
+                <View style={styles.studentInfoRow}>
+                  <Text style={styles.studentInfoItem}>Nome do aluno: ____________________________</Text>
+                  <Text style={styles.studentInfoItem}>Turma: __________________</Text>
+                </View>
+                <View style={styles.studentInfoRow}>
+                  <Text style={styles.studentInfoItem}>Data: __________________</Text>
+                  <Text style={styles.studentInfoItem}>
+                    Codigo: {versao.versionNumber || versao.versionId}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.instructions}>
+                Marque apenas uma alternativa por questao. Use caneta escura e evite rasuras.
+              </Text>
+
+              <GradeGabaritoOmr totalQuestoes={totalQuestions} />
+            </Page>
+          </Fragment>
         );
       })}
     </Document>

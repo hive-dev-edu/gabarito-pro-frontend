@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, FileDown, Layers, Plus, Trash2 } from "lucide-react";
 import QRCode from "qrcode";
@@ -14,6 +14,14 @@ import type { VersaoAvaliacao, DadosImpressaoVersao } from "./types/versao.types
 import { usePrintData } from "./hooks/usePrintData";
 import ProvaPdfDocument from "./components/ProvaPdfDocument";
 import { BlobProvider } from "@react-pdf/renderer";
+
+function sanitizeFilename(name: string) {
+  return name
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, " ")
+    .slice(0, 120);
+}
 
 export default function PaginaVersoes() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +48,12 @@ export default function PaginaVersoes() {
   const [qrCodes, setQrCodes] = useState<Record<string, string | undefined>>({});
   const [gerandoQrCodes, setGerandoQrCodes] = useState(false);
 
+  const pdfFileName = (() => {
+    const title = printData?.assessment?.title || nomeAvaliacao;
+    const base = title ? sanitizeFilename(title) : `prova-${id ?? "avaliacao"}`;
+    return `${base || "prova"}.pdf`;
+  })();
+
   // Geração
   const [gerarAberto, setGerarAberto] = useState(false);
   const [gerando, setGerando] = useState(false);
@@ -48,7 +62,7 @@ export default function PaginaVersoes() {
   const [excluirAberto, setExcluirAberto] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
 
-  async function carregarVersoes() {
+  const carregarVersoes = useCallback(async () => {
     if (!id) return;
     try {
       setCarregando(true);
@@ -57,12 +71,14 @@ export default function PaginaVersoes() {
       setVersoes(lista);
       resetPrintData(); // invalida cache ao recarregar
     } catch (error) {
-      setErro(error instanceof Error ? error.message : "Erro ao carregar versões.");
+      setErro(
+        error instanceof Error ? error.message : "Erro ao carregar versões."
+      );
       setVersoes([]);
     } finally {
       setCarregando(false);
     }
-  }
+  }, [id, resetPrintData]);
 
   useEffect(() => {
     carregarVersoes();
@@ -71,7 +87,7 @@ export default function PaginaVersoes() {
         .then((a) => setNomeAvaliacao(a.title))
         .catch(() => {});
     }
-  }, [id]);
+  }, [id, carregarVersoes]);
 
   useEffect(() => {
     if (!erroPrintData) return;
@@ -192,7 +208,7 @@ export default function PaginaVersoes() {
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => navigate("/avaliacoes")}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
               title="Voltar"
             >
               <ArrowLeft size={18} />
@@ -212,7 +228,7 @@ export default function PaginaVersoes() {
             {versoes.length > 0 && (
               <button
                 onClick={() => setExcluirAberto(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-300 bg-white px-5 py-3 font-semibold text-red-600 transition-colors duration-300 hover:bg-red-50"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-300 bg-white px-5 py-3 font-semibold text-red-600 transition-colors duration-300 hover:bg-red-50 cursor-pointer"
               >
                 <Trash2 size={18} />
                 Excluir Todas
@@ -228,7 +244,7 @@ export default function PaginaVersoes() {
                     {({ url, loading }) => (
                       <a
                         href={url ?? undefined}
-                        download={`prova-${id ?? "avaliacao"}.pdf`}
+                        download={pdfFileName}
                         className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50"
                         aria-disabled={loading || gerandoQrCodes}
                         onClick={(event) => {
@@ -256,7 +272,7 @@ export default function PaginaVersoes() {
                 <button
                   onClick={() => setPdfAberto(true)}
                   disabled={!printData || carregandoPrintData || gerandoQrCodes}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60 cursor-pointer"
                 >
                   <Eye size={18} />
                   Visualizar PDF
@@ -266,7 +282,7 @@ export default function PaginaVersoes() {
 
             <button
               onClick={() => setGerarAberto(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6]"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
             >
               <Plus size={20} />
               Gerar Versões
@@ -278,7 +294,7 @@ export default function PaginaVersoes() {
         {erro && !carregando && (
           <div className="mb-6 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-700">
             {erro}
-            <button onClick={() => setErro("")} className="ml-2 underline">
+            <button onClick={() => setErro("")} className="ml-2 underline cursor-pointer">
               Fechar
             </button>
           </div>
@@ -327,7 +343,7 @@ export default function PaginaVersoes() {
 
                 <button
                   onClick={() => handleVisualizarVersao(versao.versionNumber)}
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
                   title="Visualizar versão"
                 >
                   <Eye size={18} />

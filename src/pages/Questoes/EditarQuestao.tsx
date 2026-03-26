@@ -149,7 +149,7 @@ export default function EditarQuestao() {
                 {/* Header */}
                 <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                     <button
-                        onClick={() => navigate(`/questoes/${id}`)}
+                        onClick={() => navigate(-1)}
                         className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0"
                         title="Voltar"
                     >

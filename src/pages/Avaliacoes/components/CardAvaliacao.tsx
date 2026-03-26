@@ -174,7 +174,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
         <div className="inline-flex items-center gap-3">
           <button
             onClick={() => onPreview(avaliacao.id)}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
             title="Visualizar prévia"
           >
             <Eye size={20} />
@@ -182,7 +182,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
 
           <button
             onClick={() => navigate(`/avaliacoes/${avaliacao.id}/versoes`)}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B]"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
             title="Gerenciar versões"
           >
             <Layers size={20} />
@@ -191,7 +191,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
           <button
             onClick={() => onRequestDelete?.(avaliacao.id)}
             disabled={deleting}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#F3DCD6] bg-white text-red-600 transition hover:bg-[#FFF5F4] disabled:opacity-60"
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#F3DCD6] bg-white text-red-600 transition hover:bg-[#FFF5F4] disabled:opacity-60 cursor-pointer"
             title="Excluir avaliação"
           >
             <Trash2 size={18} className={deleting ? "animate-spin" : undefined} />

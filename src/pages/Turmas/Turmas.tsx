@@ -40,6 +40,7 @@ export default function TurmasPage() {
   const [submitting, setSubmitting] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const [formError, setFormError] = useState("");
   const [sucesso, setSucesso] = useState("");
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -111,12 +112,14 @@ export default function TurmasPage() {
   function openCreateModal() {
     setFormMode("create");
     setSelectedTurma(null);
+    setFormError("");
     setIsFormModalOpen(true);
   }
 
   function openEditModal(turma: Turma) {
     setFormMode("edit");
     setSelectedTurma(turma);
+    setFormError("");
     setIsFormModalOpen(true);
   }
 
@@ -129,6 +132,7 @@ export default function TurmasPage() {
     if (submitting) return;
     setIsFormModalOpen(false);
     setSelectedTurma(null);
+    setFormError("");
   }
 
   function closeDeleteModal() {
@@ -141,6 +145,7 @@ export default function TurmasPage() {
     try {
       setSubmitting(true);
       setErro("");
+      setFormError("");
 
       if (formMode === "create") {
         await TurmasService.create(data);
@@ -155,10 +160,10 @@ export default function TurmasPage() {
       await carregarTurmas(page);
     } catch (error) {
       console.error(error);
-      setErro(
+      setFormError(
         formMode === "create"
-          ? "Não foi possível criar a turma."
-          : "Não foi possível atualizar a turma."
+          ? "Erro ao criar turma, tente novamente."
+          : "Erro ao salvar turma, tente novamente."
       );
     } finally {
       setSubmitting(false);
@@ -200,7 +205,7 @@ export default function TurmasPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div className="flex items-center gap-3 sm:gap-4">
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate(-1)}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0"
                 title="Voltar"
               >
@@ -382,14 +387,18 @@ export default function TurmasPage() {
         </div>
       </main>
 
-      <TurmaFormModal
-        isOpen={isFormModalOpen}
-        mode={formMode}
-        turma={selectedTurma}
-        loading={submitting}
-        onClose={closeFormModal}
-        onSubmit={handleSubmitTurma}
-      />
+      {isFormModalOpen && (
+        <TurmaFormModal
+          key={`${formMode}-${selectedTurma?.id ?? "new"}`}
+          isOpen={isFormModalOpen}
+          mode={formMode}
+          turma={selectedTurma}
+          loading={submitting}
+          submitError={formError}
+          onClose={closeFormModal}
+          onSubmit={handleSubmitTurma}
+        />
+      )}
 
       <DeleteTurmaModal
         isOpen={isDeleteModalOpen}

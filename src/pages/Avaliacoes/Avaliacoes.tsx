@@ -159,7 +159,7 @@ export default function AvaliacoesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div className="flex items-center gap-3 sm:gap-4">
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate(-1)}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0"
                 title="Voltar"
               >
@@ -176,10 +176,10 @@ export default function AvaliacoesPage() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => navigate("/avaliacoes/rascunhos")}
-                className="inline-flex items-center justify-center gap-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-semibold transition-colors duration-300 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 border border-gray-300 bg-white hover:bg-gray-300 text-gray-600 px-5 py-3 rounded-xl font-semibold transition-colors duration-300 cursor-pointer"
               >
                 <Bookmark size={18} />
                 Rascunhos
@@ -187,7 +187,7 @@ export default function AvaliacoesPage() {
 
               <button
                 onClick={() => navigate("/avaliacoes/criar")}
-                className="inline-flex items-center justify-center gap-2 bg-[#2EC5B6] hover:bg-[#27b3a6] text-white px-5 py-3 rounded-2xl font-semibold transition-colors duration-300 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 bg-[#2EC5B6] hover:bg-[#27b3a6] text-white px-5 py-3 rounded-xl font-semibold transition-colors duration-300 cursor-pointer"
               >
                 <Plus size={20} />
                 Nova Avaliação
@@ -222,7 +222,7 @@ export default function AvaliacoesPage() {
               <div className="flex items-end">
                 <button
                   onClick={handleLimparFiltros}
-                  className="w-full sm:w-auto px-5 py-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors duration-300 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-slate-200 transition-colors duration-300 cursor-pointer"
                 >
                   Limpar filtros
                 </button>

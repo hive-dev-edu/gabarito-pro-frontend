@@ -13,6 +13,9 @@ import {
     ChevronRight,
     Plus,
     ArrowLeft,
+    Lock,
+    CheckSquare,
+    Square,
 } from "lucide-react";
 
 const questoesService = new QuestoesService();
@@ -131,31 +134,62 @@ export default function ListagemQuestoes() {
                         </div>
                     </div>
 
-                    <Link
-                        to="/questoes/criar"
-                        className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl hover:bg-teal-600 transition-colors duration-300 self-stretch sm:self-auto"
-                    >
-                        <Plus size={20} />
-                        Nova Questão
-                    </Link>
+                    <div className="flex gap-4">
+                        <Link
+                            to="/questoes/privadas"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-600 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-300 self-stretch sm:self-auto"
+                        >
+                            <Lock size={16} />
+                            Questões Privadas
+                        </Link>
+                        <Link
+                            to="/questoes/criar"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl hover:bg-teal-600 transition-colors duration-300 self-stretch sm:self-auto"
+                        >
+                            <Plus size={20} />
+                            Nova Questão
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Filtros */}
                 <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mb-6">
                     <div className="flex flex-wrap items-center gap-2 mb-4">
-                        <button
+                        {/* <button
                             onClick={() => {
                                 setMyQuestions((prev) => !prev);
                                 handleFiltrar();
                             }}
-                            className={`px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200 cursor-pointer ${
+                            
+                        >
+                            Incluir minhas Questões
+                        </button> */}
+
+                        <label
+                            htmlFor="incluir-questoes"
+                            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200 cursor-pointer ${
                                 myQuestions
                                     ? "bg-[#2EC5B6] text-white border-[#2EC5B6]"
                                     : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                             }`}
                         >
+                            <input
+                                id="incluir-questoes"
+                                type="checkbox"
+                                checked={myQuestions}
+                                onChange={() => {
+                                    setMyQuestions((prev) => !prev);
+                                    handleFiltrar();
+                                }}
+                                className="sr-only"
+                            />
+                            {myQuestions ? (
+                                <CheckSquare size={18} aria-hidden="true" />
+                            ) : (
+                                <Square size={18} aria-hidden="true" />
+                            )}
                             Incluir minhas Questões
-                        </button>
+                        </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">

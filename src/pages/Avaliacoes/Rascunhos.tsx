@@ -110,7 +110,7 @@ export default function PaginaRascunhos() {
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => navigate("/avaliacoes")}
-              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
               title="Voltar"
             >
               <ArrowLeft size={22} />
@@ -128,7 +128,7 @@ export default function PaginaRascunhos() {
 
           <button
             onClick={() => navigate("/avaliacoes/criar")}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6]"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
           >
             <Plus size={20} />
             Nova Avaliação
@@ -162,7 +162,7 @@ export default function PaginaRascunhos() {
             <div className="flex items-end">
               <button
                 onClick={handleLimparFiltros}
-                className="w-full rounded-2xl border border-slate-300 px-5 py-3 text-slate-600 transition-colors duration-300 hover:bg-slate-50 sm:w-auto"
+                className="w-full rounded-2xl border border-slate-300 px-5 py-3 text-slate-600 transition-colors duration-300 hover:bg-slate-200 sm:w-auto cursor-pointer"
               >
                 Limpar filtros
               </button>
@@ -211,7 +211,7 @@ export default function PaginaRascunhos() {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30 cursor-pointer"
                 >
                   <ChevronLeft size={20} />
                 </button>
@@ -227,7 +227,7 @@ export default function PaginaRascunhos() {
                     setPage((p) => Math.min(meta.totalPages, p + 1))
                   }
                   disabled={page >= meta.totalPages}
-                  className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30 cursor-pointer"
                 >
                   <ChevronRight size={20} />
                 </button>

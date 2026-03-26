@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  Bookmark,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -57,7 +56,8 @@ export default function CriarAvaliacaoPage() {
   const [subject, setSubject] = useState("");
   const [schoolYear, setSchoolYear] = useState("");
   const [difficulty, setDifficulty] = useState<Dificuldade | "">("");
-  const [myQuestions, setMyQuestions] = useState(false);
+  const [includeMyQuestions, setIncludeMyQuestions] = useState(false);
+  const [onlyMyQuestions, setOnlyMyQuestions] = useState(false);
   const [searchQuestao, setSearchQuestao] = useState("");
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -84,13 +84,7 @@ export default function CriarAvaliacaoPage() {
 
   async function carregarTurmas() {
     const resposta = await TurmasService.getAll(1, 100);
-    const lista = Array.isArray((resposta as any)?.data)
-      ? (resposta as any).data
-      : Array.isArray((resposta as any)?.items)
-        ? (resposta as any).items
-        : [];
-
-    setTurmas(lista);
+    setTurmas(Array.isArray(resposta?.data) ? resposta.data : []);
   }
 
   async function carregarQuestoes(currentPage = 1) {
@@ -98,14 +92,20 @@ export default function CriarAvaliacaoPage() {
     setErro("");
 
     try {
-      const resposta = await questoesService.listar({
+      const filtrosBase = {
         subject: subject || undefined,
         schoolYear: schoolYear || undefined,
         difficulty: difficulty || undefined,
-        myQuestions: myQuestions ? "true" : "false",
         page: currentPage,
         limit: limitQuestoes,
-      });
+      };
+
+      const resposta = onlyMyQuestions
+        ? await questoesService.listarPrivadas(filtrosBase)
+        : await questoesService.listar({
+            ...filtrosBase,
+            myQuestions: includeMyQuestions ? undefined : "false",
+          });
 
       const lista = Array.isArray(resposta?.data) ? resposta.data : [];
 
@@ -137,29 +137,56 @@ export default function CriarAvaliacaoPage() {
       setClassId(avaliacao?.classId ?? "");
 
       const selecionadas = Array.isArray(avaliacao?.questions)
-        ? avaliacao.questions.map((item: any) => ({
-          questionId: item.questionId,
-          weight: Number(item.weight ?? 1),
-          position: Number(item.position ?? 0),
-          statement: item.statement ?? item.question?.statement ?? "",
-          content: item.content ?? item.question?.content ?? "",
-          subject: item.subject ?? item.question?.subject ?? "",
-          schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
-          difficulty: item.difficulty ?? item.question?.difficulty ?? "",
-          alternatives:
-            item.alternatives ?? item.question?.alternatives ?? [],
-          question: item.question
-            ? item.question
-            : {
+        ? avaliacao.questions.map((item) => {
+            const fallbackQuestion: Questao = {
               id: item.questionId,
               statement: item.statement ?? "",
               content: item.content ?? "",
               subject: item.subject ?? "",
               schoolYear: item.schoolYear ?? "",
-              difficulty: item.difficulty ?? "",
+              difficulty: (item.difficulty ?? "easy") as Dificuldade,
               alternatives: item.alternatives ?? [],
-            },
-        }))
+              createdAt: "",
+              updatedAt: "",
+              authorId: undefined,
+              isPublic: undefined,
+            };
+
+            const questionFromItem: Questao | undefined = item.question
+              ? {
+                  id: String(item.question.id ?? item.questionId),
+                  statement: item.question.statement ?? item.statement ?? "",
+                  content: item.question.content ?? item.content ?? "",
+                  subject: item.question.subject ?? item.subject ?? "",
+                  schoolYear: item.question.schoolYear ?? item.schoolYear ?? "",
+                  difficulty: (
+                    item.question.difficulty ??
+                    item.difficulty ??
+                    "easy"
+                  ) as Dificuldade,
+                  alternatives: Array.isArray(item.question.alternatives)
+                    ? (item.question.alternatives as Questao["alternatives"])
+                    : fallbackQuestion.alternatives,
+                  createdAt: "",
+                  updatedAt: "",
+                  authorId: undefined,
+                  isPublic: undefined,
+                }
+              : undefined;
+
+            return {
+              questionId: item.questionId,
+              weight: Number(item.weight ?? 1),
+              position: Number(item.position ?? 0),
+              statement: item.statement ?? item.question?.statement ?? "",
+              content: item.content ?? item.question?.content ?? "",
+              subject: item.subject ?? item.question?.subject ?? "",
+              schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
+              difficulty: item.difficulty ?? item.question?.difficulty ?? "",
+              alternatives: item.alternatives ?? item.question?.alternatives ?? [],
+              question: questionFromItem ?? fallbackQuestion,
+            };
+          })
         : [];
 
       setQuestoesSelecionadas(
@@ -281,7 +308,8 @@ export default function CriarAvaliacaoPage() {
     setSubject("");
     setSchoolYear("");
     setDifficulty("");
-    setMyQuestions(false);
+    setIncludeMyQuestions(false);
+    setOnlyMyQuestions(false);
     setSearchQuestao("");
     setPageQuestoes(1);
 
@@ -353,8 +381,8 @@ export default function CriarAvaliacaoPage() {
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-4">
             <button
-              onClick={() => navigate("/avaliacoes")}
-              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              onClick={() => navigate(-1)}
+              className="shrink-0 rounded-2xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
               title="Voltar"
             >
               <ArrowLeft size={22} />
@@ -371,12 +399,6 @@ export default function CriarAvaliacaoPage() {
           </div>
         </div>
 
-        {erro && (
-          <div className="mb-5 rounded-3xl border border-red-300 bg-red-50 p-4 text-center text-red-700">
-            <p>{erro}</p>
-          </div>
-        )}
-
         {carregandoInicial ? (
           <div className="flex items-center justify-center py-20">
             <IconeCarregamento w={32} h={32} color="black" />
@@ -388,14 +410,6 @@ export default function CriarAvaliacaoPage() {
                 <h2 className="text-base font-semibold text-slate-800 sm:text-lg">
                   Dados da avaliação
                 </h2>
-
-                <button
-                  onClick={() => navigate("/avaliacoes/rascunhos")}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-50"
-                >
-                  <Bookmark size={16} />
-                  Rascunhos
-                </button>
               </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -431,7 +445,7 @@ export default function CriarAvaliacaoPage() {
                   <select
                     value={classId}
                     onChange={(e) => setClassId(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] cursor-pointer"
                   >
                     <option value="">Selecione uma turma</option>
                     {turmas.map((turma) => (
@@ -488,7 +502,7 @@ export default function CriarAvaliacaoPage() {
                     onChange={(e) =>
                       setDifficulty(e.target.value as Dificuldade | "")
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                    className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] cursor-pointer"
                   >
                     <option value="">Todas</option>
                     <option value="easy">Fácil</option>
@@ -518,27 +532,47 @@ export default function CriarAvaliacaoPage() {
               </div>
 
               <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={myQuestions}
-                    onChange={(e) => setMyQuestions(e.target.checked)}
-                    className="rounded"
-                  />
-                  Somente minhas questões
-                </label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={onlyMyQuestions}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setOnlyMyQuestions(checked);
+                        if (checked) setIncludeMyQuestions(false);
+                      }}
+                      className="rounded cursor-pointer"
+                    />
+                    Somente minhas questões
+                  </label>
+
+                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={includeMyQuestions}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setIncludeMyQuestions(checked);
+                        if (checked) setOnlyMyQuestions(false);
+                      }}
+                      className="rounded cursor-pointer"
+                    />
+                    Incluir minhas questões
+                  </label>
+                </div>
 
                 <div className="flex gap-2">
                   <button
                     onClick={handleLimparFiltros}
-                    className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm text-slate-600 transition-colors duration-300 hover:bg-slate-50"
+                    className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm text-slate-600 transition-colors duration-300 hover:bg-slate-200 cursor-pointer"
                   >
                     Limpar filtros
                   </button>
 
                   <button
                     onClick={handleAplicarFiltros}
-                    className="rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6]"
+                    className="rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
                   >
                     Aplicar filtros
                   </button>
@@ -605,7 +639,7 @@ export default function CriarAvaliacaoPage() {
                                   <button
                                     onClick={() => adicionarQuestao(questao)}
                                     disabled={jaSelecionada}
-                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                                   >
                                     <Plus size={14} />
                                     {jaSelecionada
@@ -701,6 +735,12 @@ export default function CriarAvaliacaoPage() {
               </div>
             </div>
 
+            {erro && (
+              <div className="my-5 rounded-3xl border border-red-300 bg-red-50 p-4 text-center text-red-700">
+                <p>{erro}</p>
+              </div>
+            )}
+
             <div className="mt-5 rounded-3xl border border-[#DDEDEA] bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                 <div>
@@ -715,7 +755,7 @@ export default function CriarAvaliacaoPage() {
                   <button
                     onClick={() => salvar("DRAFT")}
                     disabled={salvando}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors duration-300 hover:bg-slate-200 disabled:opacity-60 cursor-pointer"
                   >
                     <Save size={16} />
                     Salvar rascunho
@@ -724,7 +764,7 @@ export default function CriarAvaliacaoPage() {
                   <button
                     onClick={() => salvar("PUBLISHED")}
                     disabled={salvando}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] disabled:opacity-60 cursor-pointer"
                   >
                     <SendHorizonal size={16} />
                     Publicar avaliação
