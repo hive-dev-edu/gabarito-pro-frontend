@@ -119,7 +119,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
 
 
   return (
-    <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer" onClick={() => onPreview(avaliacao.id)}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="mb-3 inline-flex items-center rounded-full border border-[#BDEAE4] bg-[#F4FFFD] px-3 py-1 text-xs font-semibold text-[#14877B]">
