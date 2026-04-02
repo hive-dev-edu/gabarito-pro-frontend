@@ -1,6 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { LogOut, User, Home, BookOpen, Users } from "lucide-react";
 import { obterPayloadToken } from "../../utils/auth";
+
+function navItemClassName(isActive: boolean) {
+    const base =
+        "flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm rounded-lg transition-colors";
+
+    return isActive
+        ? `${base} bg-emerald-100 text-gray-900`
+        : `${base} text-gray-600 hover:bg-gray-100`;
+}
 
 export default function Header() {
     const navigate = useNavigate();
@@ -34,48 +43,49 @@ export default function Header() {
                     </Link>
 
                     <nav className="flex items-center gap-0.5 sm:gap-1">
-                        <Link
+                        <NavLink
                             to="/dashboard"
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                            end
+                            className={({ isActive }) => navItemClassName(isActive)}
                         >
                             <Home size={16} />
                             <span className="hidden sm:inline">Início</span>
-                        </Link>
-                        <Link
+                        </NavLink>
+                        <NavLink
                             to="/questoes"
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                            className={({ isActive }) => navItemClassName(isActive)}
                         >
                             <BookOpen size={16} />
                             <span className="hidden sm:inline">Questões</span>
-                        </Link>
-                        <Link
+                        </NavLink>
+                        <NavLink
                             to="/turmas"
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                            className={({ isActive }) => navItemClassName(isActive)}
                         >
                             <Users size={16} />
                             <span className="hidden sm:inline">Minhas Turmas</span>
-                        </Link>
-                        <Link
+                        </NavLink>
+                        <NavLink
                             to="/avaliacoes"
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                            className={({ isActive }) => navItemClassName(isActive)}
                         >
                             <BookOpen size={16} />
                             <span className="hidden sm:inline">Avaliações</span>
-                        </Link>
+                        </NavLink>
                     </nav>
                 </div>
 
                 {/* Usuário + Perfil + Logout */}
                 <div className="flex items-center gap-1.5 sm:gap-3">
-                    <Link
+                    <NavLink
                         to="/perfil"
-                        className="flex items-center gap-2 px-2.5 sm:px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                        className={({ isActive }) => navItemClassName(isActive)}
                     >
                         <User size={16} />
                         <span className="hidden sm:inline font-medium">
                             {nomeUsuario ?? "Perfil"}
                         </span>
-                    </Link>
+                    </NavLink>
 
                     <button
                         onClick={handleLogout}
