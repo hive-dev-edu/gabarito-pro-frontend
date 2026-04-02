@@ -10,7 +10,7 @@ interface QuestaoSelecionadaLocal {
   statement?: string;
   content?: string;
   subject?: string;
-  schoolYear?: string;
+  grade?: number;
   difficulty?: string;
   alternatives?: Array<{ id: string; text: string }>;
   question?: Questao;

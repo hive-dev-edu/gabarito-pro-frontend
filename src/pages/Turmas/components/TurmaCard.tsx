@@ -59,7 +59,7 @@ export default function TurmaCard({ turma, onEdit, onDelete }: TurmaCardProps) {
 
                         {/* Ano */}
                         <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1 rounded-full">
-                            {parsed.schoolYear}
+                            {parsed.grade}
                         </span>
 
                         {/* Escolaridade */}

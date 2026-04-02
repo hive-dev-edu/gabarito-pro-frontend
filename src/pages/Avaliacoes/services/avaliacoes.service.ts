@@ -8,6 +8,13 @@ import type {
 } from "../types/avaliacao.types";
 
 function normalizeQuestion(question: any): QuestaoAvaliacao {
+  const gradeRaw = question?.grade ?? question?.question?.grade;
+  const parsedGrade =
+    gradeRaw !== undefined && gradeRaw !== null && String(gradeRaw).trim()
+      ? Number(gradeRaw)
+      : undefined;
+  const grade = Number.isFinite(parsedGrade) ? parsedGrade : undefined;
+
   return {
     questionId: String(question?.questionId ?? question?.id ?? ""),
     weight: Number(question?.weight ?? 0),
@@ -16,7 +23,7 @@ function normalizeQuestion(question: any): QuestaoAvaliacao {
     statement: question?.statement ?? question?.question?.statement ?? "",
     content: question?.content ?? question?.question?.content ?? "",
     subject: question?.subject ?? question?.question?.subject ?? "",
-    schoolYear: question?.schoolYear ?? question?.question?.schoolYear ?? "",
+    grade,
     difficulty: question?.difficulty ?? question?.question?.difficulty ?? "",
     alternatives: Array.isArray(question?.alternatives)
       ? question.alternatives
@@ -30,8 +37,7 @@ function normalizeQuestion(question: any): QuestaoAvaliacao {
           statement: question.question?.statement ?? question?.statement ?? "",
           content: question.question?.content ?? question?.content ?? "",
           subject: question.question?.subject ?? question?.subject ?? "",
-          schoolYear:
-            question.question?.schoolYear ?? question?.schoolYear ?? "",
+          grade,
           difficulty: question.question?.difficulty ?? question?.difficulty ?? "",
           alternatives: Array.isArray(question.question?.alternatives)
             ? question.question.alternatives

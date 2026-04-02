@@ -13,7 +13,7 @@ export interface QuestaoAvaliacao {
   statement?: string;
   content?: string;
   subject?: string;
-  schoolYear?: string;
+  grade?: number;
   difficulty?: string;
   alternatives?: AlternativaAvaliacao[];
 
@@ -22,7 +22,7 @@ export interface QuestaoAvaliacao {
     statement?: string;
     content?: string;
     subject?: string;
-    schoolYear?: string;
+    grade?: number;
     difficulty?: string;
     alternatives?: AlternativaAvaliacao[];
   };

@@ -139,8 +139,13 @@ export default function DetalheQuestao() {
                                 {questao.subject}
                             </span>
                             <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-                                {questao.schoolYear}° ano
+                                {questao.grade ? `${questao.grade}° ano` : "—"}
                             </span>
+                            {questao.questionType && (
+                                <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                                    {questao.questionType}
+                                </span>
+                            )}
                             <span
                                 className={`text-xs px-3 py-1 rounded-full ${
                                     DIFICULDADE_COR[questao.difficulty]

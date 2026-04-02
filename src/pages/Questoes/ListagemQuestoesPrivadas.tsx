@@ -5,6 +5,7 @@ import type {
 	Questao,
 	MetaPaginacao,
 	Dificuldade,
+	EducationLevelApi,
 } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import { Lock, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
@@ -23,14 +24,25 @@ const DIFICULDADE_COR: Record<Dificuldade, string> = {
 	hard: "bg-red-100 text-red-700",
 };
 
+const EDUCATION_LEVEL_LABEL: Record<EducationLevelApi, string> = {
+	ensino_fundamental: "Ensino Fundamental",
+	ensino_medio: "Ensino Médio",
+	ensino_tecnico: "Ensino Técnico",
+	ensino_superior: "Ensino Superior",
+	outro: "Outro",
+};
+
 export default function ListagemQuestoesPrivadas() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	// ── Filtros ──
 	const [subject, setSubject] = useState(searchParams.get("subject") ?? "");
-	const [schoolYear, setSchoolYear] = useState(
-		searchParams.get("schoolYear") ?? "",
+	const [educationLevel, setEducationLevel] = useState<EducationLevelApi | "">(
+		(searchParams.get("educationLevel") as EducationLevelApi) ?? "",
+	);
+	const [grade, setGrade] = useState(
+		searchParams.get("grade") ?? "",
 	);
 	const [difficulty, setDifficulty] = useState<Dificuldade | "">(
 		(searchParams.get("difficulty") as Dificuldade) ?? "",
@@ -53,7 +65,8 @@ export default function ListagemQuestoesPrivadas() {
 			try {
 				const resposta = await questoesService.listarPrivadas({
 					subject: subject || undefined,
-					schoolYear: schoolYear || undefined,
+					educationLevel: educationLevel || undefined,
+					grade: grade || undefined,
 					difficulty: difficulty || undefined,
 					page,
 					limit,
@@ -70,17 +83,18 @@ export default function ListagemQuestoesPrivadas() {
 		}
 
 		carregarQuestoes();
-	}, [subject, schoolYear, difficulty, page]);
+	}, [subject, educationLevel, grade, difficulty, page]);
 
 	// ── Sincronizar filtros com URL ──
 	useEffect(() => {
 		const params = new URLSearchParams();
 		if (subject) params.set("subject", subject);
-		if (schoolYear) params.set("schoolYear", schoolYear);
+		if (educationLevel) params.set("educationLevel", educationLevel);
+		if (grade) params.set("grade", grade);
 		if (difficulty) params.set("difficulty", difficulty);
 		if (page > 1) params.set("page", String(page));
 		setSearchParams(params, { replace: true });
-	}, [subject, schoolYear, difficulty, page, setSearchParams]);
+	}, [subject, educationLevel, grade, difficulty, page, setSearchParams]);
 
 	// ── Handlers de filtro ──
 	function handleFiltrar() {
@@ -89,7 +103,8 @@ export default function ListagemQuestoesPrivadas() {
 
 	function handleLimparFiltros() {
 		setSubject("");
-		setSchoolYear("");
+		setEducationLevel("");
+		setGrade("");
 		setDifficulty("");
 		setPage(1);
 	}
@@ -140,13 +155,34 @@ export default function ListagemQuestoesPrivadas() {
 
 						<div>
 							<label className="block text-sm font-medium text-gray-700 mb-1">
-								Ano Escolar
+								Nível de ensino
+							</label>
+							<select
+								value={educationLevel}
+								onChange={(e) => {
+									setEducationLevel(e.target.value as EducationLevelApi | "");
+									handleFiltrar();
+								}}
+								className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
+							>
+								<option value="">Todos</option>
+								<option value="ensino_fundamental">Ensino Fundamental</option>
+								<option value="ensino_medio">Ensino Médio</option>
+								<option value="ensino_tecnico">Ensino Técnico</option>
+								<option value="ensino_superior">Ensino Superior</option>
+								<option value="outro">Outro</option>
+							</select>
+						</div>
+
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Série/Ano
 							</label>
 							<input
 								type="text"
-								value={schoolYear}
+								value={grade}
 								onChange={(e) => {
-									setSchoolYear(e.target.value);
+									setGrade(e.target.value);
 									handleFiltrar();
 								}}
 								className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
@@ -227,8 +263,15 @@ export default function ListagemQuestoesPrivadas() {
 												<span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
 													{questao.subject}
 												</span>
+													<span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+														{questao.educationLevel
+															? EDUCATION_LEVEL_LABEL[questao.educationLevel]
+															: "—"}
+													</span>
 												<span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-													{questao.schoolYear}
+														{typeof questao.grade === "number"
+															? `${questao.grade}º`
+															: "—"}
 												</span>
 												<span
 													className={`text-xs px-3 py-1 rounded-full ${

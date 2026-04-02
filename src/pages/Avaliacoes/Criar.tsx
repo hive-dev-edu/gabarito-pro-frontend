@@ -29,7 +29,7 @@ interface QuestaoSelecionadaLocal {
   statement?: string;
   content?: string;
   subject?: string;
-  schoolYear?: string;
+  grade?: number;
   difficulty?: string;
   alternatives?: Array<{ id: string; text: string }>;
   question?: Questao;
@@ -54,7 +54,7 @@ export default function CriarAvaliacaoPage() {
   const [classId, setClassId] = useState("");
 
   const [subject, setSubject] = useState("");
-  const [schoolYear, setSchoolYear] = useState("");
+  const [grade, setGrade] = useState("");
   const [difficulty, setDifficulty] = useState<Dificuldade | "">("");
   const [includeMyQuestions, setIncludeMyQuestions] = useState(false);
   const [onlyMyQuestions, setOnlyMyQuestions] = useState(false);
@@ -94,7 +94,7 @@ export default function CriarAvaliacaoPage() {
     try {
       const filtrosBase = {
         subject: subject || undefined,
-        schoolYear: schoolYear || undefined,
+        grade: grade || undefined,
         difficulty: difficulty || undefined,
         page: currentPage,
         limit: limitQuestoes,
@@ -143,7 +143,7 @@ export default function CriarAvaliacaoPage() {
               statement: item.statement ?? "",
               content: item.content ?? "",
               subject: item.subject ?? "",
-              schoolYear: item.schoolYear ?? "",
+              grade: item.grade,
               difficulty: (item.difficulty ?? "easy") as Dificuldade,
               alternatives: item.alternatives ?? [],
               createdAt: "",
@@ -158,7 +158,7 @@ export default function CriarAvaliacaoPage() {
                   statement: item.question.statement ?? item.statement ?? "",
                   content: item.question.content ?? item.content ?? "",
                   subject: item.question.subject ?? item.subject ?? "",
-                  schoolYear: item.question.schoolYear ?? item.schoolYear ?? "",
+                  grade: item.question.grade ?? item.grade,
                   difficulty: (
                     item.question.difficulty ??
                     item.difficulty ??
@@ -181,7 +181,7 @@ export default function CriarAvaliacaoPage() {
               statement: item.statement ?? item.question?.statement ?? "",
               content: item.content ?? item.question?.content ?? "",
               subject: item.subject ?? item.question?.subject ?? "",
-              schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
+              grade: item.grade ?? item.question?.grade,
               difficulty: item.difficulty ?? item.question?.difficulty ?? "",
               alternatives: item.alternatives ?? item.question?.alternatives ?? [],
               question: questionFromItem ?? fallbackQuestion,
@@ -266,7 +266,7 @@ export default function CriarAvaliacaoPage() {
           statement: questao.statement,
           content: questao.content,
           subject: questao.subject,
-          schoolYear: questao.schoolYear,
+          grade: questao.grade,
           difficulty: questao.difficulty,
           alternatives: questao.alternatives ?? [],
           question: questao,
@@ -306,7 +306,7 @@ export default function CriarAvaliacaoPage() {
 
   function handleLimparFiltros() {
     setSubject("");
-    setSchoolYear("");
+    setGrade("");
     setDifficulty("");
     setIncludeMyQuestions(false);
     setOnlyMyQuestions(false);
@@ -482,12 +482,12 @@ export default function CriarAvaliacaoPage() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Ano escolar
+                    Série/Ano
                   </label>
                   <input
                     type="text"
-                    value={schoolYear}
-                    onChange={(e) => setSchoolYear(e.target.value)}
+                    value={grade}
+                    onChange={(e) => setGrade(e.target.value)}
                     className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
                     placeholder="Ex: 8º ano"
                   />
@@ -629,7 +629,7 @@ export default function CriarAvaliacaoPage() {
                                 </span>
 
                                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {questao.schoolYear || "Ano não informado"}
+                                  {questao.grade ? String(questao.grade) : "Ano não informado"}
                                 </span>
 
                                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">

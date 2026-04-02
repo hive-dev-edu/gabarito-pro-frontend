@@ -144,7 +144,7 @@ export default function Dashboard() {
                                                 {q.subject}
                                             </span>
                                             <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-violet-50 text-violet-500 font-medium">
-                                                {q.schoolYear}
+                                                {q.grade ?? "—"}
                                             </span>
                                             <span
                                                 className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${DIFICULDADE_COR[q.difficulty]}`}

@@ -4,9 +4,7 @@ import { QuestoesService } from "./services/questoes.service";
 import FormularioQuestao from "./components/FormularioQuestao";
 import type {
     Questao,
-    AlternativaFormulario,
-    AtualizarQuestaoRequisicao,
-    Dificuldade,
+    CriarQuestaoRequisicao,
 } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import { ArrowLeft } from "lucide-react";
@@ -49,62 +47,15 @@ export default function EditarQuestao() {
         carregar();
     }, [id]);
 
-    // ── Submeter edição (envia apenas campos alterados) ──
-    async function handleEditar(dados: {
-        statement: string;
-        content: string;
-        subject: string;
-        schoolYear: string;
-        difficulty: Dificuldade;
-        isPublic: boolean;
-        alternatives: AlternativaFormulario[];
-    }) {
+    // ── Submeter edição (payload novo, simples) ──
+    async function handleEditar(dados: CriarQuestaoRequisicao) {
         if (!id || !questaoOriginal) return;
 
         setCarregando(true);
         setErro("");
 
         try {
-            const body: AtualizarQuestaoRequisicao = {};
-
-            if (dados.statement !== questaoOriginal.statement)
-                body.statement = dados.statement;
-            if (dados.content !== questaoOriginal.content)
-                body.content = dados.content;
-            if (dados.subject !== questaoOriginal.subject)
-                body.subject = dados.subject;
-            if (dados.schoolYear !== questaoOriginal.schoolYear)
-                body.schoolYear = dados.schoolYear;
-            if (dados.difficulty !== questaoOriginal.difficulty)
-                body.difficulty = dados.difficulty;
-            if (dados.isPublic !== questaoOriginal.isPublic)
-                body.isPublic = dados.isPublic;
-
-            // Verifica se alguma alternativa mudou
-            const alternativasOriginais = questaoOriginal.alternatives.map(
-                (a) => ({
-                    text: a.text,
-                    isCorrect: a.isCorrect ?? false,
-                }),
-            );
-
-            const alternativasMudaram = dados.alternatives.some(
-                (alt, i) =>
-                    alt.text !== alternativasOriginais[i]?.text ||
-                    alt.isCorrect !== alternativasOriginais[i]?.isCorrect,
-            );
-
-            if (alternativasMudaram) {
-                body.alternatives = dados.alternatives;
-            }
-
-            // Se nada mudou, não envia requisição
-            if (Object.keys(body).length === 0) {
-                navigate(`/questoes/${id}`);
-                return;
-            }
-
-            await questoesService.atualizar(id, body);
+            await questoesService.atualizar(id, dados);
             navigate(`/questoes/${id}`);
         } catch (error) {
             if (error instanceof Error) {
@@ -172,7 +123,9 @@ export default function EditarQuestao() {
                             statement: questaoOriginal.statement,
                             content: questaoOriginal.content,
                             subject: questaoOriginal.subject,
-                            schoolYear: questaoOriginal.schoolYear,
+                            educationLevel: questaoOriginal.educationLevel ?? "outro",
+                            grade: questaoOriginal.grade,
+                            questionType: questaoOriginal.questionType ?? "multiple_choice",
                             difficulty: questaoOriginal.difficulty,
                             isPublic: questaoOriginal.isPublic ?? false,
                             alternatives: questaoOriginal.alternatives.map(
@@ -185,6 +138,7 @@ export default function EditarQuestao() {
                         onSubmit={handleEditar}
                         textoBotao="Salvar Alterações"
                         carregando={carregando}
+                        bloquearTiposEmDesenvolvimento
                     />
                 </div>
             </div>

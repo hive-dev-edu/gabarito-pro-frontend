@@ -12,7 +12,7 @@ import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import type { EducationLevel } from "../../shared/types/education.types";
 import {
   EDUCATION_LEVEL_OPTIONS,
-  getSchoolYearsByEducationLevel,
+  getGradesByEducationLevel,
   parseGradeLevel,
 } from "../../shared/constants/education";
 
@@ -48,7 +48,7 @@ export default function TurmasPage() {
   const [educationLevelFilter, setEducationLevelFilter] = useState<
     EducationLevel | ""
   >("");
-  const [schoolYearFilter, setSchoolYearFilter] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
 
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -100,8 +100,8 @@ export default function TurmasPage() {
     return () => clearTimeout(timer);
   }, [sucesso]);
 
-  const schoolYearOptions = useMemo(() => {
-    return getSchoolYearsByEducationLevel(educationLevelFilter);
+  const gradeOptions = useMemo(() => {
+    return getGradesByEducationLevel(educationLevelFilter);
   }, [educationLevelFilter]);
 
   const turmasFiltradas = useMemo(() => {
@@ -117,11 +117,11 @@ export default function TurmasPage() {
         parsed.educationLevel === educationLevelFilter;
 
       const matchesSchoolYear =
-        !schoolYearFilter || parsed.schoolYear === schoolYearFilter;
+        !gradeFilter || parsed.grade === gradeFilter;
 
       return matchesSearch && matchesEducationLevel && matchesSchoolYear;
     });
-  }, [turmas, search, educationLevelFilter, schoolYearFilter]);
+  }, [turmas, search, educationLevelFilter, gradeFilter]);
 
   const paginationItems = useMemo(() => {
     if (!meta) return [];
@@ -135,7 +135,7 @@ export default function TurmasPage() {
   function handleLimparFiltros() {
     setSearch("");
     setEducationLevelFilter("");
-    setSchoolYearFilter("");
+    setGradeFilter("");
     setPage(1);
   }
 
@@ -294,7 +294,7 @@ export default function TurmasPage() {
                   onChange={(e) => {
                     const value = e.target.value as EducationLevel | "";
                     setEducationLevelFilter(value);
-                    setSchoolYearFilter("");
+                    setGradeFilter("");
                     setPage(1);
                   }}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
@@ -313,9 +313,9 @@ export default function TurmasPage() {
                   Ano / Série
                 </label>
                 <select
-                  value={schoolYearFilter}
+                  value={gradeFilter}
                   onChange={(e) => {
-                    setSchoolYearFilter(e.target.value);
+                    setGradeFilter(e.target.value);
                     setPage(1);
                   }}
                   disabled={!educationLevelFilter}
@@ -325,7 +325,7 @@ export default function TurmasPage() {
                     {educationLevelFilter ? "Todos" : "Escolha primeiro o nível"}
                   </option>
 
-                  {schoolYearOptions.map((year) => (
+                  {gradeOptions.map((year) => (
                     <option key={year} value={year}>
                       {year}
                     </option>

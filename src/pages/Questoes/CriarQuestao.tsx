@@ -2,10 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuestoesService } from "./services/questoes.service";
 import FormularioQuestao from "./components/FormularioQuestao";
-import type {
-    AlternativaFormulario,
-    Dificuldade,
-} from "./types/questoes.types";
+import type { CriarQuestaoRequisicao } from "./types/questoes.types";
 import { ArrowLeft } from "lucide-react";
 
 const questoesService = new QuestoesService();
@@ -15,15 +12,7 @@ export default function CriarQuestao() {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
 
-    async function handleCriar(dados: {
-        statement: string;
-        content: string;
-        subject: string;
-        schoolYear: string;
-        difficulty: Dificuldade;
-        isPublic: boolean;
-        alternatives: AlternativaFormulario[];
-    }) {
+    async function handleCriar(dados: CriarQuestaoRequisicao) {
         setCarregando(true);
         setErro("");
 
@@ -69,6 +58,7 @@ export default function CriarQuestao() {
                         onSubmit={handleCriar}
                         textoBotao="Criar Questão"
                         carregando={carregando}
+                        bloquearTiposEmDesenvolvimento
                     />
                 </div>
             </div>

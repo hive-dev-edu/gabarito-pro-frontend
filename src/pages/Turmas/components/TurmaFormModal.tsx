@@ -5,7 +5,7 @@ import type { CreateTurmaDTO, Turma } from "../types/turma.types";
 import type { EducationLevel } from "../../../shared/types/education.types";
 import {
   EDUCATION_LEVEL_OPTIONS,
-  getSchoolYearsByEducationLevel,
+  getGradesByEducationLevel,
   buildGradeLevel,
   parseGradeLevel,
 } from "../../../shared/constants/education";
@@ -35,14 +35,14 @@ export default function TurmaFormModal({
       return {
         name: turma.name ?? "",
         educationLevel: parsed.educationLevel,
-        schoolYear: parsed.schoolYear ?? "",
+        grade: parsed.grade ?? "",
       };
     }
 
     return {
       name: "",
       educationLevel: "" as EducationLevel | "",
-      schoolYear: "",
+      grade: "",
     };
   }, [mode, turma]);
 
@@ -50,16 +50,16 @@ export default function TurmaFormModal({
   const [educationLevel, setEducationLevel] = useState<EducationLevel | "">(
     initialForm.educationLevel
   );
-  const [schoolYear, setSchoolYear] = useState(initialForm.schoolYear);
+  const [grade, setGrade] = useState(initialForm.grade);
 
   const [errors, setErrors] = useState({
     name: "",
     educationLevel: "",
-    schoolYear: "",
+    grade: "",
   });
 
-  const schoolYearOptions = useMemo(() => {
-    return getSchoolYearsByEducationLevel(educationLevel);
+  const gradeOptions = useMemo(() => {
+    return getGradesByEducationLevel(educationLevel);
   }, [educationLevel]);
 
   if (!isOpen) return null;
@@ -68,7 +68,7 @@ export default function TurmaFormModal({
     const newErrors = {
       name: "",
       educationLevel: "",
-      schoolYear: "",
+      grade: "",
     };
 
     let isValid = true;
@@ -83,8 +83,8 @@ export default function TurmaFormModal({
       isValid = false;
     }
 
-    if (!schoolYear) {
-      newErrors.schoolYear = "Selecione o ano/série.";
+    if (!grade) {
+      newErrors.grade = "Selecione o ano/série.";
       isValid = false;
     }
 
@@ -99,17 +99,17 @@ export default function TurmaFormModal({
 
     await onSubmit({
       name: name.trim(),
-      gradeLevel: buildGradeLevel(schoolYear, educationLevel),
+      gradeLevel: buildGradeLevel(grade, educationLevel),
     });
   }
 
   function handleChangeEducationLevel(value: EducationLevel | "") {
     setEducationLevel(value);
-    setSchoolYear("");
+    setGrade("");
     setErrors((prev) => ({
       ...prev,
       educationLevel: "",
-      schoolYear: "",
+      grade: "",
     }));
   }
 
@@ -192,11 +192,11 @@ export default function TurmaFormModal({
                     Ano / Série
                   </label>
                   <select
-                    value={schoolYear}
+                    value={grade}
                     onChange={(e) => {
-                      setSchoolYear(e.target.value);
-                      if (errors.schoolYear) {
-                        setErrors((prev) => ({ ...prev, schoolYear: "" }));
+                      setGrade(e.target.value);
+                      if (errors.grade) {
+                        setErrors((prev) => ({ ...prev, grade: "" }));
                       }
                     }}
                     disabled={!educationLevel}
@@ -208,15 +208,15 @@ export default function TurmaFormModal({
                         : "Escolha primeiro o nível"}
                     </option>
 
-                    {schoolYearOptions.map((year) => (
+                    {gradeOptions.map((year) => (
                       <option key={year} value={year}>
                         {year}
                       </option>
                     ))}
                   </select>
-                  {errors.schoolYear && (
+                  {errors.grade && (
                     <p className="mt-2 text-sm text-red-500">
-                      {errors.schoolYear}
+                      {errors.grade}
                     </p>
                   )}
                 </div>
