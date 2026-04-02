@@ -17,6 +17,42 @@ import ModalPreviewAvaliacao from "./components/ModalPreviewAvaliacao";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import ModalConfirmDelete from "./components/ModalConfirmDelete";
 
+type PaginationItem = number | "ellipsis";
+
+function buildPaginationItems(
+  currentPage: number,
+  totalPages: number
+): PaginationItem[] {
+  if (totalPages <= 1) return [];
+
+  const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const startPages = [1, 2, 3];
+  const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+  if (safeCurrent <= 3) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  if (safeCurrent >= totalPages - 2) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  return [
+    1,
+    "ellipsis",
+    safeCurrent - 1,
+    safeCurrent,
+    safeCurrent + 1,
+    "ellipsis",
+    totalPages,
+  ];
+}
+
 export default function AvaliacoesPage() {
   const navigate = useNavigate();
 
@@ -146,6 +182,11 @@ export default function AvaliacoesPage() {
         .includes(search.toLowerCase().trim());
     });
   }, [avaliacoes, search]);
+
+  const paginationItems = useMemo(() => {
+    if (!meta) return [];
+    return buildPaginationItems(page, meta.totalPages);
+  }, [meta, page]);
 
   function handleLimparFiltros() {
     setSearch("");
@@ -278,13 +319,43 @@ export default function AvaliacoesPage() {
                     <ChevronLeft size={20} />
                   </button>
 
-                  <span className="text-sm text-gray-600">
-                    Página <span className="font-semibold">{meta.page}</span> de{" "}
-                    <span className="font-semibold">{meta.totalPages}</span>{" "}
-                    <span className="text-gray-400">
-                      ({meta.total} avaliações)
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                      {paginationItems.map((item, idx) =>
+                        item === "ellipsis" ? (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-2 text-gray-400 select-none"
+                            aria-hidden
+                          >
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            onClick={() => setPage(item)}
+                            disabled={item === page}
+                            aria-current={item === page ? "page" : undefined}
+                            className={
+                              item === page
+                                ? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
+                                : "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                            }
+                          >
+                            {item}
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    <span className="text-sm text-gray-600">
+                      Página <span className="font-semibold">{meta.page}</span> de{" "}
+                      <span className="font-semibold">{meta.totalPages}</span>{" "}
+                      <span className="text-gray-400">
+                        ({meta.total} avaliações)
+                      </span>
                     </span>
-                  </span>
+                  </div>
 
                   <button
                     onClick={() =>

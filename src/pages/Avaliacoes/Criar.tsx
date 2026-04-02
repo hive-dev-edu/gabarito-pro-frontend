@@ -35,6 +35,42 @@ interface QuestaoSelecionadaLocal {
   question?: Questao;
 }
 
+type PaginationItem = number | "ellipsis";
+
+function buildPaginationItems(
+  currentPage: number,
+  totalPages: number
+): PaginationItem[] {
+  if (totalPages <= 1) return [];
+
+  const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const startPages = [1, 2, 3];
+  const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+  if (safeCurrent <= 3) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  if (safeCurrent >= totalPages - 2) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  return [
+    1,
+    "ellipsis",
+    safeCurrent - 1,
+    safeCurrent,
+    safeCurrent + 1,
+    "ellipsis",
+    totalPages,
+  ];
+}
+
 function traduzirDificuldade(dificuldade?: string) {
   if (dificuldade === "easy") return "Fácil";
   if (dificuldade === "medium") return "Média";
@@ -252,6 +288,11 @@ export default function CriarAvaliacaoPage() {
       0
     );
   }, [questoesSelecionadas]);
+
+  const paginationItemsQuestoes = useMemo(() => {
+    if (!metaQuestoes) return [];
+    return buildPaginationItems(pageQuestoes, metaQuestoes.totalPages);
+  }, [metaQuestoes, pageQuestoes]);
 
   function adicionarQuestao(questao: Questao) {
     setQuestoesSelecionadas((prev) => {
@@ -655,7 +696,7 @@ export default function CriarAvaliacaoPage() {
                     </div>
 
                     {metaQuestoes && metaQuestoes.totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-3">
+                      <div className="mt-6 flex items-center justify-center gap-4">
                         <button
                           onClick={() =>
                             setPageQuestoes((p) => Math.max(1, p - 1))
@@ -666,16 +707,48 @@ export default function CriarAvaliacaoPage() {
                           <ChevronLeft size={18} />
                         </button>
 
-                        <span className="text-sm text-slate-600">
-                          Página{" "}
-                          <span className="font-semibold">
-                            {metaQuestoes.page}
-                          </span>{" "}
-                          de{" "}
-                          <span className="font-semibold">
-                            {metaQuestoes.totalPages}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            {paginationItemsQuestoes.map((item, idx) =>
+                              item === "ellipsis" ? (
+                                <span
+                                  key={`ellipsis-${idx}`}
+                                  className="px-2 text-slate-400 select-none"
+                                  aria-hidden
+                                >
+                                  ...
+                                </span>
+                              ) : (
+                                <button
+                                  key={item}
+                                  onClick={() => setPageQuestoes(item)}
+                                  disabled={item === pageQuestoes}
+                                  aria-current={
+                                    item === pageQuestoes ? "page" : undefined
+                                  }
+                                  className={
+                                    item === pageQuestoes
+                                      ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
+                                      : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+                                  }
+                                >
+                                  {item}
+                                </button>
+                              )
+                            )}
+                          </div>
+
+                          <span className="text-sm text-slate-600">
+                            Página{" "}
+                            <span className="font-semibold">
+                              {metaQuestoes.page}
+                            </span>{" "}
+                            de{" "}
+                            <span className="font-semibold">
+                              {metaQuestoes.totalPages}
+                            </span>
                           </span>
-                        </span>
+                        </div>
 
                         <button
                           onClick={() =>

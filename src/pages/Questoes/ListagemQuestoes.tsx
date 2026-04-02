@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { QuestoesService } from "./services/questoes.service";
 import type {
@@ -41,6 +41,42 @@ const EDUCATION_LEVEL_LABEL: Record<EducationLevelApi, string> = {
     outro: "Outro",
 };
 
+type PaginationItem = number | "ellipsis";
+
+function buildPaginationItems(
+    currentPage: number,
+    totalPages: number,
+): PaginationItem[] {
+    if (totalPages <= 1) return [];
+
+    const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+    if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const startPages = [1, 2, 3];
+    const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+    if (safeCurrent <= 3) {
+        return [...startPages, "ellipsis", ...endPages];
+    }
+
+    if (safeCurrent >= totalPages - 2) {
+        return [...startPages, "ellipsis", ...endPages];
+    }
+
+    return [
+        1,
+        "ellipsis",
+        safeCurrent - 1,
+        safeCurrent,
+        safeCurrent + 1,
+        "ellipsis",
+        totalPages,
+    ];
+}
+
 export default function ListagemQuestoes() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -65,6 +101,11 @@ export default function ListagemQuestoes() {
     const [meta, setMeta] = useState<MetaPaginacao | null>(null);
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
+
+    const paginationItems = useMemo(() => {
+        if (!meta) return [];
+        return buildPaginationItems(page, meta.totalPages);
+    }, [meta, page]);
 
     // ── Buscar questões ──
     useEffect(() => {
@@ -392,19 +433,53 @@ export default function ListagemQuestoes() {
                                     <ChevronLeft size={20} />
                                 </button>
 
-                                <span className="text-sm text-gray-600">
-                                    Página{" "}
-                                    <span className="font-semibold">
-                                        {meta.page}
-                                    </span>{" "}
-                                    de{" "}
-                                    <span className="font-semibold">
-                                        {meta.totalPages}
-                                    </span>{" "}
-                                    <span className="text-gray-400">
-                                        ({meta.total} questões)
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                        {paginationItems.map((item, idx) =>
+                                            item === "ellipsis" ? (
+                                                <span
+                                                    key={`ellipsis-${idx}`}
+                                                    className="px-2 text-gray-400 select-none"
+                                                    aria-hidden
+                                                >
+                                                    ...
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    key={item}
+                                                    onClick={() => setPage(item)}
+                                                    disabled={item === page}
+                                                    aria-current={
+                                                        item === page
+                                                            ? "page"
+                                                            : undefined
+                                                    }
+                                                    className={
+                                                        item === page
+                                                            ? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
+                                                            : "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                                                    }
+                                                >
+                                                    {item}
+                                                </button>
+                                            ),
+                                        )}
+                                    </div>
+
+                                    <span className="text-sm text-gray-600">
+                                        Página{" "}
+                                        <span className="font-semibold">
+                                            {meta.page}
+                                        </span>{" "}
+                                        de{" "}
+                                        <span className="font-semibold">
+                                            {meta.totalPages}
+                                        </span>{" "}
+                                        <span className="text-gray-400">
+                                            ({meta.total} questões)
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
 
                                 <button
                                     onClick={() =>
