@@ -4,11 +4,17 @@ export interface Alternativa {
     id: string;
     text: string;
     isCorrect?: boolean;
+    imageUrl?: string;
+    imageSource?: string;
+    image?: string;
 }
 
 export interface AlternativaFormulario {
     text: string;
     isCorrect: boolean;
+    imageUrl?: string;
+    imageSource?: string;
+    image?: string;
 }
 
 // ── Questão ──
@@ -28,6 +34,8 @@ export interface Questao {
     id: string;
     authorId?: string;
     statement: string;
+    imageUrl?: string;
+    imageSource?: string;
     subject: string;
     educationLevel?: EducationLevelApi;
     grade?: number;
@@ -79,6 +87,8 @@ export interface FiltrosQuestoesPrivadas {
 
 export interface CriarQuestaoRequisicao {
     statement: string;
+    imageUrl?: string;
+    imageSource?: string;
     content: string;
     subject: string;
     educationLevel: EducationLevelApi;
@@ -91,6 +101,8 @@ export interface CriarQuestaoRequisicao {
 
 export interface AtualizarQuestaoRequisicao {
     statement?: string;
+    imageUrl?: string;
+    imageSource?: string;
     content?: string;
     subject?: string;
     educationLevel?: EducationLevelApi;
