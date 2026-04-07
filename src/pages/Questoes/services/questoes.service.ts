@@ -87,6 +87,28 @@ const DIFFICULTY_ALLOWED = ["easy", "medium", "hard"] as const;
 
 const QUESTION_TYPE_ALLOWED = ["multiple_choice", "true_false", "essay"] as const;
 
+function sanitizeQuestionPayload<T extends CriarQuestaoRequisicao | AtualizarQuestaoRequisicao>(
+    payload: T,
+): T {
+    const sanitized: Record<string, unknown> = { ...payload };
+
+    if (sanitized.imageSource === null) {
+        delete sanitized.imageSource;
+    }
+
+    if (Array.isArray(sanitized.alternatives)) {
+        sanitized.alternatives = sanitized.alternatives.map((alt) => {
+            const alternativa = { ...alt } as Record<string, unknown>;
+            if (alternativa.imageSource === null) {
+                delete alternativa.imageSource;
+            }
+            return alternativa;
+        });
+    }
+
+    return sanitized as T;
+}
+
 function validateAlternativesRules(payload: CriarQuestaoRequisicao) {
     const questionType = payload.questionType;
 
@@ -149,7 +171,8 @@ function buildCreateQuestionBody(payload: CriarQuestaoRequisicao) {
     validateAlternativesRules(payload);
 
     const isPublic = isBoolean(payload.isPublic) ? payload.isPublic : false;
-    return {
+
+    const body: Record<string, unknown> = {
         statement: payload.statement.trim(),
         content: payload.content.trim(),
         subject: payload.subject.trim(),
@@ -160,6 +183,16 @@ function buildCreateQuestionBody(payload: CriarQuestaoRequisicao) {
         isPublic,
         alternatives: payload.questionType === "essay" ? undefined : payload.alternatives,
     };
+
+    if (payload.imageUrl) {
+        body.imageUrl = payload.imageUrl;
+    }
+
+    if (payload.imageSource) {
+        body.imageSource = payload.imageSource;
+    }
+
+    return body;
 }
 
 export class QuestoesService {
@@ -272,7 +305,8 @@ export class QuestoesService {
         dados: AtualizarQuestaoRequisicao,
     ): Promise<Questao> {
         try {
-            const response = await httpClient.patch(`/questions/${id}`, dados);
+            const body = sanitizeQuestionPayload(dados);
+            const response = await httpClient.patch(`/questions/${id}`, body);
 
             return response.data;
         } catch (error) {
