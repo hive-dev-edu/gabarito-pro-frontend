@@ -121,6 +121,8 @@ export default function EditarQuestao() {
                     <FormularioQuestao
                         valoresIniciais={{
                             statement: questaoOriginal.statement,
+                            imageUrl: questaoOriginal.imageUrl,
+                            imageSource: questaoOriginal.imageSource,
                             content: questaoOriginal.content,
                             subject: questaoOriginal.subject,
                             educationLevel: questaoOriginal.educationLevel ?? "outro",
@@ -132,6 +134,8 @@ export default function EditarQuestao() {
                                 (a) => ({
                                     text: a.text,
                                     isCorrect: a.isCorrect ?? false,
+                                    imageUrl: a.imageUrl ?? a.image,
+                                    imageSource: a.imageSource,
                                 }),
                             ),
                         }}
