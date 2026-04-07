@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { QuestoesService } from "./services/questoes.service";
-import type { Questao, Dificuldade } from "./types/questoes.types";
+import type { Questao, Dificuldade, QuestionType } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import ModalExcluirQuestao from "./components/ModalExcluirQuestao";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
@@ -18,6 +18,12 @@ const DIFICULDADE_COR: Record<Dificuldade, string> = {
     easy: "bg-green-100 text-green-700",
     medium: "bg-yellow-100 text-yellow-700",
     hard: "bg-red-100 text-red-700",
+};
+
+const TIPO_QUESTAO_LABEL: Record<QuestionType, string> = {
+    multiple_choice: "Múltipla escolha",
+    true_false: "Verdadeiro/Falso",
+    essay: "Dissertativa",
 };
 
 const LETRAS = ["A", "B", "C", "D", "E"];
@@ -143,7 +149,7 @@ export default function DetalheQuestao() {
                             </span>
                             {questao.questionType && (
                                 <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                                    {questao.questionType}
+                                    {TIPO_QUESTAO_LABEL[questao.questionType]}
                                 </span>
                             )}
                             <span
@@ -193,33 +199,60 @@ export default function DetalheQuestao() {
                     </p>
 
                     {/* Enunciado */}
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
                         {questao.statement}
                     </h2>
+
+                    {/* Imagem do enunciado */}
+                    {(questao.imageUrl ?? (questao as Questao & { statementImage?: string }).statementImage) && (
+                        <div className="mb-6">
+                            <img
+                                src={questao.imageUrl ?? (questao as Questao & { statementImage?: string }).statementImage}
+                                alt="Imagem do enunciado"
+                                className="max-w-full h-auto rounded-xl border border-gray-200"
+                            />
+                        </div>
+                    )}
 
                     {/* Alternativas */}
                     <div className="space-y-2.5 sm:space-y-3">
                         {questao.alternatives.map((alt, index) => (
                             <div
                                 key={alt.id}
-                                className={`flex items-start sm:items-center gap-2.5 sm:gap-3 p-3 sm:p-4 rounded-xl border transition-colors ${
+                                className={`p-3 sm:p-4 rounded-xl border transition-colors ${
                                     alt.isCorrect
                                         ? "border-[#2EC5B6] bg-teal-50"
                                         : "border-gray-200 bg-white"
                                 }`}
                             >
-                                <span
-                                    className={`shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${
-                                        alt.isCorrect
-                                            ? "bg-[#2EC5B6] text-white"
-                                            : "bg-gray-100 text-gray-500"
-                                    }`}
-                                >
-                                    {LETRAS[index]}
-                                </span>
-                                <span className="text-sm sm:text-base text-gray-700">
-                                    {alt.text}
-                                </span>
+                                <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                                    <span
+                                        className={`shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${
+                                            alt.isCorrect
+                                                ? "bg-[#2EC5B6] text-white"
+                                                : "bg-gray-100 text-gray-500"
+                                        }`}
+                                    >
+                                        {LETRAS[index]}
+                                    </span>
+                                    <span className="text-sm sm:text-base text-gray-700">
+                                        {alt.text}
+                                    </span>
+                                </div>
+                                {(alt.imageUrl ?? alt.image) && (
+                                    <div className="mt-3 ml-10">
+                                        <img
+                                            src={alt.imageUrl ?? alt.image}
+                                            alt={`Imagem da alternativa ${LETRAS[index]}`}
+                                            className="max-w-xs h-auto rounded-lg border border-gray-200"
+                                        />
+                                        {alt.imageSource && (
+                                            <p className="text-xs text-gray-500 mt-1.5">
+                                                Fonte: {alt.imageSource}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
