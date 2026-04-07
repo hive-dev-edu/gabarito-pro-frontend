@@ -7,6 +7,7 @@ import type {
     QuestionType,
 } from "../types/questoes.types";
 import IconeCarregamento from "../../../shared/components/IconeCarregamento";
+import CampoUploadImagem from "./CampoUploadImagem";
 import { Lock, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +18,8 @@ interface FormularioQuestaoProps {
         Pick<
             CriarQuestaoRequisicao,
             | "statement"
+            | "imageUrl"
+            | "imageSource"
             | "content"
             | "subject"
             | "educationLevel"
@@ -102,6 +105,12 @@ export default function FormularioQuestao({
     const [statement, setStatement] = useState(
         valoresIniciais?.statement ?? "",
     );
+    const [imageUrl, setImageUrl] = useState<string | undefined>(
+        valoresIniciais?.imageUrl,
+    );
+    const [imageSource, setImageSource] = useState<string>(
+        valoresIniciais?.imageSource ?? "",
+    );
     const [content, setContent] = useState(valoresIniciais?.content ?? "");
     const [subject, setSubject] = useState(valoresIniciais?.subject ?? "");
     const [educationLevel, setEducationLevel] = useState<EducationLevelApi>(
@@ -152,6 +161,35 @@ export default function FormularioQuestao({
         );
     }
 
+    // ── Alternar imagem da alternativa ──
+    function handleAlternativaImagem(index: number, imageUrl: string | undefined) {
+        setAlternatives((prev) =>
+            prev.map((alt, i) => {
+                if (i !== index) return alt;
+                return {
+                    ...alt,
+                    imageUrl,
+                    imageSource: imageUrl ? alt.imageSource : undefined,
+                };
+            }),
+        );
+    }
+
+    function handleAlternativaFonte(index: number, imageSource: string) {
+        setAlternatives((prev) =>
+            prev.map((alt, i) =>
+                i === index ? { ...alt, imageSource } : alt,
+            ),
+        );
+    }
+
+    function handleImagemEnunciadoAlterada(url: string | undefined) {
+        setImageUrl(url);
+        if (!url) {
+            setImageSource("");
+        }
+    }
+
     // ── Alternar correta ──
     function handleAlternativaCorreta(index: number) {
         setAlternatives((prev) =>
@@ -177,6 +215,10 @@ export default function FormularioQuestao({
 
         if (!questionType) {
             novosErros.push("O tipo de questão é obrigatório.");
+        }
+
+        if (imageUrl && !imageSource.trim()) {
+            novosErros.push("A fonte da imagem do enunciado é obrigatória quando houver imagem.");
         }
 
         if (requiredAlternativesCount > 0) {
@@ -219,6 +261,8 @@ export default function FormularioQuestao({
 
         await onSubmit({
             statement,
+            imageUrl,
+            imageSource: imageUrl ? imageSource.trim() : undefined,
             content,
             subject,
             educationLevel,
@@ -245,6 +289,33 @@ export default function FormularioQuestao({
                     className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] resize-none text-sm sm:text-base"
                     placeholder="Digite o enunciado da questão..."
                 />
+                <div className="mt-3">
+                    <CampoUploadImagem
+                        urlImagem={imageUrl}
+                        onImagemAlterada={handleImagemEnunciadoAlterada}
+                        rotulo="Imagem do enunciado (opcional)"
+                        tamanhoPreview="grande"
+                    />
+                </div>
+
+                {imageUrl && (
+                    <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Fonte da imagem do enunciado
+                        </label>
+                        <input
+                            type="text"
+                            value={imageSource}
+                            onChange={(e) => setImageSource(e.target.value)}
+                            className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                            placeholder="Ex: Acervo interno"
+                            required
+                        />
+                        <p className="mt-1.5 text-xs text-gray-500">
+                            Obrigatório quando houver imagem no enunciado.
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Conteúdo / Tema */}
@@ -404,7 +475,7 @@ export default function FormularioQuestao({
                         </span>
                     </label>
 
-                    <div className="space-y-2.5 sm:space-y-3">
+                    <div className="space-y-4">
                         {alternatives.map((alt, index) => {
                             const label =
                                 questionType === "true_false"
@@ -421,34 +492,65 @@ export default function FormularioQuestao({
                             return (
                                 <div
                                     key={index}
-                                    className="flex items-center gap-2 sm:gap-3"
+                                    className="p-3 sm:p-4 border border-gray-200 rounded-xl space-y-3"
                                 >
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleAlternativaCorreta(index)
-                                        }
-                                        className={`shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center font-semibold text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
-                                            alt.isCorrect
-                                                ? "bg-[#2EC5B6] text-white"
-                                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                        }`}
-                                    >
-                                        {label}
-                                    </button>
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleAlternativaCorreta(index)
+                                            }
+                                            className={`shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center font-semibold text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
+                                                alt.isCorrect
+                                                    ? "bg-[#2EC5B6] text-white"
+                                                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
 
-                                    <input
-                                        type="text"
-                                        value={alt.text}
-                                        onChange={(e) =>
-                                            handleAlternativaTexto(
-                                                index,
-                                                e.target.value,
-                                            )
+                                        <input
+                                            type="text"
+                                            value={alt.text}
+                                            onChange={(e) =>
+                                                handleAlternativaTexto(
+                                                    index,
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="flex-1 min-w-0 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                                            placeholder={placeholder}
+                                        />
+                                    </div>
+
+                                    <CampoUploadImagem
+                                        urlImagem={alt.imageUrl ?? alt.image}
+                                        onImagemAlterada={(url) =>
+                                            handleAlternativaImagem(index, url)
                                         }
-                                        className="flex-1 min-w-0 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
-                                        placeholder={placeholder}
+                                        rotulo=""
+                                        tamanhoPreview="pequeno"
                                     />
+
+                                    {(alt.imageUrl ?? alt.image) && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Fonte da imagem da alternativa
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={alt.imageSource ?? ""}
+                                                onChange={(e) =>
+                                                    handleAlternativaFonte(
+                                                        index,
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                                                placeholder="Ex: Acervo interno"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
