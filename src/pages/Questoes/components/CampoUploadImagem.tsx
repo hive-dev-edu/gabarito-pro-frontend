@@ -8,6 +8,7 @@ interface CampoUploadImagemProps {
     onImagemAlterada: (url: string | undefined) => void;
     rotulo?: string;
     tamanhoPreview?: "pequeno" | "medio" | "grande";
+    uploadFn?: (arquivo: File) => Promise<string>;
 }
 
 export default function CampoUploadImagem({
@@ -15,6 +16,7 @@ export default function CampoUploadImagem({
     onImagemAlterada,
     rotulo = "Imagem",
     tamanhoPreview = "medio",
+    uploadFn = uploadImagem,
 }: CampoUploadImagemProps) {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export default function CampoUploadImagem({
         setErro(null);
 
         try {
-            const url = await uploadImagem(arquivo);
+            const url = await uploadFn(arquivo);
             onImagemAlterada(url);
         } catch (err) {
             if (err instanceof Error) {

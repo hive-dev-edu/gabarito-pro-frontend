@@ -1,4 +1,5 @@
-import { Route, Routes, Navigate } from "react-router-dom";import Login from "../pages/Login/Login";
+import { Route, Routes, Navigate } from "react-router-dom";
+import Login from "../pages/Login/Login";
 import Cadastro from "../pages/Cadastro/Cadastro";
 import VerificarToken from "../pages/VerificarToken/VerificarToken";
 import EsqueceuSenha from "../pages/EsqueceuSenha/EsqueceuSenha";
@@ -18,6 +19,8 @@ import PaginaAvaliacoes from "../pages/Avaliacoes/Avaliacoes";
 import CriarAvaliacao from "../pages/Avaliacoes/Criar";
 import PaginaRascunhos from "../pages/Avaliacoes/Rascunhos";
 import PaginaVersoes from "../pages/Avaliacoes/Versoes";
+import PaginaCorrecoes from "../pages/Avaliacoes/Correcoes";
+import PaginaCorrecaoDetalhe from "../pages/Avaliacoes/CorrecaoDetalhe";
 
 
 export default function AppRoutes() {
@@ -53,6 +56,8 @@ export default function AppRoutes() {
                 <Route path="/avaliacoes/criar" element={<CriarAvaliacao />} />
                 <Route path="/avaliacoes/rascunhos" element={<PaginaRascunhos />} />
                 <Route path="/avaliacoes/:id/versoes" element={<PaginaVersoes />} />
+                <Route path="/avaliacoes/:id/correcoes" element={<PaginaCorrecoes />} />
+                <Route path="/correcoes/:id" element={<PaginaCorrecaoDetalhe />} />
             </Route>
         </Routes>
     );
