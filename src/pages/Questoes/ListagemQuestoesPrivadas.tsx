@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuestoesService } from "./services/questoes.service";
 import type {
 	Questao,
@@ -8,29 +8,10 @@ import type {
 	EducationLevelApi,
 } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
+import ListaQuestoes from "../../shared/components/ListaQuestoes";
 import { Lock, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 const questoesService = new QuestoesService();
-
-const DIFICULDADE_LABEL: Record<Dificuldade, string> = {
-	easy: "Fácil",
-	medium: "Médio",
-	hard: "Difícil",
-};
-
-const DIFICULDADE_COR: Record<Dificuldade, string> = {
-	easy: "bg-green-100 text-green-700",
-	medium: "bg-yellow-100 text-yellow-700",
-	hard: "bg-red-100 text-red-700",
-};
-
-const EDUCATION_LEVEL_LABEL: Record<EducationLevelApi, string> = {
-	ensino_fundamental: "Ensino Fundamental",
-	ensino_medio: "Ensino Médio",
-	ensino_tecnico: "Ensino Técnico",
-	ensino_superior: "Ensino Superior",
-	outro: "Outro",
-};
 
 type PaginationItem = number | "ellipsis";
 
@@ -288,51 +269,11 @@ export default function ListagemQuestoesPrivadas() {
 				) : (
 					<>
 						{/* Lista */}
-						<div className="space-y-4">
-							{questoes.map((questao) => (
-								<Link
-									key={questao.id}
-									to={`/questoes/${questao.id}`}
-									className="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300"
-								>
-									<div className="flex items-start justify-between gap-4">
-										<div className="flex-1 min-w-0">
-											<p className="text-gray-800 font-medium line-clamp-2">
-												{questao.statement}
-											</p>
-											<div className="flex flex-wrap items-center gap-2 mt-3">
-												<span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-													{questao.subject}
-												</span>
-													<span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-														{questao.educationLevel
-															? EDUCATION_LEVEL_LABEL[questao.educationLevel]
-															: "—"}
-													</span>
-												<span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-														{typeof questao.grade === "number"
-															? `${questao.grade}º`
-															: "—"}
-												</span>
-												<span
-													className={`text-xs px-3 py-1 rounded-full ${
-														DIFICULDADE_COR[questao.difficulty]
-													}`}
-												>
-													{DIFICULDADE_LABEL[questao.difficulty]}
-												</span>
-												<span className="text-xs text-gray-400">
-													{questao.content}
-												</span>
-											</div>
-										</div>
-										<span className="text-xs px-3 py-1 rounded-full shrink-0 bg-orange-100 text-orange-700">
-											Privada
-										</span>
-									</div>
-								</Link>
-							))}
-						</div>
+						<ListaQuestoes
+							variant="link"
+							questoes={questoes}
+							privacyBadgeMode="alwaysPrivate"
+						/>
 
 						{/* Paginação */}
 						{meta && meta.totalPages > 1 && (

@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  Plus,
   Save,
   Search,
   SendHorizonal,
@@ -20,6 +19,7 @@ import type { Turma } from "../Turmas/types/turma.types";
 import type { Questao, Dificuldade } from "../Questoes/types/questoes.types";
 
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
+import ListaQuestoes from "../../shared/components/ListaQuestoes";
 import ListaQuestoesSelecionadas from "./components/ListaQuestoesSelecionadas";
 
 interface QuestaoSelecionadaLocal {
@@ -69,13 +69,6 @@ function buildPaginationItems(
     "ellipsis",
     totalPages,
   ];
-}
-
-function traduzirDificuldade(dificuldade?: string) {
-  if (dificuldade === "easy") return "Fácil";
-  if (dificuldade === "medium") return "Média";
-  if (dificuldade === "hard") return "Difícil";
-  return "Não informada";
 }
 
 export default function CriarAvaliacaoPage() {
@@ -287,6 +280,10 @@ export default function CriarAvaliacaoPage() {
       (acc, questao) => acc + Number(questao.weight || 0),
       0
     );
+  }, [questoesSelecionadas]);
+
+  const selectedQuestionIds = useMemo(() => {
+    return new Set(questoesSelecionadas.map((item) => item.questionId));
   }, [questoesSelecionadas]);
 
   const paginationItemsQuestoes = useMemo(() => {
@@ -640,60 +637,12 @@ export default function CriarAvaliacaoPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-3">
-                      {questoesDisponiveisFiltradas.map((questao) => {
-                        const jaSelecionada = questoesSelecionadas.some(
-                          (item) => item.questionId === questao.id
-                        );
-
-                        return (
-                          <div
-                            key={questao.id}
-                            className="rounded-3xl border border-[#DDEDEA] bg-[#FCFEFF] p-4"
-                          >
-                            <div className="flex flex-col gap-3">
-                              <div>
-                                <p className="line-clamp-2 text-sm font-semibold text-slate-800">
-                                  {questao.statement}
-                                </p>
-
-                                {questao.content ? (
-                                  <p className="mt-1 line-clamp-2 text-xs text-slate-500">
-                                    {questao.content}
-                                  </p>
-                                ) : null}
-                              </div>
-
-                              <div className="flex flex-wrap gap-2 text-[11px]">
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {questao.subject || "Sem matéria"}
-                                </span>
-
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {questao.grade ? String(questao.grade) : "Ano não informado"}
-                                </span>
-
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {traduzirDificuldade(questao.difficulty)}
-                                </span>
-                                <div>
-                                  <button
-                                    onClick={() => adicionarQuestao(questao)}
-                                    disabled={jaSelecionada}
-                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    <Plus size={14} />
-                                    {jaSelecionada
-                                      ? "Questão adicionada"
-                                      : "Adicionar"}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <ListaQuestoes
+                      variant="select"
+                      questoes={questoesDisponiveisFiltradas}
+                      onAdd={adicionarQuestao}
+                      selectedIds={selectedQuestionIds}
+                    />
 
                     {metaQuestoes && metaQuestoes.totalPages > 1 && (
                       <div className="mt-6 flex items-center justify-center gap-4">
