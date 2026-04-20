@@ -9,55 +9,59 @@ const LETRAS_OMR = ["A", "B", "C", "D", "E"];
 const styles = StyleSheet.create({
   answerGridWrapper: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 20,
+    justifyContent: "center",
+    gap: 8,
     flexWrap: "nowrap",
   },
   answerGridTable: {
-    width: 242,
-    borderWidth: 1,
-    borderColor: "#CFCFCF",
+    width: 214,
   },
   answerGridRow: {
     flexDirection: "row",
     alignItems: "center",
-    height: 34,
+    height: 26,
     justifyContent: "center",
   },
   answerGridHeaderRow: {
-    backgroundColor: "#EAEAEA",
+    backgroundColor: "#FFFFFF",
   },
   answerGridCell: {
-    borderWidth: 1,
-    borderColor: "#CFCFCF",
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#000000",
     alignItems: "center",
     justifyContent: "center",
-    height: 34,
-    marginTop: -1,
-    marginLeft: -1,
+    height: 26,
+  },
+  answerGridCellTopBorder: {
+    borderTopWidth: 1,
+  },
+  answerGridCellLeftBorder: {
+    borderLeftWidth: 1,
   },
   answerGridQuestionCell: {
-    width: 30,
+    width: 24,
   },
   answerGridOptionCell: {
-    width: 42,
+    width: 38,
   },
   answerGridHeaderText: {
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
+    color: "#000000",
   },
   answerGridQuestionText: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
   },
   answerGridBubble: {
-    width: 11,
-    height: 11,
-    borderWidth: 1,
+    width: 8,
+    height: 8,
+    borderWidth: 0.8,
     borderColor: "#000000",
-    borderRadius: 6,
+    borderRadius: 4,
   },
 });
 
@@ -72,7 +76,13 @@ export default function GradeGabaritoOmr({ totalQuestoes }: GradeGabaritoOmrProp
 
   const renderizarLinha = (numeroQuestao: number) => (
     <View key={`omr-row-${numeroQuestao}`} style={styles.answerGridRow} wrap={false}>
-      <View style={[styles.answerGridCell, styles.answerGridQuestionCell]}>
+      <View
+        style={[
+          styles.answerGridCell,
+          styles.answerGridCellLeftBorder,
+          styles.answerGridQuestionCell,
+        ]}
+      >
         <Text style={styles.answerGridQuestionText}>
           {String(numeroQuestao).padStart(2, "0")}
         </Text>
@@ -91,13 +101,24 @@ export default function GradeGabaritoOmr({ totalQuestoes }: GradeGabaritoOmrProp
   const renderizarTabela = (questoes: number[]) => (
     <View style={styles.answerGridTable}>
       <View style={[styles.answerGridRow, styles.answerGridHeaderRow]} wrap={false}>
-        <View style={[styles.answerGridCell, styles.answerGridQuestionCell]}>
+        <View
+          style={[
+            styles.answerGridCell,
+            styles.answerGridCellTopBorder,
+            styles.answerGridCellLeftBorder,
+            styles.answerGridQuestionCell,
+          ]}
+        >
           <Text style={styles.answerGridHeaderText}>Q</Text>
         </View>
         {LETRAS_OMR.map((letra) => (
           <View
             key={`omr-header-${letra}`}
-            style={[styles.answerGridCell, styles.answerGridOptionCell]}
+            style={[
+              styles.answerGridCell,
+              styles.answerGridCellTopBorder,
+              styles.answerGridOptionCell,
+            ]}
           >
             <Text style={styles.answerGridHeaderText}>{letra}</Text>
           </View>
