@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   answerSheetPage: {
-    paddingTop: 28,
-    paddingBottom: 30,
-    paddingHorizontal: 28,
+    paddingTop: 22,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#000000",
@@ -131,39 +131,121 @@ const styles = StyleSheet.create({
     right: 8,
   },
   answerSheetHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    paddingBottom: 10,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#000000",
+    paddingBottom: 0,
+    marginBottom: 0,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 0,
+  },
+  answerSheetHeaderLeft: {
+    flex: 1,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingHorizontal: 10,
+  },
+  answerSheetHeaderRight: {
+    width: 190,
+    alignItems: "stretch",
+    justifyContent: "flex-start",
+    borderLeftWidth: 1,
+    borderLeftColor: "#000000",
+  },
+  qrLabel: {
+    width: "100%",
+    textAlign: "center",
+    color: "#000000",
+    fontSize: 9,
+    fontWeight: "bold",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
+    paddingTop: 6,
+    paddingBottom: 5,
+  },
+  qrBody: {
+    width: "100%",
+    height: 86,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  answerSheetQrImage: {
+    width: 84,
+    height: 84,
   },
   answerSheetTitle: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: "bold",
-  },
-  answerSheetSubtitle: {
-    marginTop: 3,
-    fontSize: 10,
+    color: "#000000",
   },
   studentInfoSection: {
-    marginTop: 4,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: "#000000",
     marginBottom: 8,
-    gap: 6,
+    gap: 0,
   },
-  studentInfoRow: {
+  studentInfoHeaderRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
+    flexWrap: "nowrap",
+    minHeight: 20,
+    backgroundColor: "#FFFFFF",
   },
-  studentInfoItem: {
-    fontSize: 10,
+  studentInfoValueRow: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    minHeight: 28,
+    borderTopWidth: 1,
+    borderTopColor: "#000000",
+  },
+  studentInfoHeaderItem: {
+    fontSize: 9,
+    color: "#000000",
+    fontWeight: "bold",
+  },
+  studentInfoCell: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    justifyContent: "center",
+    borderRightWidth: 1,
+    borderRightColor: "#000000",
+  },
+  studentInfoValueCell: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    justifyContent: "center",
+    borderRightWidth: 1,
+    borderRightColor: "#000000",
+  },
+  studentInfoCellName: {
+    flex: 2.2,
+  },
+  studentInfoCellClass: {
+    flex: 1,
+  },
+  studentInfoCellDate: {
+    flex: 1,
+  },
+  studentInfoCellCode: {
+    flex: 1,
+    borderRightWidth: 0,
+  },
+  studentInfoValueLine: {
+    marginTop: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
+    height: 10,
+  },
+  studentInfoValueCode: {
+    fontSize: 9,
+    color: "#000000",
+    fontWeight: "normal",
   },
   instructions: {
     fontSize: 9,
-    marginBottom: 10,
+    marginBottom: 8,
+    color: "#000000",
   },
 });
 
@@ -232,28 +314,51 @@ export default function ProvaPdfDocument({ data, qrCodes }: Props) {
               <View style={[styles.omrMarker, styles.omrMarkerBottomRight]} />
 
               <View style={styles.answerSheetHeader}>
-                <View>
-                  <Text style={styles.answerSheetTitle}>CARTAO-RESPOSTA</Text>
+                <View style={styles.answerSheetHeaderLeft}>
+                  <Text style={styles.answerSheetTitle}>CARTÃO-RESPOSTA</Text>
                 </View>
-                <View style={styles.qrBox}>
-                  {qrSrc ? (
-                    <Image style={styles.qrImage} src={qrSrc} />
-                  ) : (
-                    <Text>QR</Text>
-                  )}
+                <View style={styles.answerSheetHeaderRight}>
+                  <Text style={styles.qrLabel}>QR CODE</Text>
+                  <View style={styles.qrBody}>
+                    {qrSrc ? (
+                      <Image style={styles.answerSheetQrImage} src={qrSrc} />
+                    ) : (
+                      <Text>QR</Text>
+                    )}
+                  </View>
                 </View>
               </View>
 
               <View style={styles.studentInfoSection}>
-                <View style={styles.studentInfoRow}>
-                  <Text style={styles.studentInfoItem}>Nome do aluno: ____________________________</Text>
-                  <Text style={styles.studentInfoItem}>Turma: __________________</Text>
+                <View style={styles.studentInfoHeaderRow}>
+                  <View style={[styles.studentInfoCell, styles.studentInfoCellName]}>
+                    <Text style={styles.studentInfoHeaderItem}>Nome do aluno</Text>
+                  </View>
+                  <View style={[styles.studentInfoCell, styles.studentInfoCellClass]}>
+                    <Text style={styles.studentInfoHeaderItem}>Turma</Text>
+                  </View>
+                  <View style={[styles.studentInfoCell, styles.studentInfoCellDate]}>
+                    <Text style={styles.studentInfoHeaderItem}>Data</Text>
+                  </View>
+                  <View style={[styles.studentInfoCell, styles.studentInfoCellCode]}>
+                    <Text style={styles.studentInfoHeaderItem}>Codigo</Text>
+                  </View>
                 </View>
-                <View style={styles.studentInfoRow}>
-                  <Text style={styles.studentInfoItem}>Data: __________________</Text>
-                  <Text style={styles.studentInfoItem}>
-                    Codigo: {versao.versionNumber || versao.versionId}
-                  </Text>
+                <View style={styles.studentInfoValueRow}>
+                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellName]}>
+                    <View style={styles.studentInfoValueLine} />
+                  </View>
+                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellClass]}>
+                    <View style={styles.studentInfoValueLine} />
+                  </View>
+                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellDate]}>
+                    <View style={styles.studentInfoValueLine} />
+                  </View>
+                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellCode]}>
+                    <Text style={styles.studentInfoValueCode}>
+                      {versao.versionNumber || versao.versionId}
+                    </Text>
+                  </View>
                 </View>
               </View>
 
