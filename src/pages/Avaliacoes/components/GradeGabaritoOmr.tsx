@@ -57,11 +57,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   answerGridBubble: {
-    width: 8,
-    height: 8,
-    borderWidth: 0.8,
+    width: 11,
+    height: 11,
+    borderWidth: 1.4,
     borderColor: "#000000",
-    borderRadius: 4,
+    borderRadius: 5,
   },
 });
 
