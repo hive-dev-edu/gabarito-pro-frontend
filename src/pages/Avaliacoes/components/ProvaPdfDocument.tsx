@@ -106,6 +106,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#000000",
+  },
+  answerSheetContainer: {
+    borderWidth: 1,
+    borderColor: "#000000",
+    paddingTop: 16,
+    paddingBottom: 12,
+    paddingHorizontal: 12,
     position: "relative",
   },
   omrMarker: {
@@ -115,24 +122,24 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   omrMarkerTopLeft: {
-    top: 8,
-    left: 8,
+    top: 4,
+    left: 4,
   },
   omrMarkerTopRight: {
-    top: 8,
-    right: 8,
+    top: 4,
+    right: 4,
   },
   omrMarkerBottomLeft: {
-    bottom: 8,
-    left: 8,
+    bottom: 4,
+    left: 4,
   },
   omrMarkerBottomRight: {
-    bottom: 8,
-    right: 8,
+    bottom: 4,
+    right: 4,
   },
   answerSheetHeader: {
-    borderWidth: 1,
-    borderColor: "#000000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
     paddingBottom: 0,
     marginBottom: 0,
     flexDirection: "row",
@@ -180,9 +187,8 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   studentInfoSection: {
-    borderWidth: 1,
-    borderTopWidth: 0,
-    borderColor: "#000000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
     marginBottom: 8,
     gap: 0,
   },
@@ -308,65 +314,67 @@ export default function ProvaPdfDocument({ data, qrCodes }: Props) {
 
             {/* Answer Sheet Page */}
             <Page size="A4" style={styles.answerSheetPage}>
-              <View style={[styles.omrMarker, styles.omrMarkerTopLeft]} />
-              <View style={[styles.omrMarker, styles.omrMarkerTopRight]} />
-              <View style={[styles.omrMarker, styles.omrMarkerBottomLeft]} />
-              <View style={[styles.omrMarker, styles.omrMarkerBottomRight]} />
+              <View style={styles.answerSheetContainer}>
+                <View style={[styles.omrMarker, styles.omrMarkerTopLeft]} />
+                <View style={[styles.omrMarker, styles.omrMarkerTopRight]} />
+                <View style={[styles.omrMarker, styles.omrMarkerBottomLeft]} />
+                <View style={[styles.omrMarker, styles.omrMarkerBottomRight]} />
 
-              <View style={styles.answerSheetHeader}>
-                <View style={styles.answerSheetHeaderLeft}>
-                  <Text style={styles.answerSheetTitle}>CARTÃO-RESPOSTA</Text>
-                </View>
-                <View style={styles.answerSheetHeaderRight}>
-                  <Text style={styles.qrLabel}>QR CODE</Text>
-                  <View style={styles.qrBody}>
-                    {qrSrc ? (
-                      <Image style={styles.answerSheetQrImage} src={qrSrc} />
-                    ) : (
-                      <Text>QR</Text>
-                    )}
+                <View style={styles.answerSheetHeader}>
+                  <View style={styles.answerSheetHeaderLeft}>
+                    <Text style={styles.answerSheetTitle}>CARTÃO-RESPOSTA</Text>
+                  </View>
+                  <View style={styles.answerSheetHeaderRight}>
+                    <Text style={styles.qrLabel}>QR CODE</Text>
+                    <View style={styles.qrBody}>
+                      {qrSrc ? (
+                        <Image style={styles.answerSheetQrImage} src={qrSrc} />
+                      ) : (
+                        <Text>QR</Text>
+                      )}
+                    </View>
                   </View>
                 </View>
+
+                <View style={styles.studentInfoSection}>
+                  <View style={styles.studentInfoHeaderRow}>
+                    <View style={[styles.studentInfoCell, styles.studentInfoCellName]}>
+                      <Text style={styles.studentInfoHeaderItem}>Nome do aluno</Text>
+                    </View>
+                    <View style={[styles.studentInfoCell, styles.studentInfoCellClass]}>
+                      <Text style={styles.studentInfoHeaderItem}>Turma</Text>
+                    </View>
+                    <View style={[styles.studentInfoCell, styles.studentInfoCellDate]}>
+                      <Text style={styles.studentInfoHeaderItem}>Data</Text>
+                    </View>
+                    <View style={[styles.studentInfoCell, styles.studentInfoCellCode]}>
+                      <Text style={styles.studentInfoHeaderItem}>Codigo</Text>
+                    </View>
+                  </View>
+                  <View style={styles.studentInfoValueRow}>
+                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellName]}>
+                      <View style={styles.studentInfoValueLine} />
+                    </View>
+                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellClass]}>
+                      <View style={styles.studentInfoValueLine} />
+                    </View>
+                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellDate]}>
+                      <View style={styles.studentInfoValueLine} />
+                    </View>
+                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellCode]}>
+                      <Text style={styles.studentInfoValueCode}>
+                        {versao.versionNumber || versao.versionId}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <Text style={styles.instructions}>
+                  Marque apenas uma alternativa por questao. Use caneta escura e evite rasuras.
+                </Text>
+
+                <GradeGabaritoOmr totalQuestoes={totalQuestions} />
               </View>
-
-              <View style={styles.studentInfoSection}>
-                <View style={styles.studentInfoHeaderRow}>
-                  <View style={[styles.studentInfoCell, styles.studentInfoCellName]}>
-                    <Text style={styles.studentInfoHeaderItem}>Nome do aluno</Text>
-                  </View>
-                  <View style={[styles.studentInfoCell, styles.studentInfoCellClass]}>
-                    <Text style={styles.studentInfoHeaderItem}>Turma</Text>
-                  </View>
-                  <View style={[styles.studentInfoCell, styles.studentInfoCellDate]}>
-                    <Text style={styles.studentInfoHeaderItem}>Data</Text>
-                  </View>
-                  <View style={[styles.studentInfoCell, styles.studentInfoCellCode]}>
-                    <Text style={styles.studentInfoHeaderItem}>Codigo</Text>
-                  </View>
-                </View>
-                <View style={styles.studentInfoValueRow}>
-                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellName]}>
-                    <View style={styles.studentInfoValueLine} />
-                  </View>
-                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellClass]}>
-                    <View style={styles.studentInfoValueLine} />
-                  </View>
-                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellDate]}>
-                    <View style={styles.studentInfoValueLine} />
-                  </View>
-                  <View style={[styles.studentInfoValueCell, styles.studentInfoCellCode]}>
-                    <Text style={styles.studentInfoValueCode}>
-                      {versao.versionNumber || versao.versionId}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <Text style={styles.instructions}>
-                Marque apenas uma alternativa por questao. Use caneta escura e evite rasuras.
-              </Text>
-
-              <GradeGabaritoOmr totalQuestoes={totalQuestions} />
             </Page>
           </Fragment>
         );
