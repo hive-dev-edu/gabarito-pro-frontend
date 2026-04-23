@@ -209,7 +209,7 @@ export default function DetalheQuestao() {
                             <img
                                 src={questao.imageUrl ?? (questao as Questao & { statementImage?: string }).statementImage}
                                 alt="Imagem do enunciado"
-                                className="max-w-full h-auto rounded-xl border border-gray-200"
+                                className="max-w-3/5 h-auto rounded-xl border border-gray-200"
                             />
                         </div>
                     )}
