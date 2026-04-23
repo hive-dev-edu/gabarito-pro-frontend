@@ -5,6 +5,7 @@ import type {
     Questao,
     Dificuldade,
     EducationLevelApi,
+    Alternativa,
 } from "../../pages/Questoes/types/questoes.types";
 
 const DIFICULDADE_LABEL: Record<Dificuldade, string> = {
@@ -28,6 +29,95 @@ const EDUCATION_LEVEL_LABEL: Record<EducationLevelApi, string> = {
 };
 
 type PrivacyBadgeMode = "auto" | "alwaysPrivate" | "hide";
+
+const LETRAS = ["A", "B", "C", "D", "E"]; // usado no Detalhe da Questão
+
+function obterImagemEnunciado(questao: Questao): string | undefined {
+    return (
+        questao.imageUrl ??
+        (questao as Questao & { statementImage?: string }).statementImage
+    );
+}
+
+function obterImagemAlternativa(alt: Alternativa): string | undefined {
+    return alt.imageUrl ?? alt.image;
+}
+
+function obterRotuloAlternativa(index: number): string {
+    return LETRAS[index] ?? String(index + 1);
+}
+
+function QuestaoCompleta({ questao }: { questao: Questao }) {
+    const imagemEnunciado = obterImagemEnunciado(questao);
+
+    return (
+        <div>
+            {/* Conteúdo / Tema */}
+            {questao.content ? (
+                <p className="text-sm text-gray-400 mb-2">{questao.content}</p>
+            ) : null}
+
+            {/* Enunciado */}
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+                {questao.statement}
+            </h2>
+
+            {/* Imagem do enunciado */}
+            {imagemEnunciado ? (
+                <div className="mb-6">
+                    <img
+                        src={imagemEnunciado}
+                        alt="Imagem do enunciado"
+                        className="max-w-4/5 h-auto rounded-xl border border-gray-200"
+                    />
+                </div>
+            ) : null}
+
+            {/* Alternativas */}
+            {questao.alternatives?.length ? (
+                <div className="space-y-2.5 sm:space-y-3">
+                    {questao.alternatives.map((alt, index) => {
+                        const imagemAlternativa = obterImagemAlternativa(alt);
+                        const rotulo = obterRotuloAlternativa(index);
+
+                        return (
+                            <div
+                                key={alt.id ?? `${questao.id}-${index}`}
+                                className="w-full text-left p-3 sm:p-4 rounded-xl border border-gray-200 bg-white transition-colors"
+                            >
+                                <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                                    <span
+                                        className="shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold bg-gray-100 text-gray-500"
+                                    >
+                                        {rotulo}
+                                    </span>
+                                    <span className="text-sm sm:text-base text-gray-700">
+                                        {alt.text}
+                                    </span>
+                                </div>
+
+                                {imagemAlternativa ? (
+                                    <div className="mt-3 ml-10">
+                                        <img
+                                            src={imagemAlternativa}
+                                            alt={`Imagem da alternativa ${rotulo}`}
+                                            className="max-w-xs h-auto rounded-lg border border-gray-200"
+                                        />
+                                        {alt.imageSource ? (
+                                            <p className="text-xs text-gray-500 mt-1.5">
+                                                Fonte: {alt.imageSource}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : null}
+        </div>
+    );
+}
 
 function traduzirDificuldadeAvaliacao(dificuldade?: string) {
     if (dificuldade === "easy") return "Fácil";
@@ -65,10 +155,7 @@ export default function ListaQuestoes(props: Props) {
                     >
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                                <p className="text-gray-800 font-medium line-clamp-2">
-                                    {questao.statement}
-                                </p>
-                                <div className="flex flex-wrap items-center gap-2 mt-3">
+                                <div className="flex flex-wrap items-center gap-2 mt-1 mb-4">
                                     <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                                         {questao.subject}
                                     </span>
@@ -87,8 +174,9 @@ export default function ListaQuestoes(props: Props) {
                                     >
                                         {DIFICULDADE_LABEL[questao.difficulty]}
                                     </span>
-                                    <span className="text-xs text-gray-400">{questao.content}</span>
                                 </div>
+
+                                <QuestaoCompleta questao={questao} />
                             </div>
 
                             {privacyBadgeMode === "hide" ? null : (
@@ -128,17 +216,7 @@ export default function ListaQuestoes(props: Props) {
                         className="rounded-3xl border border-[#DDEDEA] bg-[#FCFEFF] p-4"
                     >
                         <div className="flex flex-col gap-3">
-                            <div>
-                                <p className="line-clamp-2 text-sm font-semibold text-slate-800">
-                                    {questao.statement}
-                                </p>
-
-                                {questao.content ? (
-                                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">
-                                        {questao.content}
-                                    </p>
-                                ) : null}
-                            </div>
+                            <QuestaoCompleta questao={questao} />
 
                             <div className="flex flex-wrap gap-2 text-[11px]">
                                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
