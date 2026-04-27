@@ -22,6 +22,7 @@ type LinhaQuestao = {
   marked?: string;
   correct?: string;
   isCorrect?: boolean;
+  status?: string;
 };
 
 type UnknownRecord = Record<string, unknown>;
@@ -71,14 +72,38 @@ function statusLabel(status: StatusCorrecao) {
   }
 }
 
+function statusQuestaoLabel(status?: string) {
+  const s = String(status ?? "").toUpperCase();
+  if (s === "BLANK") return "Em branco";
+  if (s === "MULTIPLE_MARKS") return "Múltiplas marcações";
+  if (s === "INVALID_ROW") return "Linha inválida";
+  return status;
+}
+
 function normalizeLinhas(answersDetails: unknown): LinhaQuestao[] {
   const computed = isRecord(answersDetails)
     ? (answersDetails.computed ?? answersDetails.computedAnswers)
     : undefined;
 
+  const raw = isRecord(answersDetails)
+    ? (answersDetails.raw ?? answersDetails.rawAnswers)
+    : undefined;
+
+  const getRawStatus = (position: number): string | undefined => {
+    if (!raw || !isRecord(raw)) return undefined;
+    const entry = raw[String(position)];
+    if (!isRecord(entry)) return undefined;
+    const s = entry["status"];
+    return typeof s === "string" ? s : undefined;
+  };
+
   if (!computed) return [];
 
-  const toLinha = (raw: unknown, fallbackPosition?: number): LinhaQuestao | null => {
+  const toLinha = (
+    raw: unknown,
+    fallbackPosition?: number,
+    status?: string
+  ): LinhaQuestao | null => {
     if (!raw && fallbackPosition === undefined) return null;
 
     const rec = isRecord(raw) ? raw : undefined;
@@ -116,12 +141,17 @@ function normalizeLinhas(answersDetails: unknown): LinhaQuestao[] {
         ? marked === correct
         : undefined;
 
-    return { position, marked, correct, isCorrect };
+    const computedStatus = status ?? (!marked ? "BLANK" : undefined);
+
+    return { position, marked, correct, isCorrect, status: computedStatus };
   };
 
   if (Array.isArray(computed)) {
     return computed
-      .map((c, i) => toLinha(c, i + 1))
+      .map((c, i) => {
+        const position = i + 1;
+        return toLinha(c, position, getRawStatus(position));
+      })
       .filter((x): x is LinhaQuestao => Boolean(x))
       .sort((a, b) => a.position - b.position);
   }
@@ -132,9 +162,11 @@ function normalizeLinhas(answersDetails: unknown): LinhaQuestao[] {
         const pos = Number(key);
         if (!Number.isFinite(pos) || pos <= 0) return null;
 
-        if (isRecord(value)) return toLinha(value, pos);
+        const status = getRawStatus(pos);
 
-        return toLinha({ position: pos, marked: value }, pos);
+        if (isRecord(value)) return toLinha(value, pos, status);
+
+        return toLinha({ position: pos, marked: value }, pos, status);
       })
       .filter((x): x is LinhaQuestao => Boolean(x))
       .sort((a, b) => a.position - b.position);
@@ -531,6 +563,10 @@ export default function PaginaCorrecaoDetalhe() {
                             <td className="py-3 pr-4 text-slate-700">
                               {l.marked ? (
                                 l.marked
+                              ) : l.status ? (
+                                <span className="text-amber-700">
+                                  {statusQuestaoLabel(l.status)}
+                                </span>
                               ) : (
                                 <span className="text-slate-500">Em branco</span>
                               )}
@@ -540,10 +576,17 @@ export default function PaginaCorrecaoDetalhe() {
                             </td>
                             <td className="py-3 pr-4">
                               {!l.marked ? (
-                                <span className="inline-flex items-center gap-2 text-amber-700">
-                                  <TriangleAlert size={18} />
-                                  Em branco
-                                </span>
+                                l.status ? (
+                                  <span className="inline-flex items-center gap-2 text-amber-700">
+                                    <TriangleAlert size={18} />
+                                    {statusQuestaoLabel(l.status)}
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-2 text-amber-700">
+                                    <TriangleAlert size={18} />
+                                    Em branco
+                                  </span>
+                                )
                               ) : l.isCorrect === true ? (
                                 <span className="inline-flex items-center gap-2 text-emerald-700">
                                   <CheckCircle2 size={18} />

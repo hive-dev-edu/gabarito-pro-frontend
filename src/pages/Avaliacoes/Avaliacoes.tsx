@@ -170,7 +170,7 @@ export default function AvaliacoesPage() {
     }
   }
 
-  useEffect(() => {view 
+  useEffect(() => {
     carregarAvaliacoes(page);
   }, [page]);
 
