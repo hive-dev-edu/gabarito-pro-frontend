@@ -244,7 +244,7 @@ export default function DetalheQuestao() {
                                         <img
                                             src={alt.imageUrl ?? alt.image}
                                             alt={`Imagem da alternativa ${LETRAS[index]}`}
-                                            className="max-w-xs h-auto rounded-lg border border-gray-200"
+                                            className="max-w-3/5 lg:max-w-1/5 h-auto rounded-lg border border-gray-200"
                                         />
                                         {alt.imageSource && (
                                             <p className="text-xs text-gray-500 mt-1.5">

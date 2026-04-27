@@ -68,7 +68,7 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
                     <img
                         src={imagemEnunciado}
                         alt="Imagem do enunciado"
-                        className="max-w-4/5 h-auto rounded-xl border border-gray-200"
+                        className="max-w-4/5 lg:max-w-2/5 h-auto rounded-xl border border-gray-200"
                     />
                 </div>
             ) : null}
@@ -101,7 +101,7 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
                                         <img
                                             src={imagemAlternativa}
                                             alt={`Imagem da alternativa ${rotulo}`}
-                                            className="max-w-xs h-auto rounded-lg border border-gray-200"
+                                            className="max-w-3/5 lg:max-w-1/5 h-auto rounded-lg border border-gray-200"
                                         />
                                         {alt.imageSource ? (
                                             <p className="text-xs text-gray-500 mt-1.5">
