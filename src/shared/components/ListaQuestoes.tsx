@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import type {
     Questao,
@@ -50,6 +51,16 @@ function obterRotuloAlternativa(index: number): string {
 function QuestaoCompleta({ questao }: { questao: Questao }) {
     const imagemEnunciado = obterImagemEnunciado(questao);
 
+    const [alternativaSelecionadaId, setAlternativaSelecionadaId] =
+        useState<string | null>(null);
+
+    const alternativasComKey = useMemo(() => {
+        return (questao.alternatives ?? []).map((alt, index) => {
+            const key = alt.id ?? `${questao.id}-${index}`;
+            return { alt, index, key };
+        });
+    }, [questao.alternatives, questao.id]);
+
     return (
         <div>
             {/* Conteúdo / Tema */}
@@ -74,20 +85,62 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
             ) : null}
 
             {/* Alternativas */}
-            {questao.alternatives?.length ? (
+            {alternativasComKey.length ? (
                 <div className="space-y-2.5 sm:space-y-3">
-                    {questao.alternatives.map((alt, index) => {
+                    {alternativasComKey.map(({ alt, index, key }) => {
                         const imagemAlternativa = obterImagemAlternativa(alt);
                         const rotulo = obterRotuloAlternativa(index);
 
+                        const jaRespondeu = alternativaSelecionadaId !== null;
+                        const estaSelecionada = alternativaSelecionadaId === key;
+                        const ehCorreta = alt.isCorrect === true;
+
+                        const destaqueAlternativa = !jaRespondeu
+                            ? "border-gray-200 bg-white hover:bg-gray-50"
+                            : ehCorreta
+                              ? "border-green-300 bg-green-50"
+                              : estaSelecionada
+                                ? "border-red-300 bg-red-50"
+                                : "border-gray-200 bg-white";
+
+                        const destaqueRotulo = !jaRespondeu
+                            ? "bg-gray-100 text-gray-500"
+                            : ehCorreta
+                              ? "bg-green-100 text-green-700"
+                              : estaSelecionada
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-500";
+
                         return (
                             <div
-                                key={alt.id ?? `${questao.id}-${index}`}
-                                className="w-full text-left p-3 sm:p-4 rounded-xl border border-gray-200 bg-white transition-colors"
+                                key={key}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    if (alternativaSelecionadaId !== null) return;
+
+                                    setAlternativaSelecionadaId(key);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key !== "Enter" && e.key !== " ") return;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    if (alternativaSelecionadaId !== null) return;
+                                    setAlternativaSelecionadaId(key);
+                                }}
+                                className={`w-full text-left p-3 sm:p-4 rounded-xl border transition-colors ${
+                                    jaRespondeu ? "cursor-default" : "cursor-pointer"
+                                } ${destaqueAlternativa}`}
+                                role="button"
+                                tabIndex={0}
+                                aria-pressed={estaSelecionada}
+                                aria-disabled={jaRespondeu}
                             >
                                 <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
                                     <span
-                                        className="shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold bg-gray-100 text-gray-500"
+                                        className={`shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${destaqueRotulo}`}
                                     >
                                         {rotulo}
                                     </span>
