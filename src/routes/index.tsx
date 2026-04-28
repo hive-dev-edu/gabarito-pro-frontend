@@ -21,6 +21,7 @@ import PaginaRascunhos from "../pages/Avaliacoes/Rascunhos";
 import PaginaVersoes from "../pages/Avaliacoes/Versoes";
 import PaginaCorrecoes from "../pages/Avaliacoes/Correcoes";
 import PaginaCorrecaoDetalhe from "../pages/Avaliacoes/CorrecaoDetalhe";
+import CorrecoesPage from "../pages/Correcoes/Correcoes";
 
 
 export default function AppRoutes() {
@@ -57,6 +58,7 @@ export default function AppRoutes() {
                 <Route path="/avaliacoes/rascunhos" element={<PaginaRascunhos />} />
                 <Route path="/avaliacoes/:id/versoes" element={<PaginaVersoes />} />
                 <Route path="/avaliacoes/:id/correcoes" element={<PaginaCorrecoes />} />
+                <Route path="/correcoes" element={<CorrecoesPage />} />
                 <Route path="/correcoes/:id" element={<PaginaCorrecaoDetalhe />} />
             </Route>
         </Routes>

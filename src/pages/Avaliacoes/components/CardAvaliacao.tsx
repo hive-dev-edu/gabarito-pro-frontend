@@ -199,6 +199,18 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
           <button
             onClick={(e) => {
               e.stopPropagation();
+              navigate(`/correcoes?assessmentId=${avaliacao.id}`);
+            }}
+            className="inline-flex py-4 px-4 gap-2 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            title="Ver correções desta avaliação"
+          >
+            <FileCheck2 size={20} />
+            Ver Correções
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
               navigate(`/avaliacoes/${avaliacao.id}/correcoes`);
             }}
             className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"

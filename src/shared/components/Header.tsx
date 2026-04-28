@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LogOut, User, Home, BookOpen, Users } from "lucide-react";
+import { LogOut, User, Home, BookOpen, Users, FileCheck2 } from "lucide-react";
 import { obterPayloadToken } from "../../utils/auth";
 
 function navItemClassName(isActive: boolean) {
@@ -71,6 +71,14 @@ export default function Header() {
                         >
                             <BookOpen size={16} />
                             <span className="hidden sm:inline">Avaliações</span>
+                        </NavLink>
+
+                        <NavLink
+                            to="/correcoes"
+                            className={({ isActive }) => navItemClassName(isActive)}
+                        >
+                            <FileCheck2 size={16} />
+                            <span className="hidden sm:inline">Correções</span>
                         </NavLink>
                     </nav>
                 </div>

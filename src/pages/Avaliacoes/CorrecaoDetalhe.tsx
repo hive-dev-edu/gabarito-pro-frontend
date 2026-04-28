@@ -15,6 +15,7 @@ import IconeCarregamento from "../../shared/components/IconeCarregamento";
 
 type LocationState = {
   assessmentId?: string;
+  from?: string;
 };
 
 type LinhaQuestao = {
@@ -196,7 +197,9 @@ export default function PaginaCorrecaoDetalhe() {
 
   const backHref = state.assessmentId
     ? `/avaliacoes/${state.assessmentId}/correcoes`
-    : "/avaliacoes";
+    : typeof state.from === "string" && state.from.trim()
+      ? state.from
+      : "/avaliacoes";
 
   const pararTimers = useCallback(() => {
     if (intervalRef.current) {
@@ -609,6 +612,24 @@ export default function PaginaCorrecaoDetalhe() {
                 )}
               </div>
             )}
+
+            {correcao.imageUrl ? (
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-800">Imagem enviada</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Foto/scan utilizado para esta correção.
+                </p>
+
+                <div className="mt-4 flex justify-center">
+                  <img
+                    src={correcao.imageUrl}
+                    alt="Imagem enviada para correção"
+                    className="w-full max-w-xl h-auto rounded-2xl border border-slate-200"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-700">

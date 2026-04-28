@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { DashboardService, type Usuario } from "./services/dashboard.service";
 import type { Questao, Dificuldade } from "../Questoes/types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
-import { PenLine, Search, ArrowRight, BookOpen, Users } from "lucide-react";
+import { PenLine, Search, ArrowRight, BookOpen, Users, FileCheck2 } from "lucide-react";
 
 const dashboardService = new DashboardService();
 
@@ -109,6 +109,14 @@ export default function Dashboard() {
                     >
                         <BookOpen size={16} />
                         Gerenciar Avaliações
+                    </Link>
+
+                    <Link
+                        to="/correcoes"
+                        className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <FileCheck2 size={16} />
+                        Minhas Correções
                     </Link>
                 </div>
 
