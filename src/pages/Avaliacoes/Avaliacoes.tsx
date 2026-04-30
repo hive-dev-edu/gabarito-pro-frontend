@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Bookmark,
@@ -55,10 +55,14 @@ function buildPaginationItems(
 
 export default function AvaliacoesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  const classIdFromUrl = searchParams.get("classId") ?? "";
+  const [classId, setClassId] = useState(classIdFromUrl);
 
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [meta, setMeta] = useState<{
@@ -80,43 +84,35 @@ export default function AvaliacoesPage() {
   } | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  async function carregarAvaliacoes(currentPage = 1) {
-    try {
-      setCarregando(true);
-      setErro("");
+  const carregarAvaliacoes = useCallback(
+    async (currentPage = 1) => {
+      try {
+        setCarregando(true);
+        setErro("");
 
-      const resposta = await AvaliacoesService.getPublished(currentPage, limit);
+        const resposta = await AvaliacoesService.getPublished(
+          currentPage,
+          limit,
+          classId.trim() || undefined,
+        );
 
-      const lista = Array.isArray((resposta as any)?.data)
-        ? (resposta as any).data
-        : Array.isArray((resposta as any)?.items)
-        ? (resposta as any).items
-        : [];
-
-      setAvaliacoes(lista);
-
-      setMeta({
-        total: (resposta as any)?.meta?.total ?? (resposta as any)?.total ?? 0,
-        page: (resposta as any)?.meta?.page ?? (resposta as any)?.page ?? currentPage,
-        limit: (resposta as any)?.meta?.limit ?? limit,
-        totalPages:
-          (resposta as any)?.meta?.totalPages ??
-          (resposta as any)?.totalPages ??
-          1,
-      });
-    } catch (error) {
-      console.error("Erro ao carregar avaliações:", error);
-      setErro(
-        error instanceof Error
-          ? error.message
-          : "Erro ao carregar avaliações."
-      );
-      setAvaliacoes([]);
-      setMeta(null);
-    } finally {
-      setCarregando(false);
-    }
-  }
+        setAvaliacoes(Array.isArray(resposta.data) ? resposta.data : []);
+        setMeta(resposta.meta ?? null);
+      } catch (error) {
+        console.error("Erro ao carregar avaliações:", error);
+        setErro(
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar avaliações."
+        );
+        setAvaliacoes([]);
+        setMeta(null);
+      } finally {
+        setCarregando(false);
+      }
+    },
+    [classId, limit],
+  );
 
   async function abrirPreview(id: string) {
     try {
@@ -163,7 +159,6 @@ export default function AvaliacoesPage() {
       fecharModalExcluir();
     } catch (error) {
       console.error("Erro ao excluir avaliação:", error);
-      // eslint-disable-next-line no-alert
       alert(error instanceof Error ? error.message : "Erro ao excluir avaliação.");
     } finally {
       setDeletingId(null);
@@ -172,7 +167,13 @@ export default function AvaliacoesPage() {
 
   useEffect(() => {
     carregarAvaliacoes(page);
-  }, [page]);
+  }, [carregarAvaliacoes, page]);
+
+  useEffect(() => {
+    // mantém o estado em sync com a URL para navegação simples /avaliacoes?classId=...
+    setClassId(classIdFromUrl);
+    setPage(1);
+  }, [classIdFromUrl]);
 
   const avaliacoesFiltradas = useMemo(() => {
     return avaliacoes.filter((avaliacao) => {
@@ -191,6 +192,13 @@ export default function AvaliacoesPage() {
   function handleLimparFiltros() {
     setSearch("");
     setPage(1);
+  }
+
+  function handleLimparTurma() {
+    // remove apenas o filtro de turma e mantém a rota simples
+    const next = new URLSearchParams(searchParams);
+    next.delete("classId");
+    setSearchParams(next, { replace: true });
   }
 
   return (
@@ -214,6 +222,19 @@ export default function AvaliacoesPage() {
                 <p className="text-gray-500 text-sm sm:text-base mt-0.5 sm:mt-1">
                   Visualize e acompanhe suas avaliações publicadas
                 </p>
+                {classId.trim() ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
+                      Filtrando por turma: {classId}
+                    </span>
+                    <button
+                      onClick={handleLimparTurma}
+                      className="text-xs text-[#2EC5B6] underline cursor-pointer"
+                    >
+                      Limpar turma
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
 

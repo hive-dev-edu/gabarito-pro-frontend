@@ -381,6 +381,7 @@ export default function TurmasPage() {
                     turma={turma}
                     onEdit={openEditModal}
                     onDelete={openDeleteModal}
+                    onViewAssessments={(t) => navigate(`/avaliacoes?classId=${t.id}`)}
                   />
                 ))}
               </div>

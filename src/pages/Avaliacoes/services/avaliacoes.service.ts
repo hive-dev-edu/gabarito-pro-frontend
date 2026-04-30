@@ -126,10 +126,11 @@ function normalizePaginatedResponse(raw: any): PaginatedAvaliacoesResponse {
 class AvaliacoesService {
   async getPublished(
     page = 1,
-    limit = 10
+    limit = 10,
+    classId?: string
   ): Promise<PaginatedAvaliacoesResponse> {
     const response = await httpClient.get("/assessments", {
-      params: { status: "PUBLISHED", page, limit },
+      params: { status: "PUBLISHED", page, limit, classId: classId || undefined },
     });
 
     return normalizePaginatedResponse(response.data);
@@ -137,10 +138,11 @@ class AvaliacoesService {
 
   async getDrafts(
     page = 1,
-    limit = 10
+    limit = 10,
+    classId?: string
   ): Promise<PaginatedAvaliacoesResponse> {
     const response = await httpClient.get("/assessments", {
-      params: { status: "DRAFT", page, limit },
+      params: { status: "DRAFT", page, limit, classId: classId || undefined },
     });
 
     return normalizePaginatedResponse(response.data);
