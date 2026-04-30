@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  Plus,
   Save,
   Search,
   SendHorizonal,
@@ -20,6 +19,7 @@ import type { Turma } from "../Turmas/types/turma.types";
 import type { Questao, Dificuldade } from "../Questoes/types/questoes.types";
 
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
+import ListaQuestoes from "../../shared/components/ListaQuestoes";
 import ListaQuestoesSelecionadas from "./components/ListaQuestoesSelecionadas";
 
 interface QuestaoSelecionadaLocal {
@@ -29,17 +29,46 @@ interface QuestaoSelecionadaLocal {
   statement?: string;
   content?: string;
   subject?: string;
-  schoolYear?: string;
+  grade?: number;
   difficulty?: string;
   alternatives?: Array<{ id: string; text: string }>;
   question?: Questao;
 }
 
-function traduzirDificuldade(dificuldade?: string) {
-  if (dificuldade === "easy") return "Fácil";
-  if (dificuldade === "medium") return "Média";
-  if (dificuldade === "hard") return "Difícil";
-  return "Não informada";
+type PaginationItem = number | "ellipsis";
+
+function buildPaginationItems(
+  currentPage: number,
+  totalPages: number
+): PaginationItem[] {
+  if (totalPages <= 1) return [];
+
+  const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const startPages = [1, 2, 3];
+  const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+  if (safeCurrent <= 3) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  if (safeCurrent >= totalPages - 2) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  return [
+    1,
+    "ellipsis",
+    safeCurrent - 1,
+    safeCurrent,
+    safeCurrent + 1,
+    "ellipsis",
+    totalPages,
+  ];
 }
 
 export default function CriarAvaliacaoPage() {
@@ -54,7 +83,7 @@ export default function CriarAvaliacaoPage() {
   const [classId, setClassId] = useState("");
 
   const [subject, setSubject] = useState("");
-  const [schoolYear, setSchoolYear] = useState("");
+  const [grade, setGrade] = useState("");
   const [difficulty, setDifficulty] = useState<Dificuldade | "">("");
   const [includeMyQuestions, setIncludeMyQuestions] = useState(false);
   const [onlyMyQuestions, setOnlyMyQuestions] = useState(false);
@@ -94,7 +123,7 @@ export default function CriarAvaliacaoPage() {
     try {
       const filtrosBase = {
         subject: subject || undefined,
-        schoolYear: schoolYear || undefined,
+        grade: grade || undefined,
         difficulty: difficulty || undefined,
         page: currentPage,
         limit: limitQuestoes,
@@ -143,7 +172,7 @@ export default function CriarAvaliacaoPage() {
               statement: item.statement ?? "",
               content: item.content ?? "",
               subject: item.subject ?? "",
-              schoolYear: item.schoolYear ?? "",
+              grade: item.grade,
               difficulty: (item.difficulty ?? "easy") as Dificuldade,
               alternatives: item.alternatives ?? [],
               createdAt: "",
@@ -158,7 +187,7 @@ export default function CriarAvaliacaoPage() {
                   statement: item.question.statement ?? item.statement ?? "",
                   content: item.question.content ?? item.content ?? "",
                   subject: item.question.subject ?? item.subject ?? "",
-                  schoolYear: item.question.schoolYear ?? item.schoolYear ?? "",
+                  grade: item.question.grade ?? item.grade,
                   difficulty: (
                     item.question.difficulty ??
                     item.difficulty ??
@@ -181,7 +210,7 @@ export default function CriarAvaliacaoPage() {
               statement: item.statement ?? item.question?.statement ?? "",
               content: item.content ?? item.question?.content ?? "",
               subject: item.subject ?? item.question?.subject ?? "",
-              schoolYear: item.schoolYear ?? item.question?.schoolYear ?? "",
+              grade: item.grade ?? item.question?.grade,
               difficulty: item.difficulty ?? item.question?.difficulty ?? "",
               alternatives: item.alternatives ?? item.question?.alternatives ?? [],
               question: questionFromItem ?? fallbackQuestion,
@@ -253,6 +282,15 @@ export default function CriarAvaliacaoPage() {
     );
   }, [questoesSelecionadas]);
 
+  const selectedQuestionIds = useMemo(() => {
+    return new Set(questoesSelecionadas.map((item) => item.questionId));
+  }, [questoesSelecionadas]);
+
+  const paginationItemsQuestoes = useMemo(() => {
+    if (!metaQuestoes) return [];
+    return buildPaginationItems(pageQuestoes, metaQuestoes.totalPages);
+  }, [metaQuestoes, pageQuestoes]);
+
   function adicionarQuestao(questao: Questao) {
     setQuestoesSelecionadas((prev) => {
       if (prev.some((item) => item.questionId === questao.id)) return prev;
@@ -266,7 +304,7 @@ export default function CriarAvaliacaoPage() {
           statement: questao.statement,
           content: questao.content,
           subject: questao.subject,
-          schoolYear: questao.schoolYear,
+          grade: questao.grade,
           difficulty: questao.difficulty,
           alternatives: questao.alternatives ?? [],
           question: questao,
@@ -306,7 +344,7 @@ export default function CriarAvaliacaoPage() {
 
   function handleLimparFiltros() {
     setSubject("");
-    setSchoolYear("");
+    setGrade("");
     setDifficulty("");
     setIncludeMyQuestions(false);
     setOnlyMyQuestions(false);
@@ -482,12 +520,12 @@ export default function CriarAvaliacaoPage() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Ano escolar
+                    Série/Ano
                   </label>
                   <input
                     type="text"
-                    value={schoolYear}
-                    onChange={(e) => setSchoolYear(e.target.value)}
+                    value={grade}
+                    onChange={(e) => setGrade(e.target.value)}
                     className="w-full rounded-2xl border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
                     placeholder="Ex: 8º ano"
                   />
@@ -599,63 +637,15 @@ export default function CriarAvaliacaoPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-3">
-                      {questoesDisponiveisFiltradas.map((questao) => {
-                        const jaSelecionada = questoesSelecionadas.some(
-                          (item) => item.questionId === questao.id
-                        );
-
-                        return (
-                          <div
-                            key={questao.id}
-                            className="rounded-3xl border border-[#DDEDEA] bg-[#FCFEFF] p-4"
-                          >
-                            <div className="flex flex-col gap-3">
-                              <div>
-                                <p className="line-clamp-2 text-sm font-semibold text-slate-800">
-                                  {questao.statement}
-                                </p>
-
-                                {questao.content ? (
-                                  <p className="mt-1 line-clamp-2 text-xs text-slate-500">
-                                    {questao.content}
-                                  </p>
-                                ) : null}
-                              </div>
-
-                              <div className="flex flex-wrap gap-2 text-[11px]">
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {questao.subject || "Sem matéria"}
-                                </span>
-
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {questao.schoolYear || "Ano não informado"}
-                                </span>
-
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                                  {traduzirDificuldade(questao.difficulty)}
-                                </span>
-                                <div>
-                                  <button
-                                    onClick={() => adicionarQuestao(questao)}
-                                    disabled={jaSelecionada}
-                                    className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#27b3a6] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    <Plus size={14} />
-                                    {jaSelecionada
-                                      ? "Questão adicionada"
-                                      : "Adicionar"}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <ListaQuestoes
+                      variant="select"
+                      questoes={questoesDisponiveisFiltradas}
+                      onAdd={adicionarQuestao}
+                      selectedIds={selectedQuestionIds}
+                    />
 
                     {metaQuestoes && metaQuestoes.totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-3">
+                      <div className="mt-6 flex items-center justify-center gap-4">
                         <button
                           onClick={() =>
                             setPageQuestoes((p) => Math.max(1, p - 1))
@@ -666,16 +656,48 @@ export default function CriarAvaliacaoPage() {
                           <ChevronLeft size={18} />
                         </button>
 
-                        <span className="text-sm text-slate-600">
-                          Página{" "}
-                          <span className="font-semibold">
-                            {metaQuestoes.page}
-                          </span>{" "}
-                          de{" "}
-                          <span className="font-semibold">
-                            {metaQuestoes.totalPages}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            {paginationItemsQuestoes.map((item, idx) =>
+                              item === "ellipsis" ? (
+                                <span
+                                  key={`ellipsis-${idx}`}
+                                  className="px-2 text-slate-400 select-none"
+                                  aria-hidden
+                                >
+                                  ...
+                                </span>
+                              ) : (
+                                <button
+                                  key={item}
+                                  onClick={() => setPageQuestoes(item)}
+                                  disabled={item === pageQuestoes}
+                                  aria-current={
+                                    item === pageQuestoes ? "page" : undefined
+                                  }
+                                  className={
+                                    item === pageQuestoes
+                                      ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
+                                      : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+                                  }
+                                >
+                                  {item}
+                                </button>
+                              )
+                            )}
+                          </div>
+
+                          <span className="text-sm text-slate-600">
+                            Página{" "}
+                            <span className="font-semibold">
+                              {metaQuestoes.page}
+                            </span>{" "}
+                            de{" "}
+                            <span className="font-semibold">
+                              {metaQuestoes.totalPages}
+                            </span>
                           </span>
-                        </span>
+                        </div>
 
                         <button
                           onClick={() =>

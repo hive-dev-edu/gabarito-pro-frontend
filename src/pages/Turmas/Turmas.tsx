@@ -12,9 +12,34 @@ import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import type { EducationLevel } from "../../shared/types/education.types";
 import {
   EDUCATION_LEVEL_OPTIONS,
-  getSchoolYearsByEducationLevel,
+  getGradesByEducationLevel,
   parseGradeLevel,
 } from "../../shared/constants/education";
+
+type PaginationItem = number | "ellipsis";
+
+function buildPaginationItems(currentPage: number, totalPages: number): PaginationItem[] {
+  if (totalPages <= 1) return [];
+
+  const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const startPages = [1, 2, 3];
+  const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+  if (safeCurrent <= 3) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  if (safeCurrent >= totalPages - 2) {
+    return [...startPages, "ellipsis", ...endPages];
+  }
+
+  return [1, "ellipsis", safeCurrent - 1, safeCurrent, safeCurrent + 1, "ellipsis", totalPages];
+}
 
 export default function TurmasPage() {
   const navigate = useNavigate();
@@ -23,7 +48,7 @@ export default function TurmasPage() {
   const [educationLevelFilter, setEducationLevelFilter] = useState<
     EducationLevel | ""
   >("");
-  const [schoolYearFilter, setSchoolYearFilter] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
 
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -75,8 +100,8 @@ export default function TurmasPage() {
     return () => clearTimeout(timer);
   }, [sucesso]);
 
-  const schoolYearOptions = useMemo(() => {
-    return getSchoolYearsByEducationLevel(educationLevelFilter);
+  const gradeOptions = useMemo(() => {
+    return getGradesByEducationLevel(educationLevelFilter);
   }, [educationLevelFilter]);
 
   const turmasFiltradas = useMemo(() => {
@@ -92,11 +117,16 @@ export default function TurmasPage() {
         parsed.educationLevel === educationLevelFilter;
 
       const matchesSchoolYear =
-        !schoolYearFilter || parsed.schoolYear === schoolYearFilter;
+        !gradeFilter || parsed.grade === gradeFilter;
 
       return matchesSearch && matchesEducationLevel && matchesSchoolYear;
     });
-  }, [turmas, search, educationLevelFilter, schoolYearFilter]);
+  }, [turmas, search, educationLevelFilter, gradeFilter]);
+
+  const paginationItems = useMemo(() => {
+    if (!meta) return [];
+    return buildPaginationItems(page, meta.totalPages);
+  }, [meta, page]);
 
   function handleFiltrar() {
     setPage(1);
@@ -105,7 +135,7 @@ export default function TurmasPage() {
   function handleLimparFiltros() {
     setSearch("");
     setEducationLevelFilter("");
-    setSchoolYearFilter("");
+    setGradeFilter("");
     setPage(1);
   }
 
@@ -264,7 +294,7 @@ export default function TurmasPage() {
                   onChange={(e) => {
                     const value = e.target.value as EducationLevel | "";
                     setEducationLevelFilter(value);
-                    setSchoolYearFilter("");
+                    setGradeFilter("");
                     setPage(1);
                   }}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
@@ -283,9 +313,9 @@ export default function TurmasPage() {
                   Ano / Série
                 </label>
                 <select
-                  value={schoolYearFilter}
+                  value={gradeFilter}
                   onChange={(e) => {
-                    setSchoolYearFilter(e.target.value);
+                    setGradeFilter(e.target.value);
                     setPage(1);
                   }}
                   disabled={!educationLevelFilter}
@@ -295,7 +325,7 @@ export default function TurmasPage() {
                     {educationLevelFilter ? "Todos" : "Escolha primeiro o nível"}
                   </option>
 
-                  {schoolYearOptions.map((year) => (
+                  {gradeOptions.map((year) => (
                     <option key={year} value={year}>
                       {year}
                     </option>
@@ -351,6 +381,7 @@ export default function TurmasPage() {
                     turma={turma}
                     onEdit={openEditModal}
                     onDelete={openDeleteModal}
+                    onViewAssessments={(t) => navigate(`/avaliacoes?classId=${t.id}`)}
                   />
                 ))}
               </div>
@@ -365,11 +396,41 @@ export default function TurmasPage() {
                     <ChevronLeft size={20} />
                   </button>
 
-                  <span className="text-sm text-gray-600">
-                    Página <span className="font-semibold">{meta.page}</span> de{" "}
-                    <span className="font-semibold">{meta.totalPages}</span>{" "}
-                    <span className="text-gray-400">({meta.total} turmas)</span>
-                  </span>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                      {paginationItems.map((item, idx) =>
+                        item === "ellipsis" ? (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-2 text-gray-400 select-none"
+                            aria-hidden
+                          >
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            onClick={() => setPage(item)}
+                            disabled={item === page}
+                            aria-current={item === page ? "page" : undefined}
+                            className={
+                              item === page
+                                ? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
+                                : "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                            }
+                          >
+                            {item}
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    <span className="text-sm text-gray-600">
+                      Página <span className="font-semibold">{meta.page}</span> de{" "}
+                      <span className="font-semibold">{meta.totalPages}</span>{" "}
+                      <span className="text-gray-400">({meta.total} turmas)</span>
+                    </span>
+                  </div>
 
                   <button
                     onClick={() =>

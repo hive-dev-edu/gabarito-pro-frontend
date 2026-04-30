@@ -1,27 +1,53 @@
-import { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuestoesService } from "./services/questoes.service";
 import type {
 	Questao,
 	MetaPaginacao,
 	Dificuldade,
+	EducationLevelApi,
 } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
+import ListaQuestoes from "../../shared/components/ListaQuestoes";
 import { Lock, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 const questoesService = new QuestoesService();
 
-const DIFICULDADE_LABEL: Record<Dificuldade, string> = {
-	easy: "Fácil",
-	medium: "Médio",
-	hard: "Difícil",
-};
+type PaginationItem = number | "ellipsis";
 
-const DIFICULDADE_COR: Record<Dificuldade, string> = {
-	easy: "bg-green-100 text-green-700",
-	medium: "bg-yellow-100 text-yellow-700",
-	hard: "bg-red-100 text-red-700",
-};
+function buildPaginationItems(
+	currentPage: number,
+	totalPages: number,
+): PaginationItem[] {
+	if (totalPages <= 1) return [];
+
+	const safeCurrent = Math.min(Math.max(1, currentPage), totalPages);
+
+	if (totalPages <= 7) {
+		return Array.from({ length: totalPages }, (_, i) => i + 1);
+	}
+
+	const startPages = [1, 2, 3];
+	const endPages = [totalPages - 2, totalPages - 1, totalPages];
+
+	if (safeCurrent <= 3) {
+		return [...startPages, "ellipsis", ...endPages];
+	}
+
+	if (safeCurrent >= totalPages - 2) {
+		return [...startPages, "ellipsis", ...endPages];
+	}
+
+	return [
+		1,
+		"ellipsis",
+		safeCurrent - 1,
+		safeCurrent,
+		safeCurrent + 1,
+		"ellipsis",
+		totalPages,
+	];
+}
 
 export default function ListagemQuestoesPrivadas() {
 	const navigate = useNavigate();
@@ -29,8 +55,11 @@ export default function ListagemQuestoesPrivadas() {
 
 	// ── Filtros ──
 	const [subject, setSubject] = useState(searchParams.get("subject") ?? "");
-	const [schoolYear, setSchoolYear] = useState(
-		searchParams.get("schoolYear") ?? "",
+	const [educationLevel, setEducationLevel] = useState<EducationLevelApi | "">(
+		(searchParams.get("educationLevel") as EducationLevelApi) ?? "",
+	);
+	const [grade, setGrade] = useState(
+		searchParams.get("grade") ?? "",
 	);
 	const [difficulty, setDifficulty] = useState<Dificuldade | "">(
 		(searchParams.get("difficulty") as Dificuldade) ?? "",
@@ -44,6 +73,11 @@ export default function ListagemQuestoesPrivadas() {
 	const [carregando, setCarregando] = useState(false);
 	const [erro, setErro] = useState("");
 
+	const paginationItems = useMemo(() => {
+		if (!meta) return [];
+		return buildPaginationItems(page, meta.totalPages);
+	}, [meta, page]);
+
 	// ── Buscar questões privadas ──
 	useEffect(() => {
 		async function carregarQuestoes() {
@@ -53,7 +87,8 @@ export default function ListagemQuestoesPrivadas() {
 			try {
 				const resposta = await questoesService.listarPrivadas({
 					subject: subject || undefined,
-					schoolYear: schoolYear || undefined,
+					educationLevel: educationLevel || undefined,
+					grade: grade || undefined,
 					difficulty: difficulty || undefined,
 					page,
 					limit,
@@ -70,17 +105,18 @@ export default function ListagemQuestoesPrivadas() {
 		}
 
 		carregarQuestoes();
-	}, [subject, schoolYear, difficulty, page]);
+	}, [subject, educationLevel, grade, difficulty, page]);
 
 	// ── Sincronizar filtros com URL ──
 	useEffect(() => {
 		const params = new URLSearchParams();
 		if (subject) params.set("subject", subject);
-		if (schoolYear) params.set("schoolYear", schoolYear);
+		if (educationLevel) params.set("educationLevel", educationLevel);
+		if (grade) params.set("grade", grade);
 		if (difficulty) params.set("difficulty", difficulty);
 		if (page > 1) params.set("page", String(page));
 		setSearchParams(params, { replace: true });
-	}, [subject, schoolYear, difficulty, page, setSearchParams]);
+	}, [subject, educationLevel, grade, difficulty, page, setSearchParams]);
 
 	// ── Handlers de filtro ──
 	function handleFiltrar() {
@@ -89,7 +125,8 @@ export default function ListagemQuestoesPrivadas() {
 
 	function handleLimparFiltros() {
 		setSubject("");
-		setSchoolYear("");
+		setEducationLevel("");
+		setGrade("");
 		setDifficulty("");
 		setPage(1);
 	}
@@ -140,13 +177,34 @@ export default function ListagemQuestoesPrivadas() {
 
 						<div>
 							<label className="block text-sm font-medium text-gray-700 mb-1">
-								Ano Escolar
+								Nível de ensino
+							</label>
+							<select
+								value={educationLevel}
+								onChange={(e) => {
+									setEducationLevel(e.target.value as EducationLevelApi | "");
+									handleFiltrar();
+								}}
+								className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
+							>
+								<option value="">Todos</option>
+								<option value="ensino_fundamental">Ensino Fundamental</option>
+								<option value="ensino_medio">Ensino Médio</option>
+								<option value="ensino_tecnico">Ensino Técnico</option>
+								<option value="ensino_superior">Ensino Superior</option>
+								<option value="outro">Outro</option>
+							</select>
+						</div>
+
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Série/Ano
 							</label>
 							<input
 								type="text"
-								value={schoolYear}
+								value={grade}
 								onChange={(e) => {
-									setSchoolYear(e.target.value);
+									setGrade(e.target.value);
 									handleFiltrar();
 								}}
 								className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
@@ -211,44 +269,11 @@ export default function ListagemQuestoesPrivadas() {
 				) : (
 					<>
 						{/* Lista */}
-						<div className="space-y-4">
-							{questoes.map((questao) => (
-								<Link
-									key={questao.id}
-									to={`/questoes/${questao.id}`}
-									className="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300"
-								>
-									<div className="flex items-start justify-between gap-4">
-										<div className="flex-1 min-w-0">
-											<p className="text-gray-800 font-medium line-clamp-2">
-												{questao.statement}
-											</p>
-											<div className="flex flex-wrap items-center gap-2 mt-3">
-												<span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-													{questao.subject}
-												</span>
-												<span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-													{questao.schoolYear}
-												</span>
-												<span
-													className={`text-xs px-3 py-1 rounded-full ${
-														DIFICULDADE_COR[questao.difficulty]
-													}`}
-												>
-													{DIFICULDADE_LABEL[questao.difficulty]}
-												</span>
-												<span className="text-xs text-gray-400">
-													{questao.content}
-												</span>
-											</div>
-										</div>
-										<span className="text-xs px-3 py-1 rounded-full shrink-0 bg-orange-100 text-orange-700">
-											Privada
-										</span>
-									</div>
-								</Link>
-							))}
-						</div>
+						<ListaQuestoes
+							variant="link"
+							questoes={questoes}
+							privacyBadgeMode="alwaysPrivate"
+						/>
 
 						{/* Paginação */}
 						{meta && meta.totalPages > 1 && (
@@ -261,11 +286,44 @@ export default function ListagemQuestoesPrivadas() {
 									<ChevronLeft size={20} />
 								</button>
 
-								<span className="text-sm text-gray-600">
-									Página <span className="font-semibold">{meta.page}</span> de{" "}
-									<span className="font-semibold">{meta.totalPages}</span>{" "}
-									<span className="text-gray-400">({meta.total} questões)</span>
-								</span>
+								<div className="flex flex-col items-center gap-2">
+									<div className="flex items-center justify-center gap-1.5 flex-wrap">
+										{paginationItems.map((item, idx) =>
+											item === "ellipsis" ? (
+												<span
+													key={`ellipsis-${idx}`}
+													className="px-2 text-gray-400 select-none"
+													aria-hidden
+												>
+													...
+												</span>
+											) : (
+												<button
+													key={item}
+													onClick={() => setPage(item)}
+													disabled={item === page}
+													aria-current={
+														item === page ? "page" : undefined
+													}
+													className={
+														item === page
+															? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
+															: "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+													}
+												>
+													{item}
+												</button>
+											),
+										)}
+									</div>
+
+									<span className="text-sm text-gray-600">
+										Página{" "}
+										<span className="font-semibold">{meta.page}</span> de{" "}
+										<span className="font-semibold">{meta.totalPages}</span>{" "}
+										<span className="text-gray-400">({meta.total} questões)</span>
+									</span>
+								</div>
 
 								<button
 									onClick={() =>

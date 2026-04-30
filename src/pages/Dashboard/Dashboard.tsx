@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { DashboardService, type Usuario } from "./services/dashboard.service";
 import type { Questao, Dificuldade } from "../Questoes/types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
-import { PenLine, Search, ArrowRight } from "lucide-react";
+import { PenLine, Search, ArrowRight, BookOpen, Users, FileCheck2 } from "lucide-react";
 
 const dashboardService = new DashboardService();
 
@@ -78,7 +78,7 @@ export default function Dashboard() {
                 </h1>
 
                 {/* ── Ações rápidas ── */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-12 sm:mb-14">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 mb-12 sm:mb-14">
                     <Link
                         to="/questoes/criar"
                         className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl shadow-sm hover:shadow-md hover:bg-teal-600 transition-all duration-200"
@@ -93,6 +93,30 @@ export default function Dashboard() {
                     >
                         <Search size={18} />
                         Banco de Questões
+                    </Link>
+
+                    <Link
+                        to="/turmas"
+                        className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <Users size={16} />
+                        Gerenciar Turmas
+                    </Link>
+
+                    <Link
+                        to="/avaliacoes"
+                        className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <BookOpen size={16} />
+                        Gerenciar Avaliações
+                    </Link>
+
+                    <Link
+                        to="/correcoes"
+                        className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <FileCheck2 size={16} />
+                        Minhas Correções
                     </Link>
                 </div>
 
@@ -128,7 +152,7 @@ export default function Dashboard() {
                                                 {q.subject}
                                             </span>
                                             <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-violet-50 text-violet-500 font-medium">
-                                                {q.schoolYear}
+                                                {q.grade ?? "—"}
                                             </span>
                                             <span
                                                 className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${DIFICULDADE_COR[q.difficulty]}`}

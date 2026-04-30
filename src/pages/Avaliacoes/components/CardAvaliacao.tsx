@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   CalendarDays,
   Eye,
+  FileCheck2,
   FileText,
   GraduationCap,
   Layers,
@@ -119,7 +120,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
 
 
   return (
-    <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer" onClick={() => onPreview(avaliacao.id)}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="mb-3 inline-flex items-center rounded-full border border-[#BDEAE4] bg-[#F4FFFD] px-3 py-1 text-xs font-semibold text-[#14877B]">
@@ -173,7 +174,10 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
 
         <div className="inline-flex items-center gap-3">
           <button
-            onClick={() => onPreview(avaliacao.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview(avaliacao.id);
+            }}
             className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
             title="Visualizar prévia"
           >
@@ -181,15 +185,45 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
           </button>
 
           <button
-            onClick={() => navigate(`/avaliacoes/${avaliacao.id}/versoes`)}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/avaliacoes/${avaliacao.id}/versoes`);
+            }}
+            className="inline-flex py-4 px-4 gap-2 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
             title="Gerenciar versões"
           >
             <Layers size={20} />
+            Gerenciar Versões
           </button>
 
           <button
-            onClick={() => onRequestDelete?.(avaliacao.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/correcoes?assessmentId=${avaliacao.id}`);
+            }}
+            className="inline-flex py-4 px-4 gap-2 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            title="Ver correções desta avaliação"
+          >
+            <FileCheck2 size={20} />
+            Ver Correções
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/avaliacoes/${avaliacao.id}/correcoes`);
+            }}
+            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            title="Correções automáticas"
+          >
+            <FileCheck2 size={20} />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestDelete?.(avaliacao.id);
+            }}
             disabled={deleting}
             className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#F3DCD6] bg-white text-red-600 transition hover:bg-[#FFF5F4] disabled:opacity-60 cursor-pointer"
             title="Excluir avaliação"

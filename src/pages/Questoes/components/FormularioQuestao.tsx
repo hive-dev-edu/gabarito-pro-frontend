@@ -1,35 +1,39 @@
 import { useState } from "react";
 import type {
     AlternativaFormulario,
+    CriarQuestaoRequisicao,
     Dificuldade,
+    EducationLevelApi,
+    QuestionType,
 } from "../types/questoes.types";
 import IconeCarregamento from "../../../shared/components/IconeCarregamento";
+import CampoUploadImagem from "./CampoUploadImagem";
 import { Lock, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // ── Props ──
 
 interface FormularioQuestaoProps {
-    valoresIniciais?: {
-        statement: string;
-        content: string;
-        subject: string;
-        schoolYear: string;
-        difficulty: Dificuldade;
-        isPublic: boolean;
-        alternatives: AlternativaFormulario[];
-    };
-    onSubmit: (dados: {
-        statement: string;
-        content: string;
-        subject: string;
-        schoolYear: string;
-        difficulty: Dificuldade;
-        isPublic: boolean;
-        alternatives: AlternativaFormulario[];
-    }) => Promise<void>;
+    valoresIniciais?: Partial<
+        Pick<
+            CriarQuestaoRequisicao,
+            | "statement"
+            | "imageUrl"
+            | "imageSource"
+            | "content"
+            | "subject"
+            | "educationLevel"
+            | "grade"
+            | "questionType"
+            | "difficulty"
+            | "isPublic"
+            | "alternatives"
+        >
+    >;
+    onSubmit: (dados: CriarQuestaoRequisicao) => Promise<void>;
     textoBotao: string;
     carregando: boolean;
+    bloquearTiposEmDesenvolvimento?: boolean;
 }
 
 // ── Constantes ──
@@ -40,6 +44,48 @@ const alternativasPadrao = (): AlternativaFormulario[] =>
     Array.from({ length: 5 }, () => ({ ...ALTERNATIVA_VAZIA }));
 
 const LETRAS = ["A", "B", "C", "D", "E"];
+const VF = ["V", "F"];
+
+const EDUCATION_LEVEL_OPTIONS: Array<{ value: EducationLevelApi; label: string }> = [
+    { value: "ensino_fundamental", label: "Ensino Fundamental" },
+    { value: "ensino_medio", label: "Ensino Médio" },
+    { value: "ensino_tecnico", label: "Ensino Técnico" },
+    { value: "ensino_superior", label: "Ensino Superior" },
+    { value: "outro", label: "Outro" },
+];
+
+const QUESTION_TYPE_OPTIONS: Array<{ value: QuestionType; label: string }> = [
+    { value: "multiple_choice", label: "Múltipla escolha" },
+    { value: "true_false", label: "Verdadeiro/Falso" },
+    { value: "essay", label: "Dissertativa" },
+];
+
+const MENSAGEM_RECURSO_EM_DESENVOLVIMENTO = "Recurso em desenvolvimento";
+
+function getRequiredAlternativesCount(questionType: QuestionType) {
+    if (questionType === "essay") return 0;
+    if (questionType === "true_false") return 2;
+    return 5;
+}
+
+function normalizarAlternativas(
+    prev: AlternativaFormulario[],
+    requiredAlternativesCount: number,
+) {
+    if (requiredAlternativesCount === 0) return prev;
+
+    const next = prev.slice(0, requiredAlternativesCount);
+    while (next.length < requiredAlternativesCount) {
+        next.push({ ...ALTERNATIVA_VAZIA });
+    }
+
+    const firstCorrect = next.findIndex((a) => a.isCorrect);
+    if (firstCorrect === -1) {
+        return next;
+    }
+
+    return next.map((alt, i) => ({ ...alt, isCorrect: i === firstCorrect }));
+}
 
 // ── Componente ──
 
@@ -48,14 +94,35 @@ export default function FormularioQuestao({
     onSubmit,
     textoBotao,
     carregando,
+    bloquearTiposEmDesenvolvimento = false,
 }: FormularioQuestaoProps) {
+    const questionTypeInicial: QuestionType =
+        valoresIniciais?.questionType ?? "multiple_choice";
+    const requiredAlternativesCountInicial = getRequiredAlternativesCount(
+        questionTypeInicial,
+    );
+
     const [statement, setStatement] = useState(
         valoresIniciais?.statement ?? "",
     );
+    const [imageUrl, setImageUrl] = useState<string | undefined>(
+        valoresIniciais?.imageUrl,
+    );
+    const [imageSource, setImageSource] = useState<string>(
+        valoresIniciais?.imageSource ?? "",
+    );
     const [content, setContent] = useState(valoresIniciais?.content ?? "");
     const [subject, setSubject] = useState(valoresIniciais?.subject ?? "");
-    const [schoolYear, setSchoolYear] = useState(
-        valoresIniciais?.schoolYear ?? "",
+    const [educationLevel, setEducationLevel] = useState<EducationLevelApi>(
+        valoresIniciais?.educationLevel ?? "outro",
+    );
+    const [grade, setGrade] = useState<string>(
+        valoresIniciais?.grade !== undefined && valoresIniciais?.grade !== null
+            ? String(valoresIniciais.grade)
+            : "",
+    );
+    const [questionType, setQuestionType] = useState<QuestionType>(
+        questionTypeInicial,
     );
     const [difficulty, setDifficulty] = useState<Dificuldade>(
         valoresIniciais?.difficulty ?? "easy",
@@ -64,18 +131,63 @@ export default function FormularioQuestao({
         valoresIniciais?.isPublic ?? false,
     );
     const [alternatives, setAlternatives] = useState<AlternativaFormulario[]>(
-        valoresIniciais?.alternatives ?? alternativasPadrao(),
+        () =>
+            normalizarAlternativas(
+                valoresIniciais?.alternatives ?? alternativasPadrao(),
+                requiredAlternativesCountInicial,
+            ),
     );
 
     const navigate = useNavigate()
     
     const [erros, setErros] = useState<string[]>([]);
 
+    const requiredAlternativesCount = getRequiredAlternativesCount(questionType);
+
+    function handleChangeQuestionType(nextType: QuestionType) {
+        setQuestionType(nextType);
+        setAlternatives((prev) =>
+            normalizarAlternativas(prev, getRequiredAlternativesCount(nextType)),
+        );
+        setErros([]);
+    }
+
+    // múltipla escolha: sempre 5 alternativas (A–E)
+
     // ── Alternar texto da alternativa ──
     function handleAlternativaTexto(index: number, text: string) {
         setAlternatives((prev) =>
             prev.map((alt, i) => (i === index ? { ...alt, text } : alt)),
         );
+    }
+
+    // ── Alternar imagem da alternativa ──
+    function handleAlternativaImagem(index: number, imageUrl: string | undefined) {
+        setAlternatives((prev) =>
+            prev.map((alt, i) => {
+                if (i !== index) return alt;
+                return {
+                    ...alt,
+                    imageUrl,
+                    imageSource: imageUrl ? alt.imageSource : undefined,
+                };
+            }),
+        );
+    }
+
+    function handleAlternativaFonte(index: number, imageSource: string) {
+        setAlternatives((prev) =>
+            prev.map((alt, i) =>
+                i === index ? { ...alt, imageSource } : alt,
+            ),
+        );
+    }
+
+    function handleImagemEnunciadoAlterada(url: string | undefined) {
+        setImageUrl(url);
+        if (!url) {
+            setImageSource("");
+        }
     }
 
     // ── Alternar correta ──
@@ -92,18 +204,41 @@ export default function FormularioQuestao({
         if (!statement.trim()) novosErros.push("O enunciado é obrigatório.");
         if (!content.trim()) novosErros.push("O conteúdo é obrigatório.");
         if (!subject.trim()) novosErros.push("A matéria é obrigatória.");
-        if (!schoolYear.trim()) novosErros.push("O ano escolar é obrigatório.");
 
-        const alternativasVazias = alternatives.filter((a) => !a.text.trim());
-        if (alternativasVazias.length > 0) {
-            novosErros.push("Todas as 5 alternativas devem ter texto.");
+        if (!educationLevel)
+            novosErros.push("O nível de educação é obrigatório.");
+
+        const gradeNumber = Number(grade);
+        if (!Number.isInteger(gradeNumber) || gradeNumber <= 0) {
+            novosErros.push("A série/ano (grade) deve ser um número inteiro maior que 0.");
         }
 
-        const corretas = alternatives.filter((a) => a.isCorrect);
-        if (corretas.length !== 1) {
-            novosErros.push(
-                "Exatamente 1 alternativa deve ser marcada como correta.",
-            );
+        if (!questionType) {
+            novosErros.push("O tipo de questão é obrigatório.");
+        }
+
+        if (imageUrl && !imageSource.trim()) {
+            novosErros.push("A fonte da imagem do enunciado é obrigatória quando houver imagem.");
+        }
+
+        if (requiredAlternativesCount > 0) {
+            if (alternatives.length !== requiredAlternativesCount) {
+                novosErros.push(
+                    `A questão deve conter exatamente ${requiredAlternativesCount} alternativas.`,
+                );
+            }
+
+            const alternativasVazias = alternatives.filter((a) => !a.text.trim());
+            if (alternativasVazias.length > 0) {
+                novosErros.push("Todas as alternativas devem ter texto.");
+            }
+
+            const corretas = alternatives.filter((a) => a.isCorrect);
+            if (corretas.length !== 1) {
+                novosErros.push(
+                    "Exatamente 1 alternativa deve ser marcada como correta.",
+                );
+            }
         }
 
         setErros(novosErros);
@@ -113,16 +248,29 @@ export default function FormularioQuestao({
     // ── Submit ──
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (
+            bloquearTiposEmDesenvolvimento &&
+            (questionType === "true_false" || questionType === "essay")
+        ) {
+            setErros([MENSAGEM_RECURSO_EM_DESENVOLVIMENTO]);
+            return;
+        }
+
         if (!validar()) return;
 
         await onSubmit({
             statement,
+            imageUrl,
+            imageSource: imageUrl ? imageSource.trim() : undefined,
             content,
             subject,
-            schoolYear,
+            educationLevel,
+            grade: Number(grade),
+            questionType,
             difficulty,
             isPublic,
-            alternatives,
+            alternatives: requiredAlternativesCount === 0 ? undefined : alternatives,
         });
     }
 
@@ -141,6 +289,33 @@ export default function FormularioQuestao({
                     className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] resize-none text-sm sm:text-base"
                     placeholder="Digite o enunciado da questão..."
                 />
+                <div className="mt-3">
+                    <CampoUploadImagem
+                        urlImagem={imageUrl}
+                        onImagemAlterada={handleImagemEnunciadoAlterada}
+                        rotulo="Imagem do enunciado (opcional)"
+                        tamanhoPreview="grande"
+                    />
+                </div>
+
+                {imageUrl && (
+                    <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Fonte da imagem do enunciado
+                        </label>
+                        <input
+                            type="text"
+                            value={imageSource}
+                            onChange={(e) => setImageSource(e.target.value)}
+                            className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                            placeholder="Ex: Acervo interno"
+                            required
+                        />
+                        <p className="mt-1.5 text-xs text-gray-500">
+                            Obrigatório quando houver imagem no enunciado.
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Conteúdo / Tema */}
@@ -174,15 +349,61 @@ export default function FormularioQuestao({
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ano Escolar
+                        Nível de educação
+                    </label>
+                    <select
+                        value={educationLevel}
+                        onChange={(e) =>
+                            setEducationLevel(e.target.value as EducationLevelApi)
+                        }
+                        className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white text-sm sm:text-base"
+                    >
+                        {EDUCATION_LEVEL_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Série/Ano (grade)
                     </label>
                     <input
-                        type="text"
-                        value={schoolYear}
-                        onChange={(e) => setSchoolYear(e.target.value)}
+                        type="number"
+                        inputMode="numeric"
+                        value={grade}
+                        onChange={(e) => setGrade(e.target.value)}
                         className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
-                        placeholder="Ex: 9"
+                        placeholder="Ex: 6"
+                        min={1}
+                        step={1}
                     />
+                </div>
+            </div>
+
+            {/* Tipo + Dificuldade */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tipo de questão
+                    </label>
+                    <select
+                        value={questionType}
+                        onChange={(e) =>
+                            handleChangeQuestionType(
+                                e.target.value as QuestionType,
+                            )
+                        }
+                        className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white text-sm sm:text-base"
+                    >
+                        {QUESTION_TYPE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div>
@@ -241,57 +462,117 @@ export default function FormularioQuestao({
             </div>
 
             {/* Alternativas */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Alternativas{" "}
-                    <span className="text-gray-400 font-normal">
-                        (selecione a correta)
-                    </span>
-                </label>
-
-                <div className="space-y-2.5 sm:space-y-3">
-                    {alternatives.map((alt, index) => (
-                        <div
-                            key={index}
-                            className="flex items-center gap-2 sm:gap-3"
-                        >
-                            <button
-                                type="button"
-                                onClick={() => handleAlternativaCorreta(index)}
-                                className={`shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center font-semibold text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
-                                    alt.isCorrect
-                                        ? "bg-[#2EC5B6] text-white"
-                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                }`}
-                            >
-                                {LETRAS[index]}
-                            </button>
-
-                            <input
-                                type="text"
-                                value={alt.text}
-                                onChange={(e) =>
-                                    handleAlternativaTexto(
-                                        index,
-                                        e.target.value,
-                                    )
-                                }
-                                className="flex-1 min-w-0 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
-                                placeholder={`Alternativa ${LETRAS[index]}`}
-                            />
-                        </div>
-                    ))}
+            {requiredAlternativesCount === 0 ? (
+                <div className="text-sm text-gray-500">
+                    Questões dissertativas não exigem alternativas.
                 </div>
-            </div>
+            ) : (
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Alternativas{" "}
+                        <span className="text-gray-400 font-normal">
+                            (selecione a correta)
+                        </span>
+                    </label>
+
+                    <div className="space-y-4">
+                        {alternatives.map((alt, index) => {
+                            const label =
+                                questionType === "true_false"
+                                    ? VF[index] ?? String(index + 1)
+                                    : LETRAS[index] ?? String(index + 1);
+
+                            const placeholder =
+                                questionType === "true_false"
+                                    ? index === 0
+                                        ? "Verdadeiro"
+                                        : "Falso"
+                                    : `Alternativa ${label}`;
+
+                            return (
+                                <div
+                                    key={index}
+                                    className="p-3 sm:p-4 border border-gray-200 rounded-xl space-y-3"
+                                >
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleAlternativaCorreta(index)
+                                            }
+                                            className={`shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center font-semibold text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
+                                                alt.isCorrect
+                                                    ? "bg-[#2EC5B6] text-white"
+                                                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
+
+                                        <input
+                                            type="text"
+                                            value={alt.text}
+                                            onChange={(e) =>
+                                                handleAlternativaTexto(
+                                                    index,
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="flex-1 min-w-0 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                                            placeholder={placeholder}
+                                        />
+                                    </div>
+
+                                    <CampoUploadImagem
+                                        urlImagem={alt.imageUrl ?? alt.image}
+                                        onImagemAlterada={(url) =>
+                                            handleAlternativaImagem(index, url)
+                                        }
+                                        rotulo=""
+                                        tamanhoPreview="pequeno"
+                                    />
+
+                                    {(alt.imageUrl ?? alt.image) && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Fonte da imagem da alternativa
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={alt.imageSource ?? ""}
+                                                onChange={(e) =>
+                                                    handleAlternativaFonte(
+                                                        index,
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-sm sm:text-base"
+                                                placeholder="Ex: Acervo interno"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Erros globais */}
             {erros.length > 0 && (
                 <div className="bg-red-50 border border-red-300 text-red-700 p-4 rounded-xl">
-                    {erros.map((erro, i) => (
-                        <p key={i} className="text-sm">
-                            • {erro}
+                    {erros.length === 1 &&
+                    erros[0] === MENSAGEM_RECURSO_EM_DESENVOLVIMENTO ? (
+                        <p className="text-sm">
+                            {MENSAGEM_RECURSO_EM_DESENVOLVIMENTO}
                         </p>
-                    ))}
+                    ) : (
+                        erros.map((erro, i) => (
+                            <p key={i} className="text-sm">
+                                • {erro}
+                            </p>
+                        ))
+                    )}
                 </div>
             )}
 

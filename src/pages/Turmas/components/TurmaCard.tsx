@@ -1,4 +1,4 @@
-import { Pencil, Trash2, GraduationCap, Calendar } from "lucide-react";
+import { Pencil, Trash2, GraduationCap, Calendar, BookOpen } from "lucide-react";
 import type { Turma } from "../types/turma.types";
 import { parseGradeLevel } from "../../../shared/constants/education";
 
@@ -6,9 +6,10 @@ interface TurmaCardProps {
     turma: Turma;
     onEdit: (turma: Turma) => void;
     onDelete: (turma: Turma) => void;
+    onViewAssessments: (turma: Turma) => void;
 }
 
-export default function TurmaCard({ turma, onEdit, onDelete }: TurmaCardProps) {
+export default function TurmaCard({ turma, onEdit, onDelete, onViewAssessments }: TurmaCardProps) {
     const parsed = parseGradeLevel(turma.gradeLevel);
 
     const educationBadgeClass =
@@ -24,8 +25,16 @@ export default function TurmaCard({ turma, onEdit, onDelete }: TurmaCardProps) {
             {/* Ações */}
             <div className="absolute top-4 right-4 flex items-center gap-2">
                 <button
+                    onClick={() => onViewAssessments(turma)}
+                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    title="Ver avaliações da turma"
+                >
+                    <BookOpen size={18} />
+                </button>
+
+                <button
                     onClick={() => onEdit(turma)}
-                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                     title="Editar turma"
                 >
                     <Pencil size={18} />
@@ -59,7 +68,7 @@ export default function TurmaCard({ turma, onEdit, onDelete }: TurmaCardProps) {
 
                         {/* Ano */}
                         <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1 rounded-full">
-                            {parsed.schoolYear}
+                            {parsed.grade}
                         </span>
 
                         {/* Escolaridade */}

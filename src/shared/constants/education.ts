@@ -23,7 +23,7 @@ export const EDUCATION_LEVEL_OPTIONS: EducationLevel[] = [
   "Ensino Médio",
 ];
 
-export function getSchoolYearsByEducationLevel(
+export function getGradesByEducationLevel(
   educationLevel: EducationLevel | ""
 ) {
   if (educationLevel === "Ensino Fundamental") return FUNDAMENTAL_YEARS;
@@ -32,40 +32,40 @@ export function getSchoolYearsByEducationLevel(
 }
 
 export function buildGradeLevel(
-  schoolYear: string,
+  grade: string,
   educationLevel: EducationLevel | ""
 ) {
-  if (!schoolYear || !educationLevel) return "";
-  return `${schoolYear} - ${educationLevel}`;
+  if (!grade || !educationLevel) return "";
+  return `${grade} - ${educationLevel}`;
 }
 
 export function parseGradeLevel(value?: string | null): {
   educationLevel: EducationLevel | "";
-  schoolYear: string;
+  grade: string;
 } {
   if (!value) {
     return {
       educationLevel: "",
-      schoolYear: "",
+      grade: "",
     };
   }
 
   if (value.includes("Ensino Fundamental")) {
     return {
       educationLevel: "Ensino Fundamental",
-      schoolYear: value.replace(" - Ensino Fundamental", "").trim(),
+      grade: value.replace(" - Ensino Fundamental", "").trim(),
     };
   }
 
   if (value.includes("Ensino Médio")) {
     return {
       educationLevel: "Ensino Médio",
-      schoolYear: value.replace(" - Ensino Médio", "").trim(),
+      grade: value.replace(" - Ensino Médio", "").trim(),
     };
   }
 
   return {
     educationLevel: "",
-    schoolYear: "",
+    grade: "",
   };
 }

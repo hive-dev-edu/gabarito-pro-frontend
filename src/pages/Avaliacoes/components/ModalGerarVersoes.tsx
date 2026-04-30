@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Layers } from "lucide-react";
 
 interface Props {
@@ -14,13 +14,30 @@ export default function ModalGerarVersoes({
   onCancel,
   onConfirm,
 }: Props) {
-  const [quantidade, setQuantidade] = useState(1);
-
-  useEffect(() => {
-    if (aberto) setQuantidade(1);
-  }, [aberto]);
-
   if (!aberto) return null;
+
+  return (
+    <ModalGerarVersoesConteudo
+      loading={loading}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+    />
+  );
+}
+
+function ModalGerarVersoesConteudo({
+  loading = false,
+  onCancel,
+  onConfirm,
+}: Omit<Props, "aberto">) {
+  const [quantidade, setQuantidade] = useState<string>("1");
+
+  const quantidadeNumero = quantidade === "" ? null : Number(quantidade);
+  const quantidadeValida =
+    quantidadeNumero !== null &&
+    Number.isInteger(quantidadeNumero) &&
+    quantidadeNumero >= 1 &&
+    quantidadeNumero <= 50;
 
   return (
     <div
@@ -62,13 +79,23 @@ export default function ModalGerarVersoes({
           </label>
           <input
             id="quantidade-versoes"
-            type="number"
-            min={1}
-            max={50}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            pattern="[0-9]*"
             value={quantidade}
             onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              if (!isNaN(val)) setQuantidade(Math.min(50, Math.max(1, val)));
+              const apenasDigitos = e.target.value.replace(/\D/g, "");
+              setQuantidade(apenasDigitos);
+            }}
+            onBlur={() => {
+              if (quantidade === "") return;
+              const val = parseInt(quantidade, 10);
+              if (Number.isNaN(val)) {
+                setQuantidade("");
+                return;
+              }
+              setQuantidade(String(val));
             }}
             className="w-full rounded-2xl border border-slate-300 px-3 py-3 text-sm text-slate-800 outline-none focus:border-[#2EC5B6] focus:ring-1 focus:ring-[#2EC5B6]"
           />
@@ -76,6 +103,7 @@ export default function ModalGerarVersoes({
 
         <div className="mt-6 flex justify-end gap-3">
           <button
+            type="button"
             onClick={onCancel}
             disabled={loading}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 disabled:opacity-60 cursor-pointer"
@@ -84,8 +112,13 @@ export default function ModalGerarVersoes({
           </button>
 
           <button
-            onClick={() => onConfirm(quantidade)}
-            disabled={loading || quantidade < 1 || quantidade > 50}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              if (!quantidadeValida) return;
+              onConfirm(quantidadeNumero);
+            }}
+            disabled={loading || !quantidadeValida}
             className="inline-flex items-center gap-2 rounded-2xl bg-[#2EC5B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#27b3a6] disabled:opacity-60 cursor-pointer"
           >
             {loading ? (
