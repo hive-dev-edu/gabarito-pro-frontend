@@ -26,7 +26,7 @@ export default function TurmaCard({ turma, onEdit, onDelete, onViewAssessments }
             <div className="absolute top-4 right-4 flex items-center gap-2">
                 <button
                     onClick={() => onViewAssessments(turma)}
-                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                     title="Ver avaliações da turma"
                 >
                     <BookOpen size={18} />
@@ -34,7 +34,7 @@ export default function TurmaCard({ turma, onEdit, onDelete, onViewAssessments }
 
                 <button
                     onClick={() => onEdit(turma)}
-                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                     title="Editar turma"
                 >
                     <Pencil size={18} />
