@@ -80,6 +80,7 @@ class CorrecoesService {
     try {
       const response = await httpClient.post("/corrections", {
         imageUrl: payload.imageUrl,
+        assessmentId: payload.assessmentId,
       });
       const data: unknown = response.data;
 

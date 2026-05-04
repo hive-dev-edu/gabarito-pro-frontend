@@ -2,6 +2,7 @@ export type StatusCorrecao = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export interface SubmitCorrecaoPayload {
   imageUrl: string;
+  assessmentId?: string;
 }
 
 export interface CorrecaoResult {

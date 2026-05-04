@@ -57,6 +57,7 @@ export default function PaginaVersoes() {
   // Geração
   const [gerarAberto, setGerarAberto] = useState(false);
   const [gerando, setGerando] = useState(false);
+  const [modoGerar, setModoGerar] = useState<"substituir" | "adicionar">("substituir");
 
   // Exclusão
   const [excluirAberto, setExcluirAberto] = useState(false);
@@ -91,7 +92,7 @@ export default function PaginaVersoes() {
 
   useEffect(() => {
     if (!erroPrintData) return;
-    if (erroPrintData.includes("sem versoes geradas")) return;
+    if (erroPrintData.includes("sem versões geradas")) return;
     setErro(erroPrintData);
   }, [erroPrintData]);
 
@@ -172,7 +173,11 @@ export default function PaginaVersoes() {
     if (!id) return;
     try {
       setGerando(true);
-      await VersoesService.gerar(id, quantidade);
+      if (modoGerar === "substituir") {
+        await VersoesService.gerar(id, quantidade);
+      } else {
+        await VersoesService.adicionar(id, quantidade);
+      }
       setGerarAberto(false);
       await carregarVersoes();
       await recarregarPrintData();
@@ -280,13 +285,41 @@ export default function PaginaVersoes() {
               </div>
             )}
 
-            <button
-              onClick={() => setGerarAberto(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
-            >
-              <Plus size={20} />
-              Gerar Versões
-            </button>
+            {versoes.length > 0 ? (
+              <>
+                <button
+                  onClick={() => {
+                    setModoGerar("substituir");
+                    setGerarAberto(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Layers size={20} />
+                  Substituir Versões
+                </button>
+                <button
+                  onClick={() => {
+                    setModoGerar("adicionar");
+                    setGerarAberto(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
+                >
+                  <Plus size={20} />
+                  Adicionar Versões
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setModoGerar("substituir");
+                  setGerarAberto(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
+              >
+                <Plus size={20} />
+                Gerar Versões
+              </button>
+            )}
           </div>
         </div>
 
@@ -375,6 +408,7 @@ export default function PaginaVersoes() {
 
       <ModalGerarVersoes
         aberto={gerarAberto}
+        modo={modoGerar}
         loading={gerando}
         onCancel={() => setGerarAberto(false)}
         onConfirm={handleGerar}

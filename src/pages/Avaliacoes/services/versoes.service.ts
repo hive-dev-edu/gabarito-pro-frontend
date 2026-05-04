@@ -84,7 +84,7 @@ class VersoesService {
         const message = error.response?.data?.message;
         if (status === 400) {
           throw new Error(
-            message || "A avaliação não está publicada ou não possui questões."
+            message || "Uma ou mais avaliações possui correções feitas, recomendamos o Adicionar Versões."
           );
         }
         if (status === 403) {
@@ -99,6 +99,33 @@ class VersoesService {
     }
   }
 
+  async adicionar(assessmentId: string, versionCount: number): Promise<void> {
+    try {
+      await httpClient.post("/assessment-versions/add", {
+        assessmentId,
+        versionCount,
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message;
+        if (status === 400) {
+          throw new Error(
+            message || "A avaliação não está publicada ou não possui questões."
+          );
+        }
+        if (status === 403) {
+          throw new Error("Você não tem permissão para adicionar versões a esta avaliação.");
+        }
+        if (status === 404) {
+          throw new Error("Avaliação não encontrada.");
+        }
+        throw new Error(message || "Erro ao adicionar versões.");
+      }
+      throw new Error("Erro desconhecido ao adicionar versões.");
+    }
+  }
+
   async excluirTodas(assessmentId: string): Promise<void> {
     try {
       await httpClient.delete(
@@ -107,7 +134,7 @@ class VersoesService {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message;
-        throw new Error(message || "Erro ao excluir versões.");
+        throw new Error(message || "Uma ou mais avaliações possui correções feitas");
       }
       throw new Error("Erro desconhecido ao excluir versões.");
     }
