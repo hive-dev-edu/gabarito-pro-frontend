@@ -68,9 +68,11 @@ export default function CorrecoesPage() {
     const [status, setStatus] = useState<StatusFilter>(() =>
         normalizeStatusFilter(searchParams.get("status")),
     );
-    const [assessmentId, setAssessmentId] = useState<string>(
-        () => searchParams.get("assessmentId") ?? "",
-    );
+    // assessmentId is never user-editable — derive directly from URL so the chip
+    // "Limpar" button only needs to call setSearchParams without a reload.
+    const assessmentId = searchParams.get("assessmentId") ?? "";
+    const [title, setTitle] = useState(() => searchParams.get("title") ?? "");
+    const [studentName, setStudentName] = useState(() => searchParams.get("studentName") ?? "");
     const [page, setPage] = useState(() => parsePage(searchParams.get("page")));
     const limit = 10;
 
@@ -95,6 +97,8 @@ export default function CorrecoesPage() {
                 limit,
                 status: status || undefined,
                 assessmentId: assessmentId.trim() || undefined,
+                title: title.trim() || undefined,
+                studentName: studentName.trim() || undefined,
             });
 
             setItems(Array.isArray(resp.data) ? resp.data : []);
@@ -111,16 +115,17 @@ export default function CorrecoesPage() {
     useEffect(() => {
         carregar();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, status, assessmentId]);
+    }, [page, status, assessmentId, title, studentName]);
 
     useEffect(() => {
         const next = new URLSearchParams();
         if (assessmentId.trim()) next.set("assessmentId", assessmentId.trim());
+        if (title.trim()) next.set("title", title.trim());
+        if (studentName.trim()) next.set("studentName", studentName.trim());
         if (status) next.set("status", status);
         if (page > 1) next.set("page", String(page));
-        // mantém o mínimo de parâmetros possíveis
         setSearchParams(next, { replace: true });
-    }, [assessmentId, page, setSearchParams, status]);
+    }, [assessmentId, title, studentName, page, setSearchParams, status]);
 
     const hasPrev = page > 1;
     const hasNext = meta ? page < meta.totalPages : items.length === limit;
@@ -153,41 +158,77 @@ export default function CorrecoesPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="min-w-[260px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                ID da avaliação (opcional)
-                            </label>
-                            <input
-                                type="text"
-                                value={assessmentId}
-                                onChange={(e) => {
-                                    setAssessmentId(e.target.value);
-                                    setPage(1);
-                                }}
-                                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
-                                placeholder="Ex: 01h5abc..."
-                            />
-                        </div>
+                    <div className="flex flex-col gap-3 w-full">
+                        {assessmentId.trim() ? (
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-2 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-sm text-teal-800">
+                                    🔖 Filtrando por avaliação específica
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        const next = new URLSearchParams(searchParams);
+                                        next.delete("assessmentId");
+                                        setSearchParams(next, { replace: true });
+                                    }}
+                                    className="text-sm text-teal-600 underline cursor-pointer hover:text-teal-800"
+                                >
+                                    Limpar
+                                </button>
+                            </div>
+                        ) : null}
 
-                        <div className="min-w-[220px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status
-                            </label>
-                            <select
-                                value={status}
-                                onChange={(e) => {
-                                    setStatus(e.target.value as StatusFilter);
-                                    setPage(1);
-                                }}
-                                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
-                            >
-                                <option value="">Todos</option>
-                                <option value="PENDING">Pendente</option>
-                                <option value="PROCESSING">Processando</option>
-                                <option value="COMPLETED">Concluída</option>
-                                <option value="FAILED">Falhou</option>
-                            </select>
+                        <div className="flex flex-wrap items-end gap-3">
+                            <div className="min-w-55">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Título da avaliação
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => {
+                                        setTitle(e.target.value);
+                                        setPage(1);
+                                    }}
+                                    className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                                    placeholder="Ex: Prova de Matemática"
+                                />
+                            </div>
+
+                            <div className="min-w-55">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nome do aluno
+                                </label>
+                                <input
+                                    type="text"
+                                    value={studentName}
+                                    onChange={(e) => {
+                                        setStudentName(e.target.value);
+                                        setPage(1);
+                                    }}
+                                    className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                                    placeholder="Ex: Maria Silva"
+                                />
+                            </div>
+
+                            <div className="min-w-45">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                </label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => {
+                                        setStatus(e.target.value as StatusFilter);
+                                        setPage(1);
+                                    }}
+                                    className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
+                                >
+                                    <option value="">Todos</option>
+                                    <option value="PENDING">Pendente</option>
+                                    <option value="PROCESSING">Processando</option>
+                                    <option value="COMPLETED">Concluída</option>
+                                    <option value="FAILED">Falhou</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -212,7 +253,7 @@ export default function CorrecoesPage() {
                         {items.map((item) => {
                             const assessmentTitle = item.assessment?.title ?? "Aguardando identificação da avaliação";
                             const className = item.assessment?.class?.name ?? "—";
-                            const studentName = item.result?.studentName ?? "—";
+                            const itemStudentName = item.result?.studentName ?? "—";
                             const score = item.result?.finalScore ?? "—";
 
                             return (
@@ -236,7 +277,7 @@ export default function CorrecoesPage() {
                                                     Turma: {className}
                                                 </span>
                                                 <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">
-                                                    Aluno: {studentName}
+                                                    Aluno: {itemStudentName}
                                                 </span>
                                                 <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">
                                                     Nota: {score}
