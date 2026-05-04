@@ -71,6 +71,7 @@ export default function PaginaCorrecoes() {
 
       const correcaoId = await CorrecoesService.submit({
         imageUrl: urlFinal,
+        assessmentId: id,
       });
 
       navigate(`/correcoes/${correcaoId}`, {
