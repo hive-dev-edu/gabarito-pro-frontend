@@ -73,6 +73,9 @@ export default function CorrecoesPage() {
     const assessmentId = searchParams.get("assessmentId") ?? "";
     const [title, setTitle] = useState(() => searchParams.get("title") ?? "");
     const [studentName, setStudentName] = useState(() => searchParams.get("studentName") ?? "");
+    // Debounced values: fetch only fires after 400 ms of inactivity on text inputs.
+    const [debouncedTitle, setDebouncedTitle] = useState(title);
+    const [debouncedStudentName, setDebouncedStudentName] = useState(studentName);
     const [page, setPage] = useState(() => parsePage(searchParams.get("page")));
     const limit = 10;
 
@@ -87,45 +90,63 @@ export default function CorrecoesPage() {
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
 
-    async function carregar() {
-        try {
-            setCarregando(true);
-            setErro("");
-
-            const resp = await CorrecoesService.listar({
-                page,
-                limit,
-                status: status || undefined,
-                assessmentId: assessmentId.trim() || undefined,
-                title: title.trim() || undefined,
-                studentName: studentName.trim() || undefined,
-            });
-
-            setItems(Array.isArray(resp.data) ? resp.data : []);
-            setMeta(resp.meta ?? null);
-        } catch (e) {
-            setErro(e instanceof Error ? e.message : "Erro ao carregar correções.");
-            setItems([]);
-            setMeta(null);
-        } finally {
-            setCarregando(false);
-        }
-    }
+    useEffect(() => {
+        const id = setTimeout(() => setDebouncedTitle(title), 400);
+        return () => clearTimeout(id);
+    }, [title]);
 
     useEffect(() => {
+        const id = setTimeout(() => setDebouncedStudentName(studentName), 400);
+        return () => clearTimeout(id);
+    }, [studentName]);
+
+    useEffect(() => {
+        let ignore = false;
+
+        async function carregar() {
+            try {
+                setCarregando(true);
+                setErro("");
+
+                const resp = await CorrecoesService.listar({
+                    page,
+                    limit,
+                    status: status || undefined,
+                    assessmentId: assessmentId || undefined,
+                    title: debouncedTitle.trim() || undefined,
+                    studentName: debouncedStudentName.trim() || undefined,
+                });
+
+                if (!ignore) {
+                    setItems(Array.isArray(resp.data) ? resp.data : []);
+                    setMeta(resp.meta ?? null);
+                }
+            } catch (e) {
+                if (!ignore) {
+                    setErro(e instanceof Error ? e.message : "Erro ao carregar correções.");
+                    setItems([]);
+                    setMeta(null);
+                }
+            } finally {
+                if (!ignore) setCarregando(false);
+            }
+        }
+
         carregar();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, status, assessmentId, title, studentName]);
+        return () => { ignore = true; };
+    }, [page, status, assessmentId, debouncedTitle, debouncedStudentName]);
 
     useEffect(() => {
         const next = new URLSearchParams();
         if (assessmentId.trim()) next.set("assessmentId", assessmentId.trim());
-        if (title.trim()) next.set("title", title.trim());
-        if (studentName.trim()) next.set("studentName", studentName.trim());
+        if (debouncedTitle.trim()) next.set("title", debouncedTitle.trim());
+        if (debouncedStudentName.trim()) next.set("studentName", debouncedStudentName.trim());
         if (status) next.set("status", status);
         if (page > 1) next.set("page", String(page));
-        setSearchParams(next, { replace: true });
-    }, [assessmentId, title, studentName, page, setSearchParams, status]);
+        if (next.toString() !== searchParams.toString()) {
+            setSearchParams(next, { replace: true });
+        }
+    }, [assessmentId, debouncedTitle, debouncedStudentName, page, status, searchParams, setSearchParams]);
 
     const hasPrev = page > 1;
     const hasNext = meta ? page < meta.totalPages : items.length === limit;
