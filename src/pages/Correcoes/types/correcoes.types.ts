@@ -4,6 +4,8 @@ export type CorrecoesListParams = {
     page?: number;
     limit?: number;
     assessmentId?: string;
+    title?: string;
+    studentName?: string;
     status?: StatusCorrecao;
 };
 

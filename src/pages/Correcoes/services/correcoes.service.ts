@@ -29,6 +29,8 @@ export class CorrecoesService {
             params.set("limit", String(toPositiveInt(filtros.limit, 10)));
 
             setIfPresent(params, "assessmentId", filtros.assessmentId);
+            setIfPresent(params, "title", filtros.title);
+            setIfPresent(params, "studentName", filtros.studentName);
             setIfPresent(params, "status", filtros.status);
 
             const response = await httpClient.get(`/corrections?${params.toString()}`);
