@@ -183,7 +183,7 @@ export default function CorrecoesPage() {
                         {assessmentId.trim() ? (
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex items-center gap-2 rounded-full bg-teal-50 border border-teal-200 px-3 py-1 text-sm text-teal-800">
-                                    🔖 Filtrando por avaliação específica
+                                    Filtrando por avaliação específica
                                 </span>
                                 <button
                                     onClick={() => {
