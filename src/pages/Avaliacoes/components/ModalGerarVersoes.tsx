@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { X, Layers } from "lucide-react";
+import { X, Layers, PlusCircle } from "lucide-react";
 
 interface Props {
   aberto: boolean;
+  modo: "substituir" | "adicionar";
   loading?: boolean;
   onCancel: () => void;
   onConfirm: (quantidade: number) => void;
@@ -10,6 +11,7 @@ interface Props {
 
 export default function ModalGerarVersoes({
   aberto,
+  modo,
   loading = false,
   onCancel,
   onConfirm,
@@ -18,6 +20,7 @@ export default function ModalGerarVersoes({
 
   return (
     <ModalGerarVersoesConteudo
+      modo={modo}
       loading={loading}
       onCancel={onCancel}
       onConfirm={onConfirm}
@@ -26,6 +29,7 @@ export default function ModalGerarVersoes({
 }
 
 function ModalGerarVersoesConteudo({
+  modo,
   loading = false,
   onCancel,
   onConfirm,
@@ -39,6 +43,8 @@ function ModalGerarVersoesConteudo({
     quantidadeNumero >= 1 &&
     quantidadeNumero <= 50;
 
+  const isSubstituir = modo === "substituir";
+
   return (
     <div
       style={{ zIndex: 60 }}
@@ -50,10 +56,10 @@ function ModalGerarVersoesConteudo({
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-[#E6FAF7] p-2 text-[#14877B]">
-              <Layers size={18} />
+              {isSubstituir ? <Layers size={18} /> : <PlusCircle size={18} />}
             </div>
             <h3 className="text-lg font-semibold text-slate-800">
-              Gerar versões
+              {isSubstituir ? "Gerar versões" : "Adicionar versões"}
             </h3>
           </div>
 
@@ -66,9 +72,15 @@ function ModalGerarVersoesConteudo({
           </button>
         </div>
 
-        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-600">
-          As versões existentes serão substituídas pelas novas.
-        </div>
+        {isSubstituir ? (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-600">
+            As versões existentes serão substituídas pelas novas.
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-600">
+            Novas versões serão adicionadas às existentes sem apagar nenhuma.
+          </div>
+        )}
 
         <div className="mt-4">
           <label
@@ -141,8 +153,10 @@ function ModalGerarVersoesConteudo({
                   d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                 />
               </svg>
-            ) : (
+            ) : isSubstituir ? (
               "Gerar"
+            ) : (
+              "Adicionar"
             )}
           </button>
         </div>
