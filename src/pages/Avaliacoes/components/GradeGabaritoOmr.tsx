@@ -1,69 +1,8 @@
-import { Text, View, StyleSheet } from "@react-pdf/renderer";
-
 interface GradeGabaritoOmrProps {
   totalQuestoes: number;
 }
 
 const LETRAS_OMR = ["A", "B", "C", "D", "E"];
-
-const styles = StyleSheet.create({
-  answerGridWrapper: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    flexWrap: "nowrap",
-  },
-  answerGridTable: {
-    width: 214,
-  },
-  answerGridRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 26,
-    justifyContent: "center",
-  },
-  answerGridHeaderRow: {
-    backgroundColor: "#FFFFFF",
-  },
-  answerGridCell: {
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#000000",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 26,
-  },
-  answerGridCellTopBorder: {
-    borderTopWidth: 1,
-  },
-  answerGridCellLeftBorder: {
-    borderLeftWidth: 1,
-  },
-  answerGridQuestionCell: {
-    width: 24,
-  },
-  answerGridOptionCell: {
-    width: 38,
-  },
-  answerGridHeaderText: {
-    fontSize: 8,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#000000",
-  },
-  answerGridQuestionText: {
-    fontSize: 8,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  answerGridBubble: {
-    width: 11,
-    height: 11,
-    borderWidth: 1.4,
-    borderColor: "#000000",
-    borderRadius: 5,
-  },
-});
 
 export default function GradeGabaritoOmr({ totalQuestoes }: GradeGabaritoOmrProps) {
   const numerosQuestoes = Array.from(
@@ -75,63 +14,47 @@ export default function GradeGabaritoOmr({ totalQuestoes }: GradeGabaritoOmrProp
   const questoesColunaDireita = numerosQuestoes.slice(indiceDivisao);
 
   const renderizarLinha = (numeroQuestao: number) => (
-    <View key={`omr-row-${numeroQuestao}`} style={styles.answerGridRow} wrap={false}>
-      <View
-        style={[
-          styles.answerGridCell,
-          styles.answerGridCellLeftBorder,
-          styles.answerGridQuestionCell,
-        ]}
-      >
-        <Text style={styles.answerGridQuestionText}>
+    <div key={`omr-row-${numeroQuestao}`} className="flex items-center h-[26px] justify-center break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+      <div className="border-b border-l border-black h-[26px] w-[24px] text-center" style={{ lineHeight: "26px" }}>
+        <span className="text-[8px] font-bold">
           {String(numeroQuestao).padStart(2, "0")}
-        </Text>
-      </View>
+        </span>
+      </div>
       {LETRAS_OMR.map((letra) => (
-        <View
+        <div
           key={`omr-cell-${numeroQuestao}-${letra}`}
-          style={[styles.answerGridCell, styles.answerGridOptionCell]}
+          className="border-b border-l border-black flex items-center justify-center h-[26px] w-[38px] border-r-0 last:border-r"
         >
-          <View style={styles.answerGridBubble} />
-        </View>
+          <div className="w-[11px] h-[11px] border-[1.4px] border-black rounded-[5px]" />
+        </div>
       ))}
-    </View>
+    </div>
   );
 
   const renderizarTabela = (questoes: number[]) => (
-    <View style={styles.answerGridTable}>
-      <View style={[styles.answerGridRow, styles.answerGridHeaderRow]} wrap={false}>
-        <View
-          style={[
-            styles.answerGridCell,
-            styles.answerGridCellTopBorder,
-            styles.answerGridCellLeftBorder,
-            styles.answerGridQuestionCell,
-          ]}
-        >
-          <Text style={styles.answerGridHeaderText}>Q</Text>
-        </View>
+    <div className="w-[214px]">
+      <div className="flex items-center h-[26px] justify-center bg-white break-inside-avoid" style={{ pageBreakInside: 'avoid' }}>
+        <div className="border-t border-b border-l border-black h-[26px] w-[24px] text-center" style={{ lineHeight: "24px" }}>
+          <span className="text-[8px] font-bold text-black">Q</span>
+        </div>
         {LETRAS_OMR.map((letra) => (
-          <View
+          <div
             key={`omr-header-${letra}`}
-            style={[
-              styles.answerGridCell,
-              styles.answerGridCellTopBorder,
-              styles.answerGridOptionCell,
-            ]}
+            className="border-t border-b border-l border-black h-[26px] w-[38px] border-r-0 last:border-r text-center"
+            style={{ lineHeight: "24px" }}
           >
-            <Text style={styles.answerGridHeaderText}>{letra}</Text>
-          </View>
+            <span className="text-[8px] font-bold text-black">{letra}</span>
+          </div>
         ))}
-      </View>
+      </div>
       {questoes.map(renderizarLinha)}
-    </View>
+    </div>
   );
 
   return (
-    <View style={styles.answerGridWrapper}>
+    <div className="flex flex-row justify-center gap-2 flex-nowrap mt-4">
       {renderizarTabela(questoesColunaEsquerda)}
       {renderizarTabela(questoesColunaDireita)}
-    </View>
+    </div>
   );
 }
