@@ -1,262 +1,17 @@
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
 import { Fragment } from "react";
 import type { PrintDataResponse } from "../types/versao.types";
-import GradeGabaritoOmr from "./GradeGabaritoOmr.tsx";
+import GradeGabaritoOmr from "./GradeGabaritoOmr";
+import QuestionBlock from "./QuestionBlock";
+import { normalizarImagemSrc } from "./pdfImage";
 
 interface Props {
   data: PrintDataResponse;
   qrCodes: Record<string, string | undefined>;
 }
 
-const styles = StyleSheet.create({
-  page: {
-    paddingTop: 32,
-    paddingBottom: 36,
-    paddingHorizontal: 32,
-    fontSize: 11,
-    fontFamily: "Helvetica",
-    color: "#000000",
-  },
-  header: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    paddingBottom: 12,
-    marginBottom: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  headerSub: {
-    marginTop: 4,
-    color: "#000000",
-    fontSize: 11,
-  },
-  metaRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-    flexWrap: "wrap",
-  },
-  metaItem: {
-    fontSize: 10,
-    color: "#000000",
-  },
-  qrBox: {
-    width: 64,
-    height: 64,
-    borderRadius: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  qrImage: {
-    width: 64,
-    height: 64,
-  },
-  sectionTitle: {
-    marginTop: 8,
-    marginBottom: 8,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  questionBlock: {
-    padding: 10,
-    marginBottom: 10,
-  },
-  questionText: {
-    fontSize: 11,
-    lineHeight: 1.4,
-    marginBottom: 6,
-  },
-  alternativeRow: {
-    flexDirection: "row",
-    gap: 6,
-    marginBottom: 4,
-  },
-  alternativeLetter: {
-    width: 18,
-    height: 18,
-    borderWidth: 1,
-    borderColor: "#000000",
-    borderRadius: 9,
-    textAlign: "center",
-    fontSize: 9,
-    paddingTop: 3,
-  },
-  alternativeText: {
-    fontSize: 10,
-    lineHeight: 1.35,
-    flex: 1,
-  },
-  answerSheetPage: {
-    paddingTop: 22,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
-    fontSize: 10,
-    fontFamily: "Helvetica",
-    color: "#000000",
-  },
-  answerSheetContainer: {
-    borderWidth: 1,
-    borderColor: "#000000",
-    paddingTop: 16,
-    paddingBottom: 12,
-    paddingHorizontal: 12,
-    position: "relative",
-  },
-  omrMarker: {
-    width: 10,
-    height: 10,
-    backgroundColor: "#000000",
-    position: "absolute",
-  },
-  omrMarkerTopLeft: {
-    top: 4,
-    left: 4,
-  },
-  omrMarkerTopRight: {
-    top: 4,
-    right: 4,
-  },
-  omrMarkerBottomLeft: {
-    bottom: 4,
-    left: 4,
-  },
-  omrMarkerBottomRight: {
-    bottom: 4,
-    right: 4,
-  },
-  answerSheetHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    paddingBottom: 0,
-    marginBottom: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 0,
-  },
-  answerSheetHeaderLeft: {
-    flex: 1,
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingHorizontal: 10,
-  },
-  answerSheetHeaderRight: {
-    width: 190,
-    alignItems: "stretch",
-    justifyContent: "flex-start",
-    borderLeftWidth: 1,
-    borderLeftColor: "#000000",
-  },
-  qrLabel: {
-    width: "100%",
-    textAlign: "center",
-    color: "#000000",
-    fontSize: 9,
-    fontWeight: "bold",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    paddingTop: 6,
-    paddingBottom: 5,
-  },
-  qrBody: {
-    width: "100%",
-    height: 86,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  answerSheetQrImage: {
-    width: 84,
-    height: 84,
-  },
-  answerSheetTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#000000",
-  },
-  studentInfoSection: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    marginBottom: 8,
-    gap: 0,
-  },
-  studentInfoHeaderRow: {
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    minHeight: 20,
-    backgroundColor: "#FFFFFF",
-  },
-  studentInfoValueRow: {
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    minHeight: 28,
-    borderTopWidth: 1,
-    borderTopColor: "#000000",
-  },
-  studentInfoHeaderItem: {
-    fontSize: 9,
-    color: "#000000",
-    fontWeight: "bold",
-  },
-  studentInfoCell: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    justifyContent: "center",
-    borderRightWidth: 1,
-    borderRightColor: "#000000",
-  },
-  studentInfoValueCell: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    justifyContent: "center",
-    borderRightWidth: 1,
-    borderRightColor: "#000000",
-  },
-  studentInfoCellName: {
-    flex: 2.2,
-  },
-  studentInfoCellClass: {
-    flex: 1,
-  },
-  studentInfoCellDate: {
-    flex: 1,
-  },
-  studentInfoCellCode: {
-    flex: 1,
-    borderRightWidth: 0,
-  },
-  studentInfoValueLine: {
-    marginTop: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    height: 10,
-  },
-  studentInfoValueCode: {
-    fontSize: 9,
-    color: "#000000",
-    fontWeight: "normal",
-  },
-  instructions: {
-    fontSize: 9,
-    marginBottom: 8,
-    color: "#000000",
-  },
-});
-
 export default function ProvaPdfDocument({ data, qrCodes }: Props) {
   const { assessment, versions } = data;
+
   function formatarDataBr(data?: string) {
     if (!data) return "—";
     const parsed = new Date(data);
@@ -265,120 +20,111 @@ export default function ProvaPdfDocument({ data, qrCodes }: Props) {
   }
 
   return (
-    <Document>
-      {versions.map((versao) => {
+    <div id="pdf-root" className="font-sans text-black w-[210mm] mx-auto bg-white">
+      {versions.map((versao, idx) => {
         const qrSrc = qrCodes[versao.versionId];
         const totalQuestions = versao.questions.length;
+        const logoSrc = normalizarImagemSrc(assessment.logoUrl);
+        const isFirst = idx === 0;
 
         return (
           <Fragment key={versao.versionId}>
-            <Page size="A4" style={styles.page}>
-              <View style={styles.header}>
-                <View>
-                  <Text style={styles.headerTitle}>
-                    {assessment.title || "Prova"}
-                  </Text>
-                  <Text style={styles.headerSub}>Versao {versao.versionNumber}</Text>
-                  <View style={styles.metaRow}>
+            {/* Exam Page */}
+            <div className={`pt-8 pb-9 px-8 text-[11px] ${!isFirst ? "break-before-page" : ""}`}>
+              <div className="flex flex-row justify-between items-start gap-3 border-b border-black pb-3 mb-4">
+                <div className="flex-1 pr-2">
+                  {logoSrc ? <img src={logoSrc} alt="Logo" className="w-[110px] h-[42px] mb-1.5 object-contain" /> : null}
+                  <h1 className="text-[16px] font-bold m-0">{assessment.title || "Prova"}</h1>
+                  <p className="mt-1 text-[11px] m-0">Versão {versao.versionNumber}</p>
+                  <div className="flex flex-row gap-3 mt-2 flex-wrap text-[10px]">
                     {assessment.className ? (
-                      <Text style={styles.metaItem}>Turma: {assessment.className}</Text>
+                      <span>Turma: {assessment.className}</span>
                     ) : null}
-                    <Text style={styles.metaItem}>Data: {formatarDataBr(assessment.date)}</Text>
-                    <Text style={styles.metaItem}>Aluno:__________________________________</Text>
-                  </View>
-                </View>
-                <View style={styles.qrBox}>
+                    <span>Data: {formatarDataBr(assessment.date)}</span>
+                    <span>Aluno:__________________________________</span>
+                  </div>
+                </div>
+                <div className="w-16 h-16 rounded-md flex items-center justify-center bg-white shrink-0">
                   {qrSrc ? (
-                    <Image style={styles.qrImage} src={qrSrc} />
+                    <img src={qrSrc} alt="QR Code" className="w-16 h-16" />
                   ) : (
-                    <Text>QR</Text>
+                    <span>QR</span>
                   )}
-                </View>
-              </View>
+                </div>
+              </div>
 
-              <Text style={styles.sectionTitle}>Questões</Text>
-              {versao.questions.map((q) => (
-                <View key={`${versao.versionId}-${q.position}`} style={styles.questionBlock} wrap={false}>
-                  <Text style={styles.questionText}>
-                    {q.position}. {q.statement || "Enunciado nao disponivel"}
-                  </Text>
-                  {q.alternatives.map((alt, idx) => (
-                    <View key={`${q.position}-${idx}`} style={styles.alternativeRow}>
-                      <Text style={styles.alternativeLetter}>{alt.letter}</Text>
-                      <Text style={styles.alternativeText}>{alt.text}</Text>
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </Page>
+              <h2 className="my-2 text-[12px] font-bold border-b border-[#000000] pb-1">Questões</h2>
+              <div className="grid grid-cols-2 gap-[20px] mt-3 relative">
+                {versao.questions.map((q) => (
+                  <QuestionBlock
+                    key={`${versao.versionId}-${q.position}`}
+                    position={q.position}
+                    question={q}
+                  />
+                ))}
+              </div>
+            </div>
 
             {/* Answer Sheet Page */}
-            <Page size="A4" style={styles.answerSheetPage}>
-              <View style={styles.answerSheetContainer}>
-                <View style={[styles.omrMarker, styles.omrMarkerTopLeft]} />
-                <View style={[styles.omrMarker, styles.omrMarkerTopRight]} />
-                <View style={[styles.omrMarker, styles.omrMarkerBottomLeft]} />
-                <View style={[styles.omrMarker, styles.omrMarkerBottomRight]} />
+            <div className="break-before-page pt-[22px] pb-[24px] px-[24px] text-[10px]">
+              <div className="border border-black pt-4 pb-3 px-3 relative min-h-[500px]">
+                {/* OMR Markers */}
+                <div className="w-[10px] h-[10px] bg-black absolute top-1 left-1" />
+                <div className="w-[10px] h-[10px] bg-black absolute top-1 right-1" />
+                <div className="w-[10px] h-[10px] bg-black absolute bottom-1 left-1" />
+                <div className="w-[10px] h-[10px] bg-black absolute bottom-1 right-1" />
 
-                <View style={styles.answerSheetHeader}>
-                  <View style={styles.answerSheetHeaderLeft}>
-                    <Text style={styles.answerSheetTitle}>CARTÃO-RESPOSTA</Text>
-                  </View>
-                  <View style={styles.answerSheetHeaderRight}>
-                    <Text style={styles.qrLabel}>QR CODE</Text>
-                    <View style={styles.qrBody}>
+                <div className="flex flex-row justify-between items-start border-b border-black">
+                  <div className="flex-1 py-2 px-2.5">
+                    <h2 className="text-[22px] font-bold m-0">CARTÃO-RESPOSTA</h2>
+                  </div>
+                  <div className="w-[190px] flex flex-col items-stretch justify-start border-l border-black shrink-0">
+                    <div className="w-full text-center text-[9px] font-bold border-b border-black pt-1.5 pb-1">
+                      QR CODE
+                    </div>
+                    <div className="w-full h-[86px] flex items-center justify-center">
                       {qrSrc ? (
-                        <Image style={styles.answerSheetQrImage} src={qrSrc} />
+                        <img src={qrSrc} alt="QR" className="w-[84px] h-[84px]" />
                       ) : (
-                        <Text>QR</Text>
+                        <span>QR</span>
                       )}
-                    </View>
-                  </View>
-                </View>
+                    </div>
+                  </div>
+                </div>
 
-                <View style={styles.studentInfoSection}>
-                  <View style={styles.studentInfoHeaderRow}>
-                    <View style={[styles.studentInfoCell, styles.studentInfoCellName]}>
-                      <Text style={styles.studentInfoHeaderItem}>Nome do aluno</Text>
-                    </View>
-                    <View style={[styles.studentInfoCell, styles.studentInfoCellClass]}>
-                      <Text style={styles.studentInfoHeaderItem}>Turma</Text>
-                    </View>
-                    <View style={[styles.studentInfoCell, styles.studentInfoCellDate]}>
-                      <Text style={styles.studentInfoHeaderItem}>Data</Text>
-                    </View>
-                    <View style={[styles.studentInfoCell, styles.studentInfoCellCode]}>
-                      <Text style={styles.studentInfoHeaderItem}>Codigo</Text>
-                    </View>
-                  </View>
-                  <View style={styles.studentInfoValueRow}>
-                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellName]}>
-                      <View style={styles.studentInfoValueLine} />
-                    </View>
-                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellClass]}>
-                      <View style={styles.studentInfoValueLine} />
-                    </View>
-                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellDate]}>
-                      <View style={styles.studentInfoValueLine} />
-                    </View>
-                    <View style={[styles.studentInfoValueCell, styles.studentInfoCellCode]}>
-                      <Text style={styles.studentInfoValueCode}>
-                        {versao.versionNumber || versao.versionId}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+                <div className="border-b border-black mb-2 flex flex-col">
+                  <div className="flex flex-row min-h-[20px] bg-white">
+                    <div className="flex-[2.2] px-2.5 py-1 flex items-center border-r border-black font-bold text-[9px]">Nome do aluno</div>
+                    <div className="flex-1 px-2.5 py-1 flex items-center border-r border-black font-bold text-[9px]">Turma</div>
+                    <div className="flex-1 px-2.5 py-1 flex items-center border-r border-black font-bold text-[9px]">Data</div>
+                    <div className="flex-1 px-2.5 py-1 flex items-center font-bold text-[9px]">Código</div>
+                  </div>
+                  <div className="flex flex-row min-h-[28px] border-t border-black bg-white">
+                    <div className="flex-[2.2] px-2.5 py-1.5 flex flex-col justify-center border-r border-black">
+                      <div className="mt-1 border-b border-black h-[10px]" />
+                    </div>
+                    <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-center border-r border-black">
+                      <div className="mt-1 border-b border-black h-[10px]" />
+                    </div>
+                    <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-center border-r border-black">
+                      <div className="mt-1 border-b border-black h-[10px]" />
+                    </div>
+                    <div className="flex-1 px-2.5 py-1.5 flex items-center justify-start text-[9px]">
+                      {versao.versionNumber || versao.versionId}
+                    </div>
+                  </div>
+                </div>
 
-                <Text style={styles.instructions}>
-                  Marque apenas uma alternativa por questao. Use caneta escura e evite rasuras.
-                </Text>
+                <p className="text-[9px] mb-2 m-0">
+                  Marque apenas uma alternativa por questão. Use caneta escura e evite rasuras.
+                </p>
 
                 <GradeGabaritoOmr totalQuestoes={totalQuestions} />
-              </View>
-            </Page>
+              </div>
+            </div>
           </Fragment>
         );
       })}
-    </Document>
+    </div>
   );
 }
