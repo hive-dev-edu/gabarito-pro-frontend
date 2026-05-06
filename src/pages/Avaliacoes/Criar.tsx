@@ -118,19 +118,28 @@ export default function CriarAvaliacaoPage() {
 
   async function carregarQuestoes(
     currentPage = 1,
-    overrides?: { onlyMine?: boolean; includeMine?: boolean }
+    overrides?: {
+      onlyMine?: boolean;
+      includeMine?: boolean;
+      subject?: string;
+      grade?: string;
+      difficulty?: string;
+    }
   ) {
     setCarregandoQuestoes(true);
     setErro("");
 
     const effectiveOnlyMine = overrides?.onlyMine ?? onlyMyQuestions;
     const effectiveIncludeMine = overrides?.includeMine ?? includeMyQuestions;
+    const effectiveSubject = overrides !== undefined && "subject" in overrides ? overrides.subject : subject;
+    const effectiveGrade = overrides !== undefined && "grade" in overrides ? overrides.grade : grade;
+    const effectiveDifficulty = overrides !== undefined && "difficulty" in overrides ? overrides.difficulty : difficulty;
 
     try {
       const filtrosBase = {
-        subject: subject || undefined,
-        grade: grade || undefined,
-        difficulty: difficulty || undefined,
+        subject: effectiveSubject || undefined,
+        grade: effectiveGrade || undefined,
+        difficulty: effectiveDifficulty || undefined,
         page: currentPage,
         limit: limitQuestoes,
       };
@@ -356,7 +365,7 @@ export default function CriarAvaliacaoPage() {
     setOnlyMyQuestions(false);
     setSearchQuestao("");
     setPageQuestoes(1);
-    carregarQuestoes(1, { onlyMine: false, includeMine: false });
+    carregarQuestoes(1, { onlyMine: false, includeMine: false, subject: "", grade: "", difficulty: "" });
   }
 
   async function salvar(status: "DRAFT" | "PUBLISHED") {
