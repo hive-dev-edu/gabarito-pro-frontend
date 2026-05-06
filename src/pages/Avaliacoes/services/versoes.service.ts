@@ -9,10 +9,24 @@ import type {
   AlternativaImpressao,
 } from "../types/versao.types";
 
+function normalizarImagem(raw: any): string | undefined {
+  const candidato =
+    raw?.imageUrl ??
+    raw?.imageURL ??
+    raw?.image ??
+    raw?.figureUrl ??
+    raw?.figureURL;
+
+  if (typeof candidato !== "string") return undefined;
+  const valor = candidato.trim();
+  return valor.length > 0 ? valor : undefined;
+}
+
 function normalizarAlternativa(alt: any, index: number): AlternativaImpressao {
   return {
     letter: alt?.letter ?? String.fromCharCode(65 + index),
     text: alt?.text ?? alt?.content ?? "",
+    imageUrl: normalizarImagem(alt),
   };
 }
 
@@ -20,6 +34,7 @@ function normalizarQuestao(q: any, index: number): QuestaoImpressao {
   return {
     position: Number(q?.position ?? index + 1),
     statement: q?.statement ?? q?.enunciado ?? "",
+    imageUrl: normalizarImagem(q),
     alternatives: Array.isArray(q?.alternatives)
       ? q.alternatives.map(normalizarAlternativa)
       : [],
@@ -42,6 +57,7 @@ function normalizarPrintData(raw: any): PrintDataResponse {
     date: raw?.assessment?.date ?? "",
     totalScore: Number(raw?.assessment?.totalScore ?? 0),
     className: raw?.assessment?.className ?? "",
+    logoUrl: normalizarImagem(raw?.assessment),
   };
   const versions: DadosImpressaoVersao[] = Array.isArray(raw?.versions)
     ? raw.versions.map(normalizarVersao)
