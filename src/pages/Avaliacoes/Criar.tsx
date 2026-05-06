@@ -123,7 +123,7 @@ export default function CriarAvaliacaoPage() {
       includeMine?: boolean;
       subject?: string;
       grade?: string;
-      difficulty?: string;
+      difficulty?: Dificuldade | "";
     }
   ) {
     setCarregandoQuestoes(true);

@@ -250,13 +250,14 @@ export default function PaginaVersoes() {
                       import("html2pdf.js").then((html2pdf) => {
                         html2pdf.default()
                           .from(element)
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           .set({
                             margin: 0,
                             pagebreak: { mode: ['css', 'legacy'] },
                             filename: pdfFileName,
                             html2canvas: { scale: 2, useCORS: true },
                             jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-                          })
+                          } as any)
                           .save();
                       });
                     }}
