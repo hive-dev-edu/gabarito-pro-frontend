@@ -173,16 +173,6 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
         </div>
 
         <div className="inline-flex items-center gap-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPreview(avaliacao.id);
-            }}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
-            title="Visualizar prévia"
-          >
-            <Eye size={20} />
-          </button>
 
           <button
             onClick={(e) => {

@@ -8,11 +8,13 @@ export interface VersaoAvaliacao {
 export interface AlternativaImpressao {
   letter: string;
   text: string;
+  imageUrl?: string;
 }
 
 export interface QuestaoImpressao {
   position: number;
   statement: string;
+  imageUrl?: string;
   alternatives: AlternativaImpressao[];
 }
 
@@ -27,6 +29,7 @@ export interface AssessmentImpressao {
   date: string;
   totalScore: number;
   className: string;
+  logoUrl?: string;
 }
 
 export interface PrintDataResponse {
