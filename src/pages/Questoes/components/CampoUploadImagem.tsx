@@ -86,6 +86,10 @@ export default function CampoUploadImagem({
                 </label>
             )}
 
+            <p className="text-xs text-gray-500">
+                Formatos suportados: JPG e PNG.
+            </p>
+
             <input
                 ref={inputRef}
                 type="file"
