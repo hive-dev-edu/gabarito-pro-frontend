@@ -116,9 +116,15 @@ export default function CriarAvaliacaoPage() {
     setTurmas(Array.isArray(resposta?.data) ? resposta.data : []);
   }
 
-  async function carregarQuestoes(currentPage = 1) {
+  async function carregarQuestoes(
+    currentPage = 1,
+    overrides?: { onlyMine?: boolean; includeMine?: boolean }
+  ) {
     setCarregandoQuestoes(true);
     setErro("");
+
+    const effectiveOnlyMine = overrides?.onlyMine ?? onlyMyQuestions;
+    const effectiveIncludeMine = overrides?.includeMine ?? includeMyQuestions;
 
     try {
       const filtrosBase = {
@@ -129,11 +135,11 @@ export default function CriarAvaliacaoPage() {
         limit: limitQuestoes,
       };
 
-      const resposta = onlyMyQuestions
+      const resposta = effectiveOnlyMine
         ? await questoesService.listarPrivadas(filtrosBase)
         : await questoesService.listar({
             ...filtrosBase,
-            myQuestions: includeMyQuestions ? "true" : "false",
+            myQuestions: effectiveIncludeMine ? "true" : "false",
           });
 
       const lista = Array.isArray(resposta?.data) ? resposta.data : [];
@@ -350,10 +356,7 @@ export default function CriarAvaliacaoPage() {
     setOnlyMyQuestions(false);
     setSearchQuestao("");
     setPageQuestoes(1);
-
-    setTimeout(() => {
-      carregarQuestoes(1);
-    }, 0);
+    carregarQuestoes(1, { onlyMine: false, includeMine: false });
   }
 
   async function salvar(status: "DRAFT" | "PUBLISHED") {
