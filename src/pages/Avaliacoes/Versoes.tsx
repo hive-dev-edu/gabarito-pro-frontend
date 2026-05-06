@@ -13,7 +13,6 @@ import { formatarData } from "./utils/formatadores";
 import type { VersaoAvaliacao, DadosImpressaoVersao } from "./types/versao.types";
 import { usePrintData } from "./hooks/usePrintData";
 import ProvaPdfDocument from "./components/ProvaPdfDocument";
-import { BlobProvider } from "@react-pdf/renderer";
 
 function sanitizeFilename(name: string) {
   return name
@@ -243,26 +242,30 @@ export default function PaginaVersoes() {
             {versoes.length > 0 && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 {printData ? (
-                  <BlobProvider
-                    document={<ProvaPdfDocument data={printData} qrCodes={qrCodes} />}
+                  <button
+                    onClick={() => {
+                      const element = document.getElementById("pdf-root-hidden");
+                      if (!element || gerandoQrCodes) return;
+                      
+                      import("html2pdf.js").then((html2pdf) => {
+                        html2pdf.default()
+                          .from(element)
+                          .set({
+                            margin: 0,
+                            pagebreak: { mode: ['css', 'legacy'] },
+                            filename: pdfFileName,
+                            html2canvas: { scale: 2, useCORS: true },
+                            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+                          })
+                          .save();
+                      });
+                    }}
+                    disabled={gerandoQrCodes}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50 disabled:opacity-60 cursor-pointer"
                   >
-                    {({ url, loading }) => (
-                      <a
-                        href={url ?? undefined}
-                        download={pdfFileName}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition-colors duration-300 hover:bg-slate-50"
-                        aria-disabled={loading || gerandoQrCodes}
-                        onClick={(event) => {
-                          if (loading || gerandoQrCodes || !url) {
-                            event.preventDefault();
-                          }
-                        }}
-                      >
-                        <FileDown size={18} />
-                        {loading || gerandoQrCodes ? "Preparando PDF..." : "Baixar PDF"}
-                      </a>
-                    )}
-                  </BlobProvider>
+                    <FileDown size={18} />
+                    {gerandoQrCodes ? "Preparando PDF..." : "Baixar PDF"}
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -422,6 +425,15 @@ export default function PaginaVersoes() {
         onCancel={() => setExcluirAberto(false)}
         onConfirm={handleExcluirTodas}
       />
+
+      {/* Hidden off-screen container for direct PDF download */}
+      <div style={{ position: "absolute", top: "-9999px", left: "-9999px" }}>
+        {printData && (
+          <div id="pdf-root-hidden" className="flex flex-col bg-white w-[210mm]">
+            <ProvaPdfDocument data={printData} qrCodes={qrCodes} />
+          </div>
+        )}
+      </div>
     </main>
   );
 }
