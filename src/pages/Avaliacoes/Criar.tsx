@@ -133,7 +133,7 @@ export default function CriarAvaliacaoPage() {
         ? await questoesService.listarPrivadas(filtrosBase)
         : await questoesService.listar({
             ...filtrosBase,
-            myQuestions: includeMyQuestions ? undefined : "false",
+            myQuestions: includeMyQuestions ? "true" : "false",
           });
 
       const lista = Array.isArray(resposta?.data) ? resposta.data : [];
