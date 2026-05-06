@@ -65,11 +65,13 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
         <div>
             {/* Conteúdo / Tema */}
             {questao.content ? (
-                <p className="text-sm text-gray-400 mb-2">{questao.content}</p>
+                <p className="text-sm text-gray-400 mb-2 whitespace-pre-wrap wrap-break-word">
+                    {questao.content}
+                </p>
             ) : null}
 
             {/* Enunciado */}
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 whitespace-pre-wrap wrap-break-word">
                 {questao.statement}
             </h2>
 
