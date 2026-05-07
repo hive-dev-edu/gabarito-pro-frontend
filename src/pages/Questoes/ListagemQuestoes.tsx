@@ -147,7 +147,7 @@ export default function ListagemQuestoes() {
     // ── Render ──
     return (
         <main>
-            <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
                     <div className="flex items-center gap-3 sm:gap-4">
@@ -187,236 +187,253 @@ export default function ListagemQuestoes() {
                     </div>
                 </div>
 
-                {/* Filtros */}
-                <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mb-6">
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                        {/* <button
-                            onClick={() => {
-                                setMyQuestions((prev) => !prev);
-                                handleFiltrar();
-                            }}
-                            
-                        >
-                            Incluir minhas Questões
-                        </button> */}
-
-                        <label
-                            htmlFor="incluir-questoes"
-                            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200 cursor-pointer ${
-                                myQuestions
-                                    ? "bg-[#2EC5B6] text-white border-[#2EC5B6]"
-                                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                            }`}
-                        >
-                            <input
-                                id="incluir-questoes"
-                                type="checkbox"
-                                checked={myQuestions}
-                                onChange={() => {
-                                    setMyQuestions((prev) => !prev);
-                                    handleFiltrar();
-                                }}
-                                className="sr-only"
-                            />
-                            {myQuestions ? (
-                                <CheckSquare size={18} aria-hidden="true" />
-                            ) : (
-                                <Square size={18} aria-hidden="true" />
-                            )}
-                            Somente minhas questões
-                        </label>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Matéria
-                            </label>
-                            <input
-                                type="text"
-                                value={subject}
-                                onChange={(e) => {
-                                    setSubject(e.target.value);
-                                    handleFiltrar();
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
-                                placeholder="Ex: matematica"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nível de ensino
-                            </label>
-                            <select
-                                value={educationLevel}
-                                onChange={(e) => {
-                                    setEducationLevel(e.target.value as EducationLevelApi | "");
-                                    handleFiltrar();
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
-                            >
-                                <option value="">Todos</option>
-                                <option value="ensino_fundamental">Ensino Fundamental</option>
-                                <option value="ensino_medio">Ensino Médio</option>
-                                <option value="ensino_tecnico">Ensino Técnico</option>
-                                <option value="ensino_superior">Ensino Superior</option>
-                                <option value="outro">Outro</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Série/Ano
-                            </label>
-                            <input
-                                type="text"
-                                value={grade}
-                                onChange={(e) => {
-                                    setGrade(e.target.value);
-                                    handleFiltrar();
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
-                                placeholder="Ex: 9"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Dificuldade
-                            </label>
-                            <select
-                                value={difficulty}
-                                onChange={(e) => {
-                                    setDifficulty(
-                                        e.target.value as Dificuldade | "",
-                                    );
-                                    handleFiltrar();
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
-                            >
-                                <option value="">Todas</option>
-                                <option value="easy">Fácil</option>
-                                <option value="medium">Médio</option>
-                                <option value="hard">Difícil</option>
-                            </select>
-                        </div>
-
-                        <div className="flex items-end">
-                            <button
-                                onClick={handleLimparFiltros}
-                                className="w-full p-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors duration-300 cursor-pointer"
-                            >
-                                Limpar filtros
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Conteúdo */}
-                {carregando ? (
-                    <div className="flex justify-center items-center py-20">
-                        <IconeCarregamento w={32} h={32} color="black" />
-                    </div>
-                ) : erro ? (
-                    <div className="bg-red-50 border border-red-300 text-red-700 p-6 rounded-2xl text-center">
-                        <p>{erro}</p>
-                        <button
-                            onClick={() => setPage(page)}
-                            className="mt-3 text-sm underline cursor-pointer"
-                        >
-                            Tentar novamente
-                        </button>
-                    </div>
-                ) : questoes.length === 0 ? (
-                    <div className="text-center py-20 text-gray-400">
-                        <Search size={48} className="mx-auto mb-4 opacity-50" />
-                        <p className="text-lg">Nenhuma questão encontrada.</p>
-                        <p className="text-sm mt-1">
-                            Tente alterar os filtros ou crie uma nova questão.
-                        </p>
-                    </div>
-                ) : (
-                    <>
-                        {/* Lista */}
-                        <ListaQuestoes variant="link" questoes={questoes} privacyBadgeMode="auto" />
-
-                        {/* Paginação */}
-                        {meta && meta.totalPages > 1 && (
-                            <div className="flex items-center justify-center gap-4 mt-8">
-                                <button
-                                    onClick={() =>
-                                        setPage((p) => Math.max(1, p - 1))
-                                    }
-                                    disabled={page <= 1}
-                                    className="p-2 rounded-xl border border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    {/* Filtros (sidebar no desktop) */}
+                    <aside className="md:col-span-3">
+                        <div className="bg-white p-4 sm:px-4 sm:py-6 rounded-2xl shadow-sm md:sticky md:top-6">
+                            <div className="flex flex-col gap-3">
+                                <label
+                                    htmlFor="incluir-questoes"
+                                    className={`inline-flex items-center gap-2 px-4 py-2 text-md font-medium rounded-md border transition-colors duration-200 cursor-pointer ${
+                                        myQuestions
+                                            ? "bg-[#2EC5B6] text-white border-[#2EC5B6]"
+                                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                                    }`}
                                 >
-                                    <ChevronLeft size={20} />
-                                </button>
+                                    <input
+                                        id="incluir-questoes"
+                                        type="checkbox"
+                                        checked={myQuestions}
+                                        onChange={() => {
+                                            setMyQuestions((prev) => !prev);
+                                            handleFiltrar();
+                                        }}
+                                        className="sr-only"
+                                    />
+                                    {myQuestions ? (
+                                        <CheckSquare size={18} aria-hidden="true" />
+                                    ) : (
+                                        <Square size={18} aria-hidden="true" />
+                                    )}
+                                    Somente minhas questões
+                                </label>
 
-                                <div className="flex flex-col items-center gap-2">
-                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                                        {paginationItems.map((item, idx) =>
-                                            item === "ellipsis" ? (
-                                                <span
-                                                    key={`ellipsis-${idx}`}
-                                                    className="px-2 text-gray-400 select-none"
-                                                    aria-hidden
-                                                >
-                                                    ...
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    key={item}
-                                                    onClick={() => setPage(item)}
-                                                    disabled={item === page}
-                                                    aria-current={
-                                                        item === page
-                                                            ? "page"
-                                                            : undefined
-                                                    }
-                                                    className={
-                                                        item === page
-                                                            ? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
-                                                            : "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
-                                                    }
-                                                >
-                                                    {item}
-                                                </button>
-                                            ),
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-1">
+                                        Matéria
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={subject}
+                                        onChange={(e) => {
+                                            setSubject(e.target.value);
+                                            handleFiltrar();
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-md"
+                                        placeholder="Ex: matematica"
+                                    />
+                                </div>
 
-                                    <span className="text-sm text-gray-600">
-                                        Página{" "}
-                                        <span className="font-semibold">
-                                            {meta.page}
-                                        </span>{" "}
-                                        de{" "}
-                                        <span className="font-semibold">
-                                            {meta.totalPages}
-                                        </span>{" "}
-                                        <span className="text-gray-400">
-                                            ({meta.total} questões)
-                                        </span>
-                                    </span>
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-1">
+                                        Nível de ensino
+                                    </label>
+                                    <select
+                                        value={educationLevel}
+                                        onChange={(e) => {
+                                            setEducationLevel(
+                                                e.target.value as EducationLevelApi | "",
+                                            );
+                                            handleFiltrar();
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white text-md"
+                                    >
+                                        <option value="">Todos</option>
+                                        <option value="ensino_fundamental">
+                                            Ensino Fundamental
+                                        </option>
+                                        <option value="ensino_medio">Ensino Médio</option>
+                                        <option value="ensino_tecnico">Ensino Técnico</option>
+                                        <option value="ensino_superior">
+                                            Ensino Superior
+                                        </option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-1">
+                                        Série/Ano
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={grade}
+                                        onChange={(e) => {
+                                            setGrade(e.target.value);
+                                            handleFiltrar();
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] text-md"
+                                        placeholder="Ex: 9"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-1">
+                                        Dificuldade
+                                    </label>
+                                    <select
+                                        value={difficulty}
+                                        onChange={(e) => {
+                                            setDifficulty(
+                                                e.target.value as Dificuldade | "",
+                                            );
+                                            handleFiltrar();
+                                        }}
+                                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white text-md"
+                                    >
+                                        <option value="">Todas</option>
+                                        <option value="easy">Fácil</option>
+                                        <option value="medium">Médio</option>
+                                        <option value="hard">Difícil</option>
+                                    </select>
                                 </div>
 
                                 <button
-                                    onClick={() =>
-                                        setPage((p) =>
-                                            Math.min(meta.totalPages, p + 1),
-                                        )
-                                    }
-                                    disabled={page >= meta.totalPages}
-                                    className="p-2 rounded-xl border border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                    onClick={handleLimparFiltros}
+                                    className="w-full p-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 transition-colors duration-300 cursor-pointer text-md"
                                 >
-                                    <ChevronRight size={20} />
+                                    Limpar filtros
                                 </button>
                             </div>
+                        </div>
+                    </aside>
+
+                    {/* Conteúdo */}
+                    <section className="md:col-span-9">
+                        {carregando ? (
+                            <div className="flex justify-center items-center py-20">
+                                <IconeCarregamento w={32} h={32} color="black" />
+                            </div>
+                        ) : erro ? (
+                            <div className="bg-red-50 border border-red-300 text-red-700 p-6 rounded-2xl text-center">
+                                <p>{erro}</p>
+                                <button
+                                    onClick={() => setPage(page)}
+                                    className="mt-3 text-sm underline cursor-pointer"
+                                >
+                                    Tentar novamente
+                                </button>
+                            </div>
+                        ) : questoes.length === 0 ? (
+                            <div className="text-center py-20 text-gray-400">
+                                <Search
+                                    size={48}
+                                    className="mx-auto mb-4 opacity-50"
+                                />
+                                <p className="text-lg">
+                                    Nenhuma questão encontrada.
+                                </p>
+                                <p className="text-sm mt-1">
+                                    Tente alterar os filtros ou crie uma nova
+                                    questão.
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Lista */}
+                                <ListaQuestoes
+                                    variant="link"
+                                    questoes={questoes}
+                                    privacyBadgeMode="auto"
+                                />
+
+                                {/* Paginação */}
+                                {meta && meta.totalPages > 1 && (
+                                    <div className="flex items-center justify-center gap-4 mt-8">
+                                        <button
+                                            onClick={() =>
+                                                setPage((p) =>
+                                                    Math.max(1, p - 1),
+                                                )
+                                            }
+                                            disabled={page <= 1}
+                                            className="p-2 rounded-xl border border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+
+                                        <div className="flex flex-col items-center gap-2">
+                                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                                {paginationItems.map((item, idx) =>
+                                                    item === "ellipsis" ? (
+                                                        <span
+                                                            key={`ellipsis-${idx}`}
+                                                            className="px-2 text-gray-400 select-none"
+                                                            aria-hidden
+                                                        >
+                                                            ...
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            key={item}
+                                                            onClick={() =>
+                                                                setPage(item)
+                                                            }
+                                                            disabled={
+                                                                item === page
+                                                            }
+                                                            aria-current={
+                                                                item === page
+                                                                    ? "page"
+                                                                    : undefined
+                                                            }
+                                                            className={
+                                                                item === page
+                                                                    ? "min-w-9 h-9 px-3 rounded-xl border border-gray-900 bg-gray-900 text-white text-sm font-semibold cursor-default"
+                                                                    : "min-w-9 h-9 px-3 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                                                            }
+                                                        >
+                                                            {item}
+                                                        </button>
+                                                    ),
+                                                )}
+                                            </div>
+
+                                            <span className="text-sm text-gray-600">
+                                                Página{" "}
+                                                <span className="font-semibold">
+                                                    {meta.page}
+                                                </span>{" "}
+                                                de{" "}
+                                                <span className="font-semibold">
+                                                    {meta.totalPages}
+                                                </span>{" "}
+                                                <span className="text-gray-400">
+                                                    ({meta.total} questões)
+                                                </span>
+                                            </span>
+                                        </div>
+
+                                        <button
+                                            onClick={() =>
+                                                setPage((p) =>
+                                                    Math.min(
+                                                        meta.totalPages,
+                                                        p + 1,
+                                                    ),
+                                                )
+                                            }
+                                            disabled={page >= meta.totalPages}
+                                            className="p-2 rounded-xl border border-gray-300 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                        >
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
-                    </>
-                )}
+                    </section>
+                </div>
             </div>
         </main>
     );

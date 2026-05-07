@@ -71,7 +71,7 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
             ) : null}
 
             {/* Enunciado */}
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 whitespace-pre-wrap wrap-break-word">
+            <h2 className="text-md text-gray-800 mb-4 whitespace-pre-wrap wrap-break-word">
                 {questao.statement}
             </h2>
 
@@ -201,7 +201,7 @@ export default function ListaQuestoes(props: Props) {
         const privacyBadgeMode: PrivacyBadgeMode = props.privacyBadgeMode ?? "auto";
 
         return (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {props.questoes.map((questao) => (
                     <Link
                         key={questao.id}
@@ -261,7 +261,7 @@ export default function ListaQuestoes(props: Props) {
     const selectedIds = props.selectedIds;
 
     return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {props.questoes.map((questao) => {
                 const jaSelecionada = selectedIds?.has(questao.id) ?? false;
 

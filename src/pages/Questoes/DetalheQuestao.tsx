@@ -202,7 +202,7 @@ export default function DetalheQuestao() {
                     </p>
 
                     {/* Enunciado */}
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 whitespace-pre-wrap wrap-break-word">
+                    <h2 className="text-md text-gray-800 mb-4 whitespace-pre-wrap wrap-break-word">
                         {questao.statement}
                     </h2>
 
