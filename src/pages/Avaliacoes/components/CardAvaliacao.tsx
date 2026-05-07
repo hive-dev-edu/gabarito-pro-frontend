@@ -119,8 +119,8 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
 
 
   return (
-    <div className="rounded-3xl border border-[#DDEDEA] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer" onClick={() => onPreview(avaliacao.id)}>
-      <div className="flex items-start justify-between gap-4">
+    <div className="cursor-pointer rounded-3xl border border-[#DDEDEA] bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-5" onClick={() => onPreview(avaliacao.id)}>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="mb-3 inline-flex items-center rounded-full border border-[#BDEAE4] bg-[#F4FFFD] px-3 py-1 text-xs font-semibold text-[#14877B]">
             Publicada
@@ -130,8 +130,8 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
             {avaliacao.title || "Avaliação sem título"}
           </h3>
 
-          <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-600">
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5">
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600 sm:gap-3 sm:text-sm">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-2.5 py-1 sm:px-3 sm:py-1.5">
               <CalendarDays size={15} />
               {loadingDetails ? (
                 <span className="h-4 w-16 rounded bg-slate-200 animate-pulse" />
@@ -140,7 +140,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               )}
             </span>
 
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-2.5 py-1 sm:px-3 sm:py-1.5">
               <GraduationCap size={15} />
               {loadingDetails ? (
                 <span className="h-4 w-36 rounded bg-slate-200 animate-pulse" />
@@ -151,7 +151,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               )}
             </span>
 
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-2.5 py-1 sm:px-3 sm:py-1.5">
               <FileText size={15} />
               {loadingDetails ? (
                 <span className="h-4 w-20 rounded bg-slate-200 animate-pulse" />
@@ -160,7 +160,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               )}
             </span>
 
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#FFF9EC] px-3 py-1.5 text-[#9A6A00]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#FFF9EC] px-2.5 py-1 text-[#9A6A00] sm:px-3 sm:py-1.5">
               <Trophy size={15} />
               {loadingDetails ? (
                 <span className="h-4 w-24 rounded bg-amber-200 animate-pulse" />
@@ -171,14 +171,14 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-3">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 lg:w-auto lg:justify-end">
 
           <button
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/avaliacoes/${avaliacao.id}/versoes`);
             }}
-            className="inline-flex py-4 px-4 gap-2 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#D9E7E4] bg-white px-3 py-3 text-sm text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] sm:w-auto sm:px-4 sm:py-4 sm:whitespace-nowrap cursor-pointer"
             title="Gerenciar versões"
           >
             <Layers size={20} />
@@ -190,7 +190,7 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               e.stopPropagation();
               navigate(`/correcoes?assessmentId=${avaliacao.id}`);
             }}
-            className="inline-flex py-4 px-4 gap-2 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#D9E7E4] bg-white px-3 py-3 text-sm text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] sm:w-auto sm:px-4 sm:py-4 sm:whitespace-nowrap cursor-pointer"
             title="Ver correções desta avaliação"
           >
             <FileCheck2 size={20} />
@@ -202,10 +202,11 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               e.stopPropagation();
               navigate(`/avaliacoes/${avaliacao.id}/correcoes`);
             }}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] sm:h-14 sm:w-14 cursor-pointer"
             title="Correções automáticas"
           >
             <FileCheck2 size={20} />
+            <span className="sm:hidden">Correções automáticas</span>
           </button>
 
           <button
@@ -214,10 +215,11 @@ export default function CardAvaliacao({ avaliacao, onPreview, onRequestDelete, d
               onRequestDelete?.(avaliacao.id);
             }}
             disabled={deleting}
-            className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#F3DCD6] bg-white text-red-600 transition hover:bg-[#FFF5F4] disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#F3DCD6] bg-white text-red-600 transition hover:bg-[#FFF5F4] disabled:opacity-60 sm:h-14 sm:w-14 cursor-pointer"
             title="Excluir avaliação"
           >
             <Trash2 size={18} className={deleting ? "animate-spin" : undefined} />
+            <span className="sm:hidden">Excluir</span>
           </button>
         </div>
       </div>
