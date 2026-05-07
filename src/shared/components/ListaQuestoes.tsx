@@ -88,7 +88,7 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
 
             {/* Alternativas */}
             {alternativasComKey.length ? (
-                <div className="space-y-2.5 sm:space-y-3">
+                <div className="space-y-2">
                     {alternativasComKey.map(({ alt, index, key }) => {
                         const imagemAlternativa = obterImagemAlternativa(alt);
                         const rotulo = obterRotuloAlternativa(index);
@@ -132,7 +132,7 @@ function QuestaoCompleta({ questao }: { questao: Questao }) {
                                     if (alternativaSelecionadaId !== null) return;
                                     setAlternativaSelecionadaId(key);
                                 }}
-                                className={`w-full text-left p-3 sm:p-4 rounded-xl border transition-colors ${
+                                className={`w-full text-left p-2 rounded-xl border transition-colors ${
                                     jaRespondeu ? "cursor-default" : "cursor-pointer"
                                 } ${destaqueAlternativa}`}
                                 role="button"
@@ -209,29 +209,25 @@ export default function ListaQuestoes(props: Props) {
                         className="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300"
                     >
                         <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 mt-1 mb-4">
-                                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                                        {questao.subject}
-                                    </span>
-                                    <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                                        {questao.educationLevel
-                                            ? EDUCATION_LEVEL_LABEL[questao.educationLevel]
-                                            : "—"}
-                                    </span>
-                                    <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-                                        {typeof questao.grade === "number" ? `${questao.grade}º` : "—"}
-                                    </span>
-                                    <span
-                                        className={`text-xs px-3 py-1 rounded-full ${
-                                            DIFICULDADE_COR[questao.difficulty]
-                                        }`}
-                                    >
-                                        {DIFICULDADE_LABEL[questao.difficulty]}
-                                    </span>
-                                </div>
-
-                                <QuestaoCompleta questao={questao} />
+                            <div className="flex flex-wrap items-center gap-2 mt-1 mb-4 flex-1 min-w-0">
+                                <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                                    {questao.subject}
+                                </span>
+                                <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                                    {questao.educationLevel
+                                        ? EDUCATION_LEVEL_LABEL[questao.educationLevel]
+                                        : "—"}
+                                </span>
+                                <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+                                    {typeof questao.grade === "number" ? `${questao.grade}º` : "—"}
+                                </span>
+                                <span
+                                    className={`text-xs px-3 py-1 rounded-full ${
+                                        DIFICULDADE_COR[questao.difficulty]
+                                    }`}
+                                >
+                                    {DIFICULDADE_LABEL[questao.difficulty]}
+                                </span>
                             </div>
 
                             {privacyBadgeMode === "hide" ? null : (
@@ -252,6 +248,8 @@ export default function ListaQuestoes(props: Props) {
                                 </span>
                             )}
                         </div>
+
+                        <QuestaoCompleta questao={questao} />
                     </Link>
                 ))}
             </div>
