@@ -6,6 +6,7 @@ import type {
     MetaPaginacao,
     Dificuldade,
     EducationLevelApi,
+    VisibilidadeQuestoes,
 } from "./types/questoes.types";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import ListaQuestoes from "../../shared/components/ListaQuestoes";
@@ -15,9 +16,6 @@ import {
     ChevronRight,
     Plus,
     ArrowLeft,
-    Lock,
-    CheckSquare,
-    Square,
 } from "lucide-react";
 
 const questoesService = new QuestoesService();
@@ -63,8 +61,8 @@ export default function ListagemQuestoes() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     // ── Filtros ──
-    const [myQuestions, setMyQuestions] = useState(
-        searchParams.get("myQuestions") === "true",
+    const [visibilidade, setVisibilidade] = useState<VisibilidadeQuestoes | "">(
+        (searchParams.get("visibilidade") as VisibilidadeQuestoes) ?? "",
     );
     const [subject, setSubject] = useState(searchParams.get("subject") ?? "");
     const [educationLevel, setEducationLevel] = useState<EducationLevelApi | "">(
@@ -96,7 +94,7 @@ export default function ListagemQuestoes() {
 
             try {
                 const resposta = await questoesService.listar({
-                    myQuestions: myQuestions ? "true" : undefined,
+                    visibilidade: visibilidade || undefined,
                     subject: subject || undefined,
                     educationLevel: educationLevel || undefined,
                     grade: grade || undefined,
@@ -116,19 +114,19 @@ export default function ListagemQuestoes() {
         }
 
         carregarQuestoes();
-    }, [myQuestions, subject, educationLevel, grade, difficulty, page]);
+    }, [visibilidade, subject, educationLevel, grade, difficulty, page]);
 
     // ── Sincronizar filtros com URL ──
     useEffect(() => {
         const params = new URLSearchParams();
-        if (myQuestions) params.set("myQuestions", "true");
+        if (visibilidade) params.set("visibilidade", visibilidade);
         if (subject) params.set("subject", subject);
         if (educationLevel) params.set("educationLevel", educationLevel);
         if (grade) params.set("grade", grade);
         if (difficulty) params.set("difficulty", difficulty);
         if (page > 1) params.set("page", String(page));
         setSearchParams(params, { replace: true });
-    }, [myQuestions, subject, educationLevel, grade, difficulty, page, setSearchParams]);
+    }, [visibilidade, subject, educationLevel, grade, difficulty, page, setSearchParams]);
 
     // ── Handlers de filtro ──
     function handleFiltrar() {
@@ -136,7 +134,7 @@ export default function ListagemQuestoes() {
     }
 
     function handleLimparFiltros() {
-        setMyQuestions(false);
+        setVisibilidade("");
         setSubject("");
         setEducationLevel("");
         setGrade("");
@@ -171,13 +169,6 @@ export default function ListagemQuestoes() {
 
                     <div className="flex gap-4">
                         <Link
-                            to="/questoes/privadas"
-                            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-600 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-300 self-stretch sm:self-auto"
-                        >
-                            <Lock size={16} />
-                            Questões Privadas
-                        </Link>
-                        <Link
                             to="/questoes/criar"
                             className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#2EC5B6] text-white font-semibold rounded-xl hover:bg-teal-600 transition-colors duration-300 self-stretch sm:self-auto"
                         >
@@ -192,31 +183,34 @@ export default function ListagemQuestoes() {
                     <aside className="md:col-span-3">
                         <div className="bg-white p-4 sm:px-4 sm:py-6 rounded-2xl shadow-sm md:sticky md:top-6">
                             <div className="flex flex-col gap-3">
-                                <label
-                                    htmlFor="incluir-questoes"
-                                    className={`inline-flex items-center gap-2 px-4 py-2 text-md font-medium rounded-md border transition-colors duration-200 cursor-pointer ${
-                                        myQuestions
-                                            ? "bg-[#2EC5B6] text-white border-[#2EC5B6]"
-                                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                                    }`}
-                                >
-                                    <input
-                                        id="incluir-questoes"
-                                        type="checkbox"
-                                        checked={myQuestions}
-                                        onChange={() => {
-                                            setMyQuestions((prev) => !prev);
-                                            handleFiltrar();
-                                        }}
-                                        className="sr-only"
-                                    />
-                                    {myQuestions ? (
-                                        <CheckSquare size={18} aria-hidden="true" />
-                                    ) : (
-                                        <Square size={18} aria-hidden="true" />
-                                    )}
-                                    Somente minhas questões
-                                </label>
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-1">
+                                        Visibilidade
+                                    </label>
+                                    {[
+                                        { value: "" as const, label: "Todas as públicas" },
+                                        { value: "incluir_minhas" as const, label: "Incluir minhas questões" },
+                                        { value: "somente_minhas" as const, label: "Somente minhas questões" },
+                                    ].map(({ value, label }) => (
+                                        <label
+                                            key={value || "todos"}
+                                            className="flex items-center gap-2 cursor-pointer py-1"
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="visibilidade"
+                                                value={value}
+                                                checked={visibilidade === value}
+                                                onChange={() => {
+                                                    setVisibilidade(value);
+                                                    handleFiltrar();
+                                                }}
+                                                className="accent-[#2EC5B6]"
+                                            />
+                                            <span className="text-md text-gray-700">{label}</span>
+                                        </label>
+                                    ))}
+                                </div>
 
                                 <div>
                                     <label className="block text-md font-medium text-gray-700 mb-1">
