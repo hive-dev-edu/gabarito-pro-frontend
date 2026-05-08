@@ -1,12 +1,13 @@
-import { httpClient } from "../../../utils/httpClient";
+import {
+    obterUsuarioLogadoCached,
+} from "../../../shared/services/usuarioLogado.service";
 
 export class TesteAposLoginService { 
     async obterUsuarioLogado() {
         try {
-            const response = await httpClient.get("/users/me");
-            console.log(response.data);
-            
-            return response.data;   
+            const usuario = await obterUsuarioLogadoCached();
+            console.log(usuario);
+            return usuario;
         } catch (error) {
             console.error("Erro ao obter usuário logado: ", error);
             throw new Error("Erro ao obter usuário logado");

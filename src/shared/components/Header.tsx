@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { LogOut, User, Home, BookOpen, Users, FileCheck2 } from "lucide-react";
-import { obterPayloadToken } from "../../utils/auth";
+import { PerfilService } from "../../pages/Perfil/services/perfil.service";
+import { limparUsuarioLogadoCache } from "../services/usuarioLogado.service";
 
 function navItemClassName(isActive: boolean) {
     const base =
@@ -11,80 +13,103 @@ function navItemClassName(isActive: boolean) {
         : `${base} text-gray-600 hover:bg-gray-100`;
 }
 
+const obterPerfilService = new PerfilService();
+
 export default function Header() {
     const navigate = useNavigate();
-    const payload = obterPayloadToken();
-    const nomeUsuario = (payload as Record<string, unknown>)?.name as
-        | string
-        | undefined;
+
+    const [nomeUsuario, setNomeUsuario] = useState<string | null>(null);
+
+    useEffect(() => {
+        let ativo = true;
+
+        const carregarUsuario = async () => {
+            try {
+                const usuario = await obterPerfilService.obterUsuarioLogado();
+                if (!ativo) return;
+
+                const primeiroNome = usuario?.name?.trim().split(/\s+/)[0] ?? null;
+                setNomeUsuario(primeiroNome);
+            } catch {
+                if (!ativo) return;
+                setNomeUsuario(null);
+            }
+        };
+
+        void carregarUsuario();
+
+        return () => {
+            ativo = false;
+        };
+    }, []);
 
     function handleLogout() {
         localStorage.removeItem("accessToken");
+        limparUsuarioLogadoCache();
+        setNomeUsuario(null);
         navigate("/login", { replace: true });
     }
 
     return (
         <header className="bg-white shadow-sm sticky top-0 z-40">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
-                {/* Logo + Nav */}
-                <div className="flex items-center gap-2 sm:gap-6">
-                    <Link
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center">
+                {/* Logo (esquerda) */}
+                <Link
+                    to="/dashboard"
+                    className="flex items-center gap-2 shrink-0"
+                >
+                    <img
+                        src="/images/logo-gabarito-pro.png"
+                        alt="Logo Gabarito Pro"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full"
+                    />
+                    <span className="font-semibold text-lg text-gray-800 hidden sm:inline">
+                        Gabarito.pro
+                    </span>
+                </Link>
+
+                {/* Nav (centro) */}
+                <nav className="flex flex-1 items-center justify-center gap-0.5 sm:gap-1">
+                    <NavLink
                         to="/dashboard"
-                        className="flex items-center gap-2 shrink-0"
+                        end
+                        className={({ isActive }) => navItemClassName(isActive)}
                     >
-                        <img
-                            src="/images/logo-gabarito-pro.png"
-                            alt="Logo Gabarito Pro"
-                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full"
-                        />
-                        <span className="font-semibold text-lg text-gray-800 hidden sm:inline">
-                            Gabarito.pro
-                        </span>
-                    </Link>
+                        <Home size={16} />
+                        <span className="hidden sm:inline">Início</span>
+                    </NavLink>
+                    <NavLink
+                        to="/questoes"
+                        className={({ isActive }) => navItemClassName(isActive)}
+                    >
+                        <BookOpen size={16} />
+                        <span className="hidden sm:inline">Questões</span>
+                    </NavLink>
+                    <NavLink
+                        to="/turmas"
+                        className={({ isActive }) => navItemClassName(isActive)}
+                    >
+                        <Users size={16} />
+                        <span className="hidden sm:inline">Minhas Turmas</span>
+                    </NavLink>
+                    <NavLink
+                        to="/avaliacoes"
+                        className={({ isActive }) => navItemClassName(isActive)}
+                    >
+                        <BookOpen size={16} />
+                        <span className="hidden sm:inline">Avaliações</span>
+                    </NavLink>
+                    <NavLink
+                        to="/correcoes"
+                        className={({ isActive }) => navItemClassName(isActive)}
+                    >
+                        <FileCheck2 size={16} />
+                        <span className="hidden sm:inline">Correções</span>
+                    </NavLink>
+                </nav>
 
-                    <nav className="flex items-center gap-0.5 sm:gap-1">
-                        <NavLink
-                            to="/dashboard"
-                            end
-                            className={({ isActive }) => navItemClassName(isActive)}
-                        >
-                            <Home size={16} />
-                            <span className="hidden sm:inline">Início</span>
-                        </NavLink>
-                        <NavLink
-                            to="/questoes"
-                            className={({ isActive }) => navItemClassName(isActive)}
-                        >
-                            <BookOpen size={16} />
-                            <span className="hidden sm:inline">Questões</span>
-                        </NavLink>
-                        <NavLink
-                            to="/turmas"
-                            className={({ isActive }) => navItemClassName(isActive)}
-                        >
-                            <Users size={16} />
-                            <span className="hidden sm:inline">Minhas Turmas</span>
-                        </NavLink>
-                        <NavLink
-                            to="/avaliacoes"
-                            className={({ isActive }) => navItemClassName(isActive)}
-                        >
-                            <BookOpen size={16} />
-                            <span className="hidden sm:inline">Avaliações</span>
-                        </NavLink>
-
-                        <NavLink
-                            to="/correcoes"
-                            className={({ isActive }) => navItemClassName(isActive)}
-                        >
-                            <FileCheck2 size={16} />
-                            <span className="hidden sm:inline">Correções</span>
-                        </NavLink>
-                    </nav>
-                </div>
-
-                {/* Usuário + Perfil + Logout */}
-                <div className="flex items-center gap-1.5 sm:gap-3">
+                {/* Usuário + Perfil + Logout (direita) */}
+                <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                     <NavLink
                         to="/perfil"
                         className={({ isActive }) => navItemClassName(isActive)}
