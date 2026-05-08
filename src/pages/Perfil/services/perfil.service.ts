@@ -1,12 +1,11 @@
 import { httpClient } from "../../../utils/httpClient";
 import axios from "axios";
+import {
+    obterUsuarioLogadoCached,
+    type UsuarioLogado,
+} from "../../../shared/services/usuarioLogado.service";
 
-export interface Usuario {
-    id: string;
-    email: string;
-    name: string;
-    role: "student" | "guardianship";
-}
+export type Usuario = UsuarioLogado;
 
 export interface TrocarSenhaRequisicao {
     oldPassword: string;
@@ -14,10 +13,10 @@ export interface TrocarSenhaRequisicao {
 }
 
 export class PerfilService {
+    
     async obterUsuarioLogado(): Promise<Usuario> {
         try {
-            const response = await httpClient.get("/users/me");
-            return response.data;
+            return await obterUsuarioLogadoCached();
         } catch (error) {
             console.error("Erro ao obter usuário logado: ", error);
             throw new Error("Erro ao obter usuário logado");
