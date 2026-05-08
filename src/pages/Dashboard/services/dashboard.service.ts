@@ -24,7 +24,6 @@ export class DashboardService {
     async obterQuestoesRecentes(): Promise<ListagemQuestoesResposta> {
         try {
             const params = new URLSearchParams();
-            params.set("myQuestions", "false");
             params.set("page", "1");
             params.set("limit", "5");
 
