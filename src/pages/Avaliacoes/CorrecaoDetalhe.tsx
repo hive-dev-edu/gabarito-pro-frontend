@@ -362,7 +362,7 @@ export default function PaginaCorrecaoDetalhe() {
         <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-4">
             <button
-              onClick={() => navigate(backHref)}
+              onClick={() => navigate(-1)}
               className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#D9E7E4] bg-white text-slate-600 transition hover:bg-[#F4FFFD] hover:text-[#14877B] cursor-pointer"
               title="Voltar"
             >
