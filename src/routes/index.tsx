@@ -6,7 +6,6 @@ import EsqueceuSenha from "../pages/EsqueceuSenha/EsqueceuSenha";
 import RedefinirSenha from "../pages/RedefinirSenha/RedefinirSenha";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import ListagemQuestoes from "../pages/Questoes/ListagemQuestoes";
-import ListagemQuestoesPrivadas from "../pages/Questoes/ListagemQuestoesPrivadas";
 import DetalheQuestao from "../pages/Questoes/DetalheQuestao";
 import CriarQuestao from "../pages/Questoes/CriarQuestao";
 import EditarQuestao from "../pages/Questoes/EditarQuestao";
@@ -38,10 +37,6 @@ export default function AppRoutes() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/questoes" element={<ListagemQuestoes />} />
-                <Route
-                    path="/questoes/privadas"
-                    element={<ListagemQuestoesPrivadas />}
-                />
                 <Route path="/questoes/criar" element={<CriarQuestao />} />
                 <Route path="/questoes/:id" element={<DetalheQuestao />} />
                 <Route
