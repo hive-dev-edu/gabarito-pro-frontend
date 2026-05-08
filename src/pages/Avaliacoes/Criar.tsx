@@ -16,7 +16,7 @@ import { QuestoesService } from "../Questoes/services/questoes.service";
 
 import type { CreateAvaliacaoDTO } from "./types/avaliacao.types";
 import type { Turma } from "../Turmas/types/turma.types";
-import type { Questao, Dificuldade } from "../Questoes/types/questoes.types";
+import type { Questao, Dificuldade, VisibilidadeQuestoes } from "../Questoes/types/questoes.types";
 
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import ListaQuestoes from "../../shared/components/ListaQuestoes";
@@ -85,8 +85,7 @@ export default function CriarAvaliacaoPage() {
   const [subject, setSubject] = useState("");
   const [grade, setGrade] = useState("");
   const [difficulty, setDifficulty] = useState<Dificuldade | "">("");
-  const [includeMyQuestions, setIncludeMyQuestions] = useState(false);
-  const [onlyMyQuestions, setOnlyMyQuestions] = useState(false);
+  const [visibilidade, setVisibilidade] = useState<VisibilidadeQuestoes | "">("");
   const [searchQuestao, setSearchQuestao] = useState("");
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -119,8 +118,7 @@ export default function CriarAvaliacaoPage() {
   async function carregarQuestoes(
     currentPage = 1,
     overrides?: {
-      onlyMine?: boolean;
-      includeMine?: boolean;
+      visibilidade?: VisibilidadeQuestoes | "";
       subject?: string;
       grade?: string;
       difficulty?: Dificuldade | "";
@@ -129,27 +127,26 @@ export default function CriarAvaliacaoPage() {
     setCarregandoQuestoes(true);
     setErro("");
 
-    const effectiveOnlyMine = overrides?.onlyMine ?? onlyMyQuestions;
-    const effectiveIncludeMine = overrides?.includeMine ?? includeMyQuestions;
-    const effectiveSubject = overrides !== undefined && "subject" in overrides ? overrides.subject : subject;
-    const effectiveGrade = overrides !== undefined && "grade" in overrides ? overrides.grade : grade;
-    const effectiveDifficulty = overrides !== undefined && "difficulty" in overrides ? overrides.difficulty : difficulty;
+    const effectiveVisibilidade =
+      overrides !== undefined && "visibilidade" in overrides
+        ? overrides.visibilidade
+        : visibilidade;
+    const effectiveSubject =
+      overrides !== undefined && "subject" in overrides ? overrides.subject : subject;
+    const effectiveGrade =
+      overrides !== undefined && "grade" in overrides ? overrides.grade : grade;
+    const effectiveDifficulty =
+      overrides !== undefined && "difficulty" in overrides ? overrides.difficulty : difficulty;
 
     try {
-      const filtrosBase = {
+      const resposta = await questoesService.listar({
+        visibilidade: effectiveVisibilidade || undefined,
         subject: effectiveSubject || undefined,
         grade: effectiveGrade || undefined,
         difficulty: effectiveDifficulty || undefined,
         page: currentPage,
         limit: limitQuestoes,
-      };
-
-      const resposta = effectiveOnlyMine
-        ? await questoesService.listarPrivadas(filtrosBase)
-        : await questoesService.listar({
-            ...filtrosBase,
-            myQuestions: effectiveIncludeMine ? "true" : "false",
-          });
+      });
 
       const lista = Array.isArray(resposta?.data) ? resposta.data : [];
 
@@ -361,11 +358,10 @@ export default function CriarAvaliacaoPage() {
     setSubject("");
     setGrade("");
     setDifficulty("");
-    setIncludeMyQuestions(false);
-    setOnlyMyQuestions(false);
+    setVisibilidade("");
     setSearchQuestao("");
     setPageQuestoes(1);
-    carregarQuestoes(1, { onlyMine: false, includeMine: false, subject: "", grade: "", difficulty: "" });
+    carregarQuestoes(1, { visibilidade: "", subject: "", grade: "", difficulty: "" });
   }
 
   async function salvar(status: "DRAFT" | "PUBLISHED") {
@@ -583,33 +579,26 @@ export default function CriarAvaliacaoPage() {
 
               <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={onlyMyQuestions}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setOnlyMyQuestions(checked);
-                        if (checked) setIncludeMyQuestions(false);
-                      }}
-                      className="rounded cursor-pointer"
-                    />
-                    Somente minhas questões
-                  </label>
-
-                  <label className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeMyQuestions}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setIncludeMyQuestions(checked);
-                        if (checked) setOnlyMyQuestions(false);
-                      }}
-                      className="rounded cursor-pointer"
-                    />
-                    Incluir minhas questões
-                  </label>
+                  {[
+                    { value: "" as const, label: "Todas as públicas" },
+                    { value: "incluir_minhas" as const, label: "Incluir minhas questões" },
+                    { value: "somente_minhas" as const, label: "Somente minhas questões" },
+                  ].map(({ value, label }) => (
+                    <label
+                      key={value || "todos"}
+                      className="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="visibilidade-questoes"
+                        value={value}
+                        checked={visibilidade === value}
+                        onChange={() => setVisibilidade(value)}
+                        className="accent-[#2EC5B6] cursor-pointer"
+                      />
+                      {label}
+                    </label>
+                  ))}
                 </div>
 
                 <div className="flex gap-2">
