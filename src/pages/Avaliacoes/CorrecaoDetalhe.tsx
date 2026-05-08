@@ -195,12 +195,6 @@ export default function PaginaCorrecaoDetalhe() {
   const timeoutRef = useRef<number | undefined>(undefined);
   const intervalRef = useRef<number | undefined>(undefined);
 
-  const backHref = state.assessmentId
-    ? `/avaliacoes/${state.assessmentId}/correcoes`
-    : typeof state.from === "string" && state.from.trim()
-      ? state.from
-      : "/avaliacoes";
-
   const pararTimers = useCallback(() => {
     if (intervalRef.current) {
       window.clearInterval(intervalRef.current);
@@ -475,7 +469,7 @@ export default function PaginaCorrecaoDetalhe() {
                   </div>
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                     <button
-                      onClick={() => navigate(backHref)}
+                      onClick={() => navigate(-1)}
                       className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
                     >
                       Voltar para reenviar
