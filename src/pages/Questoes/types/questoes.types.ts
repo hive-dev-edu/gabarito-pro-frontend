@@ -30,6 +30,8 @@ export type EducationLevelApi =
 
 export type QuestionType = "multiple_choice" | "true_false" | "essay";
 
+export type VisibilidadeQuestoes = "incluir_minhas" | "somente_minhas";
+
 export interface Questao {
     id: string;
     authorId?: string;
@@ -65,16 +67,7 @@ export interface ListagemQuestoesResposta {
 // ── Filtros ──
 
 export interface FiltrosQuestao {
-    myQuestions?: string;
-    subject?: string;
-    educationLevel?: EducationLevelApi;
-    grade?: string;
-    difficulty?: Dificuldade;
-    page?: number | string;
-    limit?: number | string;
-}
-
-export interface FiltrosQuestoesPrivadas {
+    visibilidade?: VisibilidadeQuestoes;
     subject?: string;
     educationLevel?: EducationLevelApi;
     grade?: string;

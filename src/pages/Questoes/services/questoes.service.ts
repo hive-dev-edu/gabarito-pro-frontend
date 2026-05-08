@@ -4,7 +4,6 @@ import type {
     ListagemQuestoesResposta,
     Questao,
     FiltrosQuestao,
-    FiltrosQuestoesPrivadas,
     CriarQuestaoRequisicao,
     AtualizarQuestaoRequisicao,
 } from "../types/questoes.types";
@@ -204,7 +203,7 @@ export class QuestoesService {
             const params = new URLSearchParams();
 
             // filtros dinâmicos (só aplica se vierem no input)
-            setIfPresent(params, "myQuestions", filtros.myQuestions);
+            setIfPresent(params, "visibilidade", filtros.visibilidade);
             setIfPresent(params, "subject", filtros.subject);
             setIfPresent(params, "educationLevel", filtros.educationLevel);
             setIfPresent(params, "grade", filtros.grade);
@@ -225,35 +224,7 @@ export class QuestoesService {
         }
     }
 
-    // ── 2. Listar questões privadas (do usuário autenticado) ──
-    async listarPrivadas(
-        filtros: FiltrosQuestoesPrivadas = {},
-    ): Promise<ListagemQuestoesResposta> {
-        try {
-            const params = new URLSearchParams();
-
-            setIfPresent(params, "subject", filtros.subject);
-            setIfPresent(params, "educationLevel", filtros.educationLevel);
-            setIfPresent(params, "grade", filtros.grade);
-
-            setIfPresent(params, "difficulty", filtros.difficulty);
-
-            params.set("page", String(toPositiveInt(filtros.page, 1)));
-            params.set("limit", String(toPositiveInt(filtros.limit, 10)));
-
-            const response = await httpClient.get(
-                `/questions/private?${params}`,
-            );
-            return response.data;
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                throw new Error("Erro ao listar questões privadas.");
-            }
-            throw new Error("Erro desconhecido ao listar questões privadas.");
-        }
-    }
-
-    // ── 3. Buscar questão por ID ──
+    // ── 2. Buscar questão por ID ──
     async buscarPorId(id: string): Promise<Questao> {
         try {
             const response = await httpClient.get(`/questions/${id}`);
