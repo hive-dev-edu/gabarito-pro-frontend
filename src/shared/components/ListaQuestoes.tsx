@@ -187,21 +187,30 @@ type Props =
           questoes: Questao[];
           to?: (questao: Questao) => string;
           privacyBadgeMode?: PrivacyBadgeMode;
+          twoColumns?: boolean;
       }
     | {
           variant: "select";
           questoes: Questao[];
           onAdd: (questao: Questao) => void;
           selectedIds?: ReadonlySet<string>;
+          twoColumns?: boolean;
       };
 
 export default function ListaQuestoes(props: Props) {
     if (props.variant === "link") {
         const to = props.to ?? ((q: Questao) => `/questoes/${q.id}`);
         const privacyBadgeMode: PrivacyBadgeMode = props.privacyBadgeMode ?? "auto";
+        const twoColumns = props.twoColumns ?? true;
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+                className={
+                    twoColumns
+                        ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                        : "grid grid-cols-1 gap-4"
+                }
+            >
                 {props.questoes.map((questao) => (
                     <Link
                         key={questao.id}
@@ -257,9 +266,16 @@ export default function ListaQuestoes(props: Props) {
     }
 
     const selectedIds = props.selectedIds;
+    const twoColumns = props.twoColumns ?? true;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div
+            className={
+                twoColumns
+                    ? "grid grid-cols-1 md:grid-cols-2 gap-3"
+                    : "grid grid-cols-1 gap-3"
+            }
+        >
             {props.questoes.map((questao) => {
                 const jaSelecionada = selectedIds?.has(questao.id) ?? false;
 
