@@ -56,7 +56,7 @@ export default function EditarQuestao() {
 
         try {
             await questoesService.atualizar(id, dados);
-            navigate(`/questoes/${id}`);
+            navigate(-1);
         } catch (error) {
             if (error instanceof Error) {
                 setErro(error.message);
