@@ -22,6 +22,7 @@ import PaginaCorrecoes from "../pages/Avaliacoes/Correcoes";
 import PaginaCorrecaoDetalhe from "../pages/Avaliacoes/CorrecaoDetalhe";
 import CorrecoesPage from "../pages/Correcoes/Correcoes";
 import LandingPage from "../pages/LandingPage/LandingPage";
+import NotFound from "../pages/NotFound/NotFound";
 
 
 export default function AppRoutes() {
@@ -54,6 +55,8 @@ export default function AppRoutes() {
                 <Route path="/correcoes" element={<CorrecoesPage />} />
                 <Route path="/correcoes/:id" element={<PaginaCorrecaoDetalhe />} />
             </Route>
+
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
