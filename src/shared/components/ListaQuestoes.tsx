@@ -217,31 +217,29 @@ export default function ListaQuestoes(props: Props) {
                         to={to(questao)}
                         className="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300"
                     >
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex flex-wrap items-center gap-2 mt-1 mb-4 flex-1 min-w-0">
-                                <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                                    {questao.subject}
-                                </span>
-                                <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                                    {questao.educationLevel
-                                        ? EDUCATION_LEVEL_LABEL[questao.educationLevel]
-                                        : "—"}
-                                </span>
-                                <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-                                    {typeof questao.grade === "number" ? `${questao.grade}º` : "—"}
-                                </span>
-                                <span
-                                    className={`text-xs px-3 py-1 rounded-full ${
-                                        DIFICULDADE_COR[questao.difficulty]
-                                    }`}
-                                >
-                                    {DIFICULDADE_LABEL[questao.difficulty]}
-                                </span>
-                            </div>
+                        <div className="flex flex-wrap items-center gap-2 mt-1 mb-4">
+                            <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                                {questao.subject}
+                            </span>
+                            <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                                {questao.educationLevel
+                                    ? EDUCATION_LEVEL_LABEL[questao.educationLevel]
+                                    : "—"}
+                            </span>
+                            <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+                                {typeof questao.grade === "number" ? `${questao.grade}º` : "—"}
+                            </span>
+                            <span
+                                className={`text-xs px-3 py-1 rounded-full ${
+                                    DIFICULDADE_COR[questao.difficulty]
+                                }`}
+                            >
+                                {DIFICULDADE_LABEL[questao.difficulty]}
+                            </span>
 
                             {privacyBadgeMode === "hide" ? null : (
                                 <span
-                                    className={`text-xs px-3 py-1 rounded-full shrink-0 ${
+                                    className={`text-xs px-3 py-1 rounded-full ${
                                         privacyBadgeMode === "alwaysPrivate"
                                             ? "bg-orange-100 text-orange-700"
                                             : questao.isPublic === false
