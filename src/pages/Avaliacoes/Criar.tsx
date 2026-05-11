@@ -682,7 +682,7 @@ export default function CriarAvaliacaoPage() {
                                     }
                                     className={
                                       item === pageQuestoes
-                                        ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
+                                        ? "min-w-9 h-9 px-3 rounded-xl border border-emerald-300 bg-emerald-100 text-black text-sm font-semibold cursor-default"
                                         : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
                                     }
                                   >
