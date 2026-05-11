@@ -638,82 +638,88 @@ export default function CriarAvaliacaoPage() {
                   </div>
                 ) : (
                   <>
-                    <ListaQuestoes
-                      variant="select"
-                      questoes={questoesDisponiveisFiltradas}
-                      onAdd={adicionarQuestao}
-                      selectedIds={selectedQuestionIds}
-                      twoColumns={false}
-                    />
+                    <div className="xl:max-h-[70vh] xl:overflow-y-auto xl:pr-1">
+                      <ListaQuestoes
+                        variant="select"
+                        questoes={questoesDisponiveisFiltradas}
+                        onAdd={adicionarQuestao}
+                        selectedIds={selectedQuestionIds}
+                        twoColumns={false}
+                      />
 
-                    {metaQuestoes && metaQuestoes.totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-4">
-                        <button
-                          onClick={() =>
-                            setPageQuestoes((p) => Math.max(1, p - 1))
-                          }
-                          disabled={pageQuestoes <= 1}
-                          className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
-                        >
-                          <ChevronLeft size={18} />
-                        </button>
+                      {metaQuestoes && metaQuestoes.totalPages > 1 && (
+                        <div className="mt-6 flex items-center justify-center gap-4">
+                          <button
+                            onClick={() =>
+                              setPageQuestoes((p) => Math.max(1, p - 1))
+                            }
+                            disabled={pageQuestoes <= 1}
+                            className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
 
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                            {paginationItemsQuestoes.map((item, idx) =>
-                              item === "ellipsis" ? (
-                                <span
-                                  key={`ellipsis-${idx}`}
-                                  className="px-2 text-slate-400 select-none"
-                                  aria-hidden
-                                >
-                                  ...
-                                </span>
-                              ) : (
-                                <button
-                                  key={item}
-                                  onClick={() => setPageQuestoes(item)}
-                                  disabled={item === pageQuestoes}
-                                  aria-current={
-                                    item === pageQuestoes ? "page" : undefined
-                                  }
-                                  className={
-                                    item === pageQuestoes
-                                      ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
-                                      : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
-                                  }
-                                >
-                                  {item}
-                                </button>
-                              )
-                            )}
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                              {paginationItemsQuestoes.map((item, idx) =>
+                                item === "ellipsis" ? (
+                                  <span
+                                    key={`ellipsis-${idx}`}
+                                    className="px-2 text-slate-400 select-none"
+                                    aria-hidden
+                                  >
+                                    ...
+                                  </span>
+                                ) : (
+                                  <button
+                                    key={item}
+                                    onClick={() => setPageQuestoes(item)}
+                                    disabled={item === pageQuestoes}
+                                    aria-current={
+                                      item === pageQuestoes
+                                        ? "page"
+                                        : undefined
+                                    }
+                                    className={
+                                      item === pageQuestoes
+                                        ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
+                                        : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+                                    }
+                                  >
+                                    {item}
+                                  </button>
+                                )
+                              )}
+                            </div>
+
+                            <span className="text-sm text-slate-600">
+                              Página{" "}
+                              <span className="font-semibold">
+                                {metaQuestoes.page}
+                              </span>{" "}
+                              de{" "}
+                              <span className="font-semibold">
+                                {metaQuestoes.totalPages}
+                              </span>
+                            </span>
                           </div>
 
-                          <span className="text-sm text-slate-600">
-                            Página{" "}
-                            <span className="font-semibold">
-                              {metaQuestoes.page}
-                            </span>{" "}
-                            de{" "}
-                            <span className="font-semibold">
-                              {metaQuestoes.totalPages}
-                            </span>
-                          </span>
+                          <button
+                            onClick={() =>
+                              setPageQuestoes((p) =>
+                                Math.min(metaQuestoes.totalPages, p + 1)
+                              )
+                            }
+                            disabled={
+                              pageQuestoes >= metaQuestoes.totalPages
+                            }
+                            className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
                         </div>
-
-                        <button
-                          onClick={() =>
-                            setPageQuestoes((p) =>
-                              Math.min(metaQuestoes.totalPages, p + 1)
-                            )
-                          }
-                          disabled={pageQuestoes >= metaQuestoes.totalPages}
-                          className="rounded-2xl border border-slate-300 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
-                        >
-                          <ChevronRight size={18} />
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </>
                 )}
               </div>
@@ -749,12 +755,16 @@ export default function CriarAvaliacaoPage() {
                     </p>
                   </div>
                 ) : (
-                  <ListaQuestoesSelecionadas
-                    questoes={questoesSelecionadas}
-                    atualizarPeso={atualizarPeso}
-                    remover={removerQuestao}
-                    onReorder={(novaOrdem) => setQuestoesSelecionadas(novaOrdem)}
-                  />
+                  <div className="xl:max-h-[70vh] xl:overflow-y-auto xl:pr-1">
+                    <ListaQuestoesSelecionadas
+                      questoes={questoesSelecionadas}
+                      atualizarPeso={atualizarPeso}
+                      remover={removerQuestao}
+                      onReorder={(novaOrdem) =>
+                        setQuestoesSelecionadas(novaOrdem)
+                      }
+                    />
+                  </div>
                 )}
               </div>
             </div>
