@@ -21,6 +21,7 @@ import PaginaVersoes from "../pages/Avaliacoes/Versoes";
 import PaginaCorrecoes from "../pages/Avaliacoes/Correcoes";
 import PaginaCorrecaoDetalhe from "../pages/Avaliacoes/CorrecaoDetalhe";
 import CorrecoesPage from "../pages/Correcoes/Correcoes";
+import LandingPage from "../pages/LandingPage/LandingPage";
 
 
 export default function AppRoutes() {
@@ -31,6 +32,7 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/esqueceu-senha" element={<EsqueceuSenha />} />
             <Route path="/reset-password" element={<RedefinirSenha />} />
+            <Route path="/" element={<LandingPage/>} />
 
             {/* Rotas protegidas (com Header) */}
             <Route element={<LayoutProtegido />}>
