@@ -86,7 +86,7 @@ export default function PaginaCorrecoes() {
 
   return (
     <main>
-      <div className="mx-auto max-w-5xl px-3 py-6 sm:px-4 sm:py-8">
+      <div className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-4">
             <button

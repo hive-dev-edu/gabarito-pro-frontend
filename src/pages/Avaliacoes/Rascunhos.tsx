@@ -146,7 +146,7 @@ export default function PaginaRascunhos() {
 
   return (
     <main>
-      <div className="mx-auto max-w-5xl px-3 py-6 sm:px-4 sm:py-8">
+      <div className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:gap-4">
             <button
@@ -276,7 +276,7 @@ export default function PaginaRascunhos() {
                           aria-current={item === page ? "page" : undefined}
                           className={
                             item === page
-                              ? "min-w-9 h-9 px-3 rounded-xl border border-slate-900 bg-slate-900 text-white text-sm font-semibold cursor-default"
+                              ? "min-w-9 h-9 px-3 rounded-xl border border-emerald-300 bg-emerald-100 text-black text-sm font-semibold cursor-default"
                               : "min-w-9 h-9 px-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-200 transition-colors cursor-pointer"
                           }
                         >
