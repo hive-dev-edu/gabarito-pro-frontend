@@ -39,9 +39,7 @@ export default function CTA() {
             Começar gratuitamente
             <ArrowRight size={20} />
           </Link>
-          <p className="mt-4 text-sm text-white/40">
-            Sem cartão de crédito. Cadastro rápido.
-          </p>
+          
         </div>
       </div>
     </section>

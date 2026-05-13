@@ -2,7 +2,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhyUse from './components/WhyUse';
 import HowItWorks from './components/HowItWorks';
-import Benefits from './components/Benefits';
+// import Benefits from './components/Benefits';
 import FAQ from './components/FAQ';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
@@ -63,7 +63,7 @@ export default function LandingPage() {
       <Hero />
       <WhyUse />
       <HowItWorks />
-      <Benefits />
+      {/* <Benefits /> */}
       <FAQ />
       <CTA />
       <Footer />
