@@ -94,8 +94,8 @@ export interface CriarQuestaoRequisicao {
 
 export interface AtualizarQuestaoRequisicao {
     statement?: string;
-    imageUrl?: string;
-    imageSource?: string;
+    imageUrl?: string | null;
+    imageSource?: string | null;
     content?: string;
     subject?: string;
     educationLevel?: EducationLevelApi;

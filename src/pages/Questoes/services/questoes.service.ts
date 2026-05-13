@@ -91,10 +91,6 @@ function sanitizeQuestionPayload<T extends CriarQuestaoRequisicao | AtualizarQue
 ): T {
     const sanitized: Record<string, unknown> = { ...payload };
 
-    if (sanitized.imageSource === null) {
-        delete sanitized.imageSource;
-    }
-
     if (Array.isArray(sanitized.alternatives)) {
         sanitized.alternatives = sanitized.alternatives.map((alt) => {
             const alternativa = { ...alt } as Record<string, unknown>;

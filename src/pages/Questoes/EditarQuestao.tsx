@@ -55,7 +55,25 @@ export default function EditarQuestao() {
         setErro("");
 
         try {
-            await questoesService.atualizar(id, dados);
+            const imagemAtual = questaoOriginal.imageUrl ?? undefined;
+            const novaImagem = dados.imageUrl ?? undefined;
+            const imagemEnunciadoRemovida = Boolean(imagemAtual) && !novaImagem;
+            const imagemEnunciadoAlterada =
+                Boolean(novaImagem) && novaImagem !== imagemAtual;
+
+            await questoesService.atualizar(id, {
+                ...dados,
+                imageUrl: imagemEnunciadoRemovida
+                    ? null
+                    : imagemEnunciadoAlterada
+                      ? dados.imageUrl
+                      : undefined,
+                imageSource: imagemEnunciadoRemovida
+                    ? null
+                    : imagemEnunciadoAlterada
+                      ? dados.imageSource
+                      : undefined,
+            });
             navigate(-1);
         } catch (error) {
             if (error instanceof Error) {
