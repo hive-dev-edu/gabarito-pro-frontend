@@ -64,41 +64,69 @@ export default function CameraGabarito({
   }
 
   function capturarFoto() {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
 
-    if (!video || !canvas) return;
+  if (!video || !canvas) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
 
-    const contexto = canvas.getContext("2d");
-    if (!contexto) return;
+  const estaDeitada = videoWidth > videoHeight;
 
-    contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          setErro("Erro ao capturar imagem.");
-          return;
-        }
-
-        const arquivo = new File([blob], `gabarito-${Date.now()}.jpg`, {
-          type: "image/jpeg",
-        });
-
-        const previewUrl = URL.createObjectURL(blob);
-
-        setArquivoCapturado(arquivo);
-        setFotoPreview(previewUrl);
-        pararCamera();
-      },
-      "image/jpeg",
-      0.92
-    );
+  if (estaDeitada) {
+    canvas.width = videoHeight;
+    canvas.height = videoWidth;
+  } else {
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
   }
 
+  const contexto = canvas.getContext("2d");
+  if (!contexto) return;
+
+  contexto.save();
+
+  if (estaDeitada) {
+    contexto.translate(canvas.width / 2, canvas.height / 2);
+
+    // Rotaciona a foto para ficar em pé
+    contexto.rotate(-Math.PI / 2);
+
+    contexto.drawImage(
+      video,
+      -videoWidth / 2,
+      -videoHeight / 2,
+      videoWidth,
+      videoHeight
+    );
+  } else {
+    contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
+
+  contexto.restore();
+
+  canvas.toBlob(
+    (blob) => {
+      if (!blob) {
+        setErro("Erro ao capturar imagem.");
+        return;
+      }
+
+      const arquivo = new File([blob], `gabarito-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
+
+      const previewUrl = URL.createObjectURL(blob);
+
+      setArquivoCapturado(arquivo);
+      setFotoPreview(previewUrl);
+      pararCamera();
+    },
+    "image/jpeg",
+    0.92
+  );
+}
   async function confirmarFoto() {
     if (!arquivoCapturado) return;
 
