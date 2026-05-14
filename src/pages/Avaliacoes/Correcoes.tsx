@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileCheck2 } from "lucide-react";
+import { ArrowLeft, Camera, FileCheck2 } from "lucide-react";
 
 import AvaliacoesService from "./services/avaliacoes.service";
 import CorrecoesService from "./services/correcoes.service";
 import IconeCarregamento from "../../shared/components/IconeCarregamento";
 import CampoUploadImagem from "../Questoes/components/CampoUploadImagem";
 import { uploadImagemCorrecao } from "./services/uploadCorrecaoImagem.service";
+import CameraGabarito from "./components/CameraGabarito";
 
 function isLikelyHttpUrl(value: string) {
   const v = value.trim();
   if (!v) return false;
+
   try {
     const url = new URL(v);
     return url.protocol === "http:" || url.protocol === "https:";
@@ -29,6 +31,7 @@ export default function PaginaCorrecoes() {
 
   const [imageUrl, setImageUrl] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [cameraAberta, setCameraAberta] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!id) return;
@@ -49,6 +52,11 @@ export default function PaginaCorrecoes() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  async function handleImagemCameraConfirmada(arquivo: File) {
+    const url = await uploadImagemCorrecao(arquivo);
+    setImageUrl(url);
+  }
 
   async function handleSubmit() {
     if (!id) return;
@@ -101,12 +109,12 @@ export default function PaginaCorrecoes() {
               <h1 className="text-xl font-bold text-slate-800 sm:text-2xl">
                 Correção Automática
               </h1>
+
               {nomeAvaliacao && (
                 <p className="mt-0.5 text-sm text-slate-500">{nomeAvaliacao}</p>
               )}
             </div>
           </div>
-
         </div>
 
         {carregando ? (
@@ -130,6 +138,15 @@ export default function PaginaCorrecoes() {
 
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => setCameraAberta(true)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2EC5B6] px-5 py-3 font-semibold text-white transition-colors duration-300 hover:bg-[#27b3a6] cursor-pointer"
+                  >
+                    <Camera size={18} />
+                    Tirar foto com câmera
+                  </button>
+
                   <CampoUploadImagem
                     rotulo="Imagem da correção"
                     urlImagem={imageUrl || undefined}
@@ -142,6 +159,7 @@ export default function PaginaCorrecoes() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Ou cole a URL da imagem
                     </label>
+
                     <input
                       type="url"
                       value={imageUrl}
@@ -149,18 +167,24 @@ export default function PaginaCorrecoes() {
                       className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
                       placeholder="https://..."
                     />
+
                     <p className="mt-1 text-xs text-slate-500">
-                      Se você fizer upload acima, este campo será preenchido automaticamente.
+                      Se você fizer upload acima ou tirar foto pela câmera, este campo será preenchido automaticamente.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div>
-                    <h2 className="text-lg font-bold text-slate-800">Como funciona</h2>
+                    <h2 className="text-lg font-bold text-slate-800">
+                      Como funciona
+                    </h2>
+
                     <ul className="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-1">
+                      <li>Você pode enviar uma imagem ou tirar foto pela câmera.</li>
+                      <li>A foto tirada pela câmera terá uma área guia para encaixar o gabarito.</li>
                       <li>Enviamos a imagem para processamento.</li>
-                      <li>Acompanhe o status (Pendente/Processando).</li>
+                      <li>Acompanhe o status da correção.</li>
                       <li>Quando finalizar, exibimos pontuação e detalhes por questão.</li>
                     </ul>
                   </div>
@@ -185,10 +209,15 @@ export default function PaginaCorrecoes() {
                 </div>
               </div>
             </div>
-
           </div>
         )}
       </div>
+
+      <CameraGabarito
+        aberto={cameraAberta}
+        onFechar={() => setCameraAberta(false)}
+        onImagemConfirmada={handleImagemCameraConfirmada}
+      />
     </main>
   );
 }
