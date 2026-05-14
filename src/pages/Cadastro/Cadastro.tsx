@@ -1,4 +1,4 @@
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, LockKeyhole, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CadastroService } from "./services/cadastro.service";
@@ -9,7 +9,6 @@ import { useGoogleLogin } from "@react-oauth/google";
 
 export default function Cadastro() {
     const [senhaVisivel, setSenhaVisivel] = useState(false);
-    const [confirmarSenhaVisivel, setConfirmarSenhaVisivel] = useState(false);
 
     const [nome, setNome] = useState("");
     const [errorNome, setErrorNome] = useState("");
@@ -83,10 +82,6 @@ export default function Cadastro() {
         setSenhaVisivel(!senhaVisivel);
     }
 
-    function alterarVisibilidadeConfirmarSenha() {
-        setConfirmarSenhaVisivel(!confirmarSenhaVisivel);
-    }
-
     function validarFormulario() {
         setErrorNome("");
         setErrorEmail("");
@@ -146,177 +141,241 @@ export default function Cadastro() {
     }
 
     return (
-        <main className="w-full min-h-screen flex items-center justify-center bg-white">
-            <form
-                onSubmit={handleLogin}
-                className="text-black w-full max-w-md px-4 py-4 flex flex-col justify-center items-center"
-            >
-                <div className="flex flex-col gap-4 justify-center items-center mb-8">
+        <main className="min-h-screen w-full bg-stone-50 relative flex items-center justify-center px-4 py-10">
+            <div className="absolute inset-0 opacity-50 bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] bg-size-[32px_32px]" />
+
+            <div className="relative z-10 w-full flex flex-col items-center">
+                <div className="flex items-center gap-3 mb-6">
+                <Link
+                    to="/dashboard"
+                    className="flex items-center gap-2 shrink-0"
+                >
                     <img
                         src="/images/logo-gabarito-pro.png"
                         alt="Logo Gabarito Pro"
-                        className="w-1/3 rounded-full"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full"
                     />
-                    <h1 className="font-semibold text-3xl">Gabarito.pro</h1>
-                    <h2>Adicionar slogan aqui</h2>
+                    <span className="font-semibold text-lg text-gray-800">
+                        Gabarito.pro
+                    </span>
+                </Link>
                 </div>
 
-                <input
-                    type="text"
-                    placeholder="Nome"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    className={`w-full ${errorNome ? "border-red-500 mb-2" : "border-gray-300 mb-4"} p-4 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]`}
-                    required
-                />
+                <div className="w-full max-w-lg bg-white border border-neutral-200 rounded-2xl shadow-xl px-6 sm:px-10 py-8">
+                    <form onSubmit={handleLogin} className="text-neutral-900">
+                        <div className="text-center mb-7">
+                            <p className="text-[11px] tracking-[0.28em] uppercase text-neutral-500">
+                                Criar conta
+                            </p>
+                            <h1 className="mt-3 text-3xl leading-tight">
+                                Bem-vindo(a) ao{" "}
+                                <span className="italic text-teal-700">
+                                    corpo docente
+                                </span>
+                                .
+                            </h1>
+                        </div>
 
-                <div className="w-full">
-                    {errorNome && (
-                        <p className="text-red-500 text-sm mb-2">{errorNome}</p>
-                    )}
-                </div>
-
-                <input
-                    type="text"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full ${errorEmail ? "border-red-500 mb-2" : "border-gray-300 mb-4"} p-4 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]`}
-                    required
-                />
-
-                <div className="w-full">
-                    {errorEmail && (
-                        <p className="text-red-500 text-sm mb-2">
-                            {errorEmail}
-                        </p>
-                    )}
-                </div>
-
-                <div
-                    className={`relative w-full ${errorSenha ? "mb-2" : "mb-4"}`}
-                >
-                    <input
-                        type={senhaVisivel ? "text" : "password"}
-                        placeholder="Senha"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        className={`w-full p-4 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] ${errorSenha ? "border-red-500" : "border-gray-300"}`}
-                    />
-
-                    {senhaVisivel ? (
-                        <Eye
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer bg-white"
-                            size={24}
-                            onClick={alterarVisibilidadeSenha}
-                        />
-                    ) : (
-                        <EyeClosed
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer bg-white"
-                            size={24}
-                            onClick={alterarVisibilidadeSenha}
-                        />
-                    )}
-                </div>
-
-                <div className="w-full">
-                    {errorSenha && (
-                        <p className="text-red-500 text-sm mb-2">
-                            {errorSenha}
-                        </p>
-                    )}
-                </div>
-
-                <div
-                    className={`relative w-full ${errorConfirmarSenha ? "mb-2" : "mb-4"}`}
-                >
-                    <input
-                        type={confirmarSenhaVisivel ? "text" : "password"}
-                        placeholder="Confirmar Senha"
-                        className={`w-full p-4 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] ${errorConfirmarSenha ? "border-red-500" : "border-gray-300"}`}
-                        value={confirmarSenha}
-                        onChange={(e) => setConfirmarSenha(e.target.value)}
-                    />
-
-                    {confirmarSenhaVisivel ? (
-                        <Eye
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer bg-white"
-                            size={24}
-                            onClick={alterarVisibilidadeConfirmarSenha}
-                        />
-                    ) : (
-                        <EyeClosed
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer bg-white"
-                            size={24}
-                            onClick={alterarVisibilidadeConfirmarSenha}
-                        />
-                    )}
-                </div>
-                {errorConfirmarSenha && (
-                    <p className="text-red-500 text-sm mb-2">
-                        {errorConfirmarSenha}
-                    </p>
-                )}
-
-                <div className="w-full flex justify-center">
-                    <button
-                        type="submit"
-                        className={`w-full md:w-2/3 text-white text-lg py-4 px-4 bg-linear-to-r from-[#218f84] via-[#2dd3c3] to-[#2fd3c2] rounded-full hover:from-[#2fd3c2] hover:via-[#2dd3c3] hover:to-[#218f84] transition-colors duration-300 ${carregando ? "cursor-not-allowed" : "cursor-pointer"} flex justify-center items-center gap-4`}
-                        disabled={carregando}
-                    >
-                        {carregando ? (
-                            <>
-                                <IconeCarregamento
-                                    w={18}
-                                    h={18}
-                                    color={"white"}
-                                />
-                                <p>Carregando</p>
-                            </>
-                        ) : (
-                            "Criar Conta"
+                        {/* NOME */}
+                        <label
+                            className="block text-sm text-neutral-700 mb-2"
+                            htmlFor="nome"
+                        >
+                            Nome completo
+                        </label>
+                        <div
+                            className={`w-full flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition
+                                focus-within:ring-1 focus-within:ring-teal-400
+                                ${errorNome ? "border-red-500" : "border-neutral-200"}`}
+                        >
+                            <User className="w-4.5 h-4.5 text-neutral-400" />
+                            <input
+                                id="nome"
+                                name="nome"
+                                type="text"
+                                placeholder="Como gostaria de ser chamado(a)?"
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                                autoComplete="name"
+                                className="w-full bg-transparent outline-none text-neutral-900 placeholder:text-neutral-400"
+                                required
+                            />
+                        </div>
+                        {errorNome && (
+                            <p className="text-red-500 text-sm mt-2">
+                                {errorNome}
+                            </p>
                         )}
-                    </button>
-                </div>
 
-                <div className="w-full my-8">
-                    <div className="relative text-gray-300 border-b border-gray-300 w-full">
-                        <p className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2 bg-white px-1">
-                            ou
+                        {/* EMAIL */}
+                        <label
+                            className="block text-sm text-neutral-700 mb-2 mt-5"
+                            htmlFor="email"
+                        >
+                            Email
+                        </label>
+                        <div
+                            className={`w-full flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition
+                                focus-within:ring-1 focus-within:ring-teal-400
+                                ${errorEmail ? "border-red-500" : "border-neutral-200"}`}
+                        >
+                            <Mail className="w-4.5 h-4.5 text-neutral-400" />
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="voce@email.com.br"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
+                                className="w-full bg-transparent outline-none text-neutral-900 placeholder:text-neutral-400"
+                                required
+                            />
+                        </div>
+                        {errorEmail && (
+                            <p className="text-red-500 text-sm mt-2">
+                                {errorEmail}
+                            </p>
+                        )}
+
+                        {/* SENHA */}
+                        <label
+                            className="block text-sm text-neutral-700 mb-2 mt-5"
+                            htmlFor="senha"
+                        >
+                            Senha
+                        </label>
+                        <div
+                            className={`w-full flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition
+                                focus-within:ring-1 focus-within:ring-teal-400
+                                ${errorSenha ? "border-red-500" : "border-neutral-200"}`}
+                        >
+                            <LockKeyhole className="w-4.5 h-4.5 text-neutral-400" />
+                            <input
+                                id="senha"
+                                name="senha"
+                                type={senhaVisivel ? "text" : "password"}
+                                placeholder="••••••••"
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                                autoComplete="new-password"
+                                className="w-full bg-transparent outline-none text-neutral-900 placeholder:text-neutral-400"
+                            />
+                            <button
+                                type="button"
+                                onClick={alterarVisibilidadeSenha}
+                                className="text-neutral-400 hover:text-neutral-600"
+                                aria-label={
+                                    senhaVisivel ? "Ocultar senha" : "Mostrar senha"
+                                }
+                            >
+                                {senhaVisivel ? (
+                                    <Eye size={20} />
+                                ) : (
+                                    <EyeClosed size={20} />
+                                )}
+                            </button>
+                        </div>
+                        {errorSenha && (
+                            <p className="text-red-500 text-sm mt-2">
+                                {errorSenha}
+                            </p>
+                        )}
+
+                        {/* CONFIRMAR SENHA */}
+                        <label
+                            className="block text-sm text-neutral-700 mb-2 mt-5"
+                            htmlFor="confirmarSenha"
+                        >
+                            Confirmar senha
+                        </label>
+                        <div
+                            className={`w-full flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition
+                                focus-within:ring-1 focus-within:ring-teal-400
+                                ${errorConfirmarSenha ? "border-red-500" : "border-neutral-200"}`}
+                        >
+                            <LockKeyhole className="w-4.5 h-4.5 text-neutral-400" />
+                            <input
+                                id="confirmarSenha"
+                                name="confirmarSenha"
+                                type="password"
+                                placeholder="••••••••"
+                                value={confirmarSenha}
+                                onChange={(e) => setConfirmarSenha(e.target.value)}
+                                autoComplete="new-password"
+                                className="w-full bg-transparent outline-none text-neutral-900 placeholder:text-neutral-400"
+                            />
+                        </div>
+                        {errorConfirmarSenha && (
+                            <p className="text-red-500 text-sm mt-2">
+                                {errorConfirmarSenha}
+                            </p>
+                        )}
+
+                        {/* BOTÃO CRIAR CONTA */}
+                        <button
+                            type="submit"
+                            className={`mt-7 w-full text-white text-base py-3.5 px-4
+                                bg-linear-to-r from-[#218f84] via-[#2dd3c3] to-[#2fd3c2] rounded-full
+                                hover:from-[#2fd3c2] hover:via-[#2dd3c3] hover:to-[#218f84]
+                                transition-colors duration-300 ${carregando ? "cursor-not-allowed" : "cursor-pointer"}
+                                flex justify-center items-center gap-3`}
+                            disabled={carregando}
+                        >
+                            {carregando ? (
+                                <>
+                                    <IconeCarregamento
+                                        w={18}
+                                        h={18}
+                                        color={"white"}
+                                    />
+                                    <p>Carregando</p>
+                                </>
+                            ) : (
+                                "Criar Conta"
+                            )}
+                        </button>
+
+                        <div className="my-8">
+                            <div className="relative border-b border-neutral-200">
+                                <p className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-neutral-400">
+                                    ou
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => loginComGoogle()}
+                            disabled={carregando}
+                            className="w-full text-neutral-900 text-base py-3.5 px-4
+                                flex justify-center items-center gap-3 border border-neutral-200 rounded-full bg-white
+                                hover:bg-teal-50 transition-all duration-300 cursor-pointer disabled:opacity-60"
+                        >
+                            <FcGoogle size={20} />
+                            Criar conta com Google
+                        </button>
+
+                        <p className="text-sm mt-6 text-center text-neutral-500">
+                            Já tem conta?{" "}
+                            <Link
+                                to="/login"
+                                className="text-teal-700 hover:underline"
+                            >
+                                Fazer login
+                            </Link>
                         </p>
-                    </div>
+                    </form>
                 </div>
 
-                <div className="w-full flex justify-center">
-                    <button
-                        type="button"
-                        onClick={() => loginComGoogle()}
-                        disabled={carregando}
-                        className="w-full md:w-2/3 text-black text-lg py-4 px-4
-            flex justify-evenly items-center border rounded-full
-            hover:bg-teal-50 transition-all duration-300
-            cursor-pointer disabled:opacity-60"
-                    >
-                        <FcGoogle size={24} />
-                        Criar Conta com Google
-                    </button>
-                </div>
-
-                <p className="text-sm mt-4">
-                    Já possui uma conta?{" "}
-                    <Link to="/login" className="text-blue-700 hover:underline">
-                        Fazer login
-                    </Link>
-                </p>
-            </form>
-
-            {modalAberto && (
-                <ModalCadastro
-                    message="Verifique seu email para validar sua conta!"
-                    email={email}
-                    onClose={() => setModalAberto(false)}
-                />
-            )}
+                {modalAberto && (
+                    <ModalCadastro
+                        message="Verifique seu email para validar sua conta!"
+                        email={email}
+                        onClose={() => setModalAberto(false)}
+                    />
+                )}
+            </div>
         </main>
     );
 }
