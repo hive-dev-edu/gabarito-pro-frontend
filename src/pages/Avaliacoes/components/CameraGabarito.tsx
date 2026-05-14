@@ -73,8 +73,7 @@ export default function CameraGabarito({
   const videoHeight = video.videoHeight;
 
   const angle = screen.orientation?.angle ?? 0;
-
-  const celularDeitado = angle === 90 || angle === 270 || angle === -90;
+  const celularDeitado = angle === 90 || angle === 270;
 
   if (celularDeitado) {
     canvas.width = videoHeight;
@@ -92,7 +91,7 @@ export default function CameraGabarito({
   if (celularDeitado) {
     contexto.translate(canvas.width / 2, canvas.height / 2);
 
-    if (angle === 90 || angle === -270) {
+    if (angle === 90) {
       contexto.rotate(-Math.PI / 2);
     } else {
       contexto.rotate(Math.PI / 2);
@@ -132,6 +131,7 @@ export default function CameraGabarito({
     0.92
   );
 }
+
   async function confirmarFoto() {
     if (!arquivoCapturado) return;
 
