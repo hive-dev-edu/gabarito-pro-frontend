@@ -72,9 +72,11 @@ export default function CameraGabarito({
   const videoWidth = video.videoWidth;
   const videoHeight = video.videoHeight;
 
-  const estaDeitada = videoWidth > videoHeight;
+  const angle = screen.orientation?.angle ?? 0;
 
-  if (estaDeitada) {
+  const celularDeitado = angle === 90 || angle === 270 || angle === -90;
+
+  if (celularDeitado) {
     canvas.width = videoHeight;
     canvas.height = videoWidth;
   } else {
@@ -87,11 +89,14 @@ export default function CameraGabarito({
 
   contexto.save();
 
-  if (estaDeitada) {
+  if (celularDeitado) {
     contexto.translate(canvas.width / 2, canvas.height / 2);
 
-    // Rotaciona a foto para ficar em pé
-    contexto.rotate(-Math.PI / 2);
+    if (angle === 90 || angle === -270) {
+      contexto.rotate(-Math.PI / 2);
+    } else {
+      contexto.rotate(Math.PI / 2);
+    }
 
     contexto.drawImage(
       video,
