@@ -8,7 +8,7 @@ export default function NotFound() {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="max-w-7xl mx-auto px-3 sm:px-4 py-10">
+            <main className="bg-stone-50 max-w-7xl mx-auto px-3 sm:px-4 py-10">
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8">
                     <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
                         Página não encontrada

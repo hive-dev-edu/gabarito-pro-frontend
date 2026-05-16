@@ -57,7 +57,7 @@ export default function VerificarToken() {
     }, [searchParams, navigate]);
 
     return (
-        <main className="w-full min-h-screen flex justify-center items-center">
+        <main className="w-full min-h-screen flex justify-center items-center bg-stone-50">
             <div className="w-full max-w-md p-6 bg-white border border-gray-300 rounded-lg shadow-md flex flex-col items-center">
                 {carregando ? (
                     <>

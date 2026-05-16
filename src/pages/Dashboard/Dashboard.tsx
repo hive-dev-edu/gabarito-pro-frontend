@@ -67,7 +67,7 @@ export default function Dashboard() {
     }
 
     return (
-        <main className="flex-1">
+        <main className="flex-1 bg-[#FAF8F5]">
             <div className="max-w-5xl mx-auto px-3 sm:px-4 py-8 sm:py-14">
                 {/* ── Boas-vindas ── */}
                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8 sm:mb-10">
@@ -121,7 +121,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* ── Feed de questões recentes ── */}
-                <section>
+                <section id="comunidade">
                     <h2 className="text-lg font-semibold text-gray-700 mb-4">
                         Últimas questões da comunidade
                     </h2>
