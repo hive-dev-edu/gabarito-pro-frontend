@@ -15,6 +15,8 @@ import type { LucideIcon } from "lucide-react";
 interface SidebarProps {
     collapsed: boolean;
     onToggleCollapsed: () => void;
+    mobileOpen?: boolean;
+    onRequestCloseMobile?: () => void;
 }
 
 interface SidebarNavItemProps {
@@ -24,6 +26,7 @@ interface SidebarNavItemProps {
     collapsed: boolean;
     end?: boolean;
     badge?: number;
+    onNavigate?: () => void;
 }
 
 function navItemClassName(isActive: boolean, collapsed: boolean) {
@@ -46,6 +49,7 @@ function SidebarNavItem({
     collapsed,
     end,
     badge,
+    onNavigate,
 }: SidebarNavItemProps) {
     const right = badge != null
         ? (
@@ -60,6 +64,7 @@ function SidebarNavItem({
             to={to}
             end={end}
             aria-label={collapsed ? label : undefined}
+            onClick={onNavigate}
             className={({ isActive }) => navItemClassName(isActive, collapsed)}
         >
             {({ isActive }) => (
@@ -99,14 +104,19 @@ function SidebarNavItem({
     );
 }
 
-export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
+function SidebarInner({
+    collapsed,
+    onToggleCollapsed,
+    onNavigate,
+    onRequestClose,
+}: {
+    collapsed: boolean;
+    onToggleCollapsed: () => void;
+    onNavigate?: () => void;
+    onRequestClose?: () => void;
+}) {
     return (
-        <aside
-            className={
-                "h-screen sticky top-0 z-40 shrink-0 border-r border-gray-200 bg-[#FAF8F5] flex flex-col " +
-                (collapsed ? "w-20" : "w-72")
-            }
-        >
+        <>
             <div
                 className={
                     "px-3 pt-4 pb-3 " +
@@ -117,6 +127,7 @@ export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) 
             >
                 <Link
                     to="/dashboard"
+                    onClick={onNavigate}
                     className={
                         "flex items-center gap-2.5 rounded-xl hover:bg-white transition-colors " +
                         (collapsed ? "p-2" : "px-2.5 py-2")
@@ -141,36 +152,42 @@ export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) 
                         label="Dashboard"
                         icon={LayoutDashboard}
                         collapsed={collapsed}
+                        onNavigate={onNavigate}
                     />
                     <SidebarNavItem
                         to="/questoes"
                         label="Questões"
                         icon={BookOpen}
                         collapsed={collapsed}
+                        onNavigate={onNavigate}
                     />
                     <SidebarNavItem
                         to="/turmas"
                         label="Turmas"
                         icon={Users}
                         collapsed={collapsed}
+                        onNavigate={onNavigate}
                     />
                     <SidebarNavItem
                         to="/avaliacoes"
                         label="Avaliações"
                         icon={ClipboardList}
                         collapsed={collapsed}
+                        onNavigate={onNavigate}
                     />
                     <SidebarNavItem
                         to="/correcoes"
                         label="Correções"
                         icon={FileCheck2}
                         collapsed={collapsed}
+                        onNavigate={onNavigate}
                     />
                 </nav>
 
                 <div className={collapsed ? "mt-4 flex justify-center" : "mt-4 px-1"}>
                     <Link
                         to="/avaliacoes/criar"
+                        onClick={onNavigate}
                         className={
                             collapsed
                                 ? "w-12 h-12 rounded-2xl bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-colors"
@@ -190,14 +207,21 @@ export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) 
                     label="Perfil"
                     icon={User}
                     collapsed={collapsed}
+                    onNavigate={onNavigate}
                 />
             </div>
 
             <div className="px-2 pb-4 pt-3 border-t border-gray-200">
                 <button
                     type="button"
-                    onClick={onToggleCollapsed}
-                    aria-label={collapsed ? "Expandir sidebar" : "Recolher sidebar"}
+                    onClick={onRequestClose ?? onToggleCollapsed}
+                    aria-label={
+                        onRequestClose
+                            ? "Fechar menu"
+                            : collapsed
+                            ? "Expandir sidebar"
+                            : "Recolher sidebar"
+                    }
                     className={
                         "group w-full h-10 rounded-xl text-sm font-medium transition-colors " +
                         (collapsed
@@ -205,7 +229,12 @@ export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) 
                             : "inline-flex items-center gap-2 px-3 text-gray-600 hover:bg-white")
                     }
                 >
-                    {collapsed ? (
+                    {onRequestClose ? (
+                        <>
+                            <ChevronLeft size={18} className="text-gray-500 group-hover:text-gray-700" />
+                            <span className="text-gray-700">Fechar</span>
+                        </>
+                    ) : collapsed ? (
                         <ChevronRight size={18} className="text-gray-500 group-hover:text-gray-700" />
                     ) : (
                         <>
@@ -215,6 +244,51 @@ export default function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) 
                     )}
                 </button>
             </div>
-        </aside>
+        </>
+    );
+}
+
+export default function Sidebar({
+    collapsed,
+    onToggleCollapsed,
+    mobileOpen = false,
+    onRequestCloseMobile,
+}: SidebarProps) {
+    return (
+        <>
+            {/* Desktop */}
+            <aside
+                className={
+                    "hidden lg:flex h-screen sticky top-0 z-40 shrink-0 border-r border-gray-200 bg-[#FAF8F5] flex-col " +
+                    (collapsed ? "w-20" : "w-72")
+                }
+            >
+                <SidebarInner
+                    collapsed={collapsed}
+                    onToggleCollapsed={onToggleCollapsed}
+                />
+            </aside>
+
+            {/* Mobile drawer */}
+            {mobileOpen ? (
+                <div className="lg:hidden fixed inset-0 z-50">
+                    <button
+                        type="button"
+                        aria-label="Fechar menu"
+                        onClick={onRequestCloseMobile}
+                        className="absolute inset-0 bg-black/40"
+                    />
+
+                    <aside className="relative h-screen w-72 border-r border-gray-200 bg-[#FAF8F5] flex flex-col">
+                        <SidebarInner
+                            collapsed={false}
+                            onToggleCollapsed={onToggleCollapsed}
+                            onNavigate={onRequestCloseMobile}
+                            onRequestClose={onRequestCloseMobile}
+                        />
+                    </aside>
+                </div>
+            ) : null}
+        </>
     );
 }

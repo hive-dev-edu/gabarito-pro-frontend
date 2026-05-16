@@ -39,7 +39,7 @@ export default function DeleteTurmaModal({
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100"
+            className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -54,7 +54,7 @@ export default function DeleteTurmaModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-2xl border border-slate-300 px-5 py-3 font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-70"
+            className="rounded-2xl border border-slate-300 px-5 py-3 font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-70 cursor-pointer"
           >
             Cancelar
           </button>
@@ -62,7 +62,7 @@ export default function DeleteTurmaModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-600 disabled:opacity-70"
+            className="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-600 disabled:opacity-70 cursor-pointer"
           >
             {loading ? "Excluindo..." : "Excluir turma"}
           </button>

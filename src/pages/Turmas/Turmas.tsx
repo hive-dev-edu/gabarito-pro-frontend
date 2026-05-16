@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {ArrowLeft, ChevronLeft, ChevronRight, Plus, Search, Users, } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Search, Users } from "lucide-react";
 
 import TurmasService from "./services/turmas.service";
 import type { CreateTurmaDTO, Turma } from "./types/turma.types";
@@ -231,7 +231,7 @@ export default function TurmasPage() {
   return (
     <>
       <main className="bg-[#FAF8F5]">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div className="flex items-center gap-3 sm:gap-4">
               <button
@@ -251,96 +251,71 @@ export default function TurmasPage() {
                 </p>
               </div>
             </div>
-
-            <button
-              onClick={openCreateModal}
-              className="inline-flex items-center justify-center gap-2 bg-[#2EC5B6] hover:bg-[#27b3a6] text-white px-5 py-3 rounded-2xl font-semibold transition-colors duration-300 cursor-pointer"
-            >
-              <Plus size={20} />
-              Nova Turma
-            </button>
           </div>
 
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Buscar turma
-                </label>
-                <div className="relative">
-                  <Search
-                    size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      handleFiltrar();
-                    }}
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
-                    placeholder="Ex: Turma A"
-                  />
-                </div>
-              </div>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3 sm:gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handleFiltrar();
+                }}
+                className="w-full h-12 pl-11 pr-4 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+                placeholder="Buscar turmas por nome..."
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nível de ensino
-                </label>
-                <select
-                  value={educationLevelFilter}
-                  onChange={(e) => {
-                    const value = e.target.value as EducationLevel | "";
-                    setEducationLevelFilter(value);
-                    setGradeFilter("");
-                    setPage(1);
-                  }}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white"
-                >
-                  <option value="">Todos</option>
-                  {EDUCATION_LEVEL_OPTIONS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ano / Série
-                </label>
-                <select
-                  value={gradeFilter}
-                  onChange={(e) => {
-                    setGradeFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  disabled={!educationLevelFilter}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] bg-white disabled:bg-gray-100 disabled:text-gray-400"
-                >
-                  <option value="">
-                    {educationLevelFilter ? "Todos" : "Escolha primeiro o nível"}
+            <div className="flex items-center gap-3">
+              <select
+                value={educationLevelFilter}
+                onChange={(e) => {
+                  const value = e.target.value as EducationLevel | "";
+                  setEducationLevelFilter(value);
+                  setGradeFilter("");
+                  setPage(1);
+                }}
+                className="h-12 min-w-28 sm:min-w-32 px-4 rounded-2xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6]"
+              >
+                <option value="">Nível</option>
+                {EDUCATION_LEVEL_OPTIONS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
                   </option>
+                ))}
+              </select>
 
-                  {gradeOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                value={gradeFilter}
+                onChange={(e) => {
+                  setGradeFilter(e.target.value);
+                  setPage(1);
+                }}
+                disabled={!educationLevelFilter}
+                className="h-12 min-w-28 sm:min-w-32 px-4 rounded-2xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#2EC5B6] disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                <option value="">Série</option>
+                {gradeOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
 
-              <div className="flex items-end">
+              {(search || educationLevelFilter || gradeFilter) && (
                 <button
                   onClick={handleLimparFiltros}
-                  className="w-full p-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors duration-300 cursor-pointer"
+                  className="h-12 px-4 rounded-2xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  type="button"
                 >
-                  Limpar filtros
+                  Limpar
                 </button>
-              </div>
+              )}
             </div>
           </div>
 
@@ -368,22 +343,45 @@ export default function TurmasPage() {
             <div className="text-center py-20 text-gray-400">
               <Users size={48} className="mx-auto mb-4 opacity-50" />
               <p className="text-lg">Você ainda não possui turmas cadastradas.</p>
-              <p className="text-sm mt-1">
-                Clique em "Nova Turma" para criar sua primeira turma.
-              </p>
+              <p className="text-sm mt-1">Clique em “Criar nova turma” para começar.</p>
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={openCreateModal}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-4 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#2EC5B6]/10 text-[#2EC5B6]">
+                    <Plus size={20} />
+                  </span>
+                  <span className="font-medium">Criar nova turma</span>
+                </button>
+              </div>
             </div>
           ) : (
             <>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {turmasFiltradas.map((turma) => (
                   <TurmaCard
                     key={turma.id}
                     turma={turma}
                     onEdit={openEditModal}
                     onDelete={openDeleteModal}
-                    onViewAssessments={(t) => navigate(`/avaliacoes?classId=${t.id}`)}
+                    onViewAssessments={(t) =>
+                      navigate(`/avaliacoes?classId=${t.id}`)
+                    }
                   />
                 ))}
+
+                <button
+                  type="button"
+                  onClick={openCreateModal}
+                  className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2EC5B6]/10 text-[#2EC5B6]">
+                    <Plus size={22} />
+                  </span>
+                  <span className="text-sm font-medium">Criar nova turma</span>
+                </button>
               </div>
 
               {meta && meta.totalPages > 1 && (
