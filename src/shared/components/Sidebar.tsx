@@ -211,7 +211,7 @@ function SidebarInner({
                 />
             </div>
 
-            <div className="px-2 pb-4 pt-3 border-t border-gray-200">
+            <div className="px-2 pt-3 border-t border-gray-200 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
                 <button
                     type="button"
                     onClick={onRequestClose ?? onToggleCollapsed}
@@ -279,7 +279,7 @@ export default function Sidebar({
                         className="absolute inset-0 bg-black/40"
                     />
 
-                    <aside className="relative h-screen w-72 border-r border-gray-200 bg-[#FAF8F5] flex flex-col">
+                    <aside className="relative h-dvh w-72 border-r border-gray-200 bg-[#FAF8F5] flex flex-col">
                         <SidebarInner
                             collapsed={false}
                             onToggleCollapsed={onToggleCollapsed}
