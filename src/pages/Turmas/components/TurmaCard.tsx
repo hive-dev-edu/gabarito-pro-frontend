@@ -1,4 +1,4 @@
-import { Pencil, Trash2, GraduationCap, Calendar, BookOpen } from "lucide-react";
+import { BookOpen, GraduationCap, Pencil, Trash2 } from "lucide-react";
 import type { Turma } from "../types/turma.types";
 import { parseGradeLevel } from "../../../shared/constants/education";
 
@@ -12,81 +12,128 @@ interface TurmaCardProps {
 export default function TurmaCard({ turma, onEdit, onDelete, onViewAssessments }: TurmaCardProps) {
     const parsed = parseGradeLevel(turma.gradeLevel);
 
-    const educationBadgeClass =
-        parsed.educationLevel === "Ensino Médio"
-            ? "bg-green-100 text-green-700"
-            : "bg-yellow-100 text-yellow-700";
+    const ACCENTS = [
+        {
+            bar: "bg-emerald-400",
+            iconBg: "bg-emerald-50",
+            iconText: "text-emerald-600",
+        },
+        {
+            bar: "bg-indigo-500",
+            iconBg: "bg-indigo-50",
+            iconText: "text-indigo-600",
+        },
+        {
+            bar: "bg-amber-400",
+            iconBg: "bg-amber-50",
+            iconText: "text-amber-600",
+        },
+        {
+            bar: "bg-red-500",
+            iconBg: "bg-red-50",
+            iconText: "text-red-600",
+        },
+    ] as const;
 
-    const createdDate = new Date(turma.createdAt).toLocaleDateString("pt-BR");
+    const accentIndex = (() => {
+        const key = turma.id ?? turma.name ?? "";
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) hash = (hash + key.charCodeAt(i)) % 997;
+        return hash % ACCENTS.length;
+    })();
+
+    const accent = ACCENTS[accentIndex];
+
+    const since = (() => {
+        if (!turma.createdAt) return "";
+        const date = new Date(turma.createdAt);
+        if (Number.isNaN(date.getTime())) return "";
+        const formatted = new Intl.DateTimeFormat("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+        }).format(date);
+        return formatted.replace("/", "-");
+    })();
+
+    const educationLabel = (() => {
+        if (!parsed.educationLevel) return "";
+        if (parsed.educationLevel === "Ensino Médio") return "Médio";
+
+        const match = /^\s*(\d{1,2})/.exec(parsed.grade ?? "");
+        const gradeNumber = match ? Number(match[1]) : NaN;
+
+        if (Number.isFinite(gradeNumber)) {
+            return gradeNumber >= 6 ? "Fundamental II" : "Fundamental I";
+        }
+        return "Fundamental";
+    })();
 
     return (
-        <div className="relative bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+        <article className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+            <div className={`h-1.5 w-full ${accent.bar}`} />
 
-            {/* Ações */}
-            <div className="absolute top-4 right-4 flex items-center gap-2">
-                <button
-                    onClick={() => onViewAssessments(turma)}
-                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                    title="Ver avaliações da turma"
-                >
-                    <BookOpen size={18} />
-                </button>
+            <div className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${accent.iconBg}`}>
+                        <GraduationCap size={22} className={accent.iconText} />
+                    </div>
 
-                <button
-                    onClick={() => onEdit(turma)}
-                    className="p-2 text-gray-500 hover:text-[#2EC5B6] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                    title="Editar turma"
-                >
-                    <Pencil size={18} />
-                </button>
-
-                <button
-                    onClick={() => onDelete(turma)}
-                    className="p-2 rounded-xl text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                    title="Excluir turma"
-                >
-                    <Trash2 size={18} />
-                </button>
-            </div>
-
-            {/* Conteúdo */}
-            <div className="flex items-start gap-4">
-                <div className="bg-[#2EC5B6]/15 p-3 rounded-xl">
-                    <GraduationCap size={22} className="text-[#2EC5B6]" />
-                </div>
-
-                <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                        {turma.name}
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                        Gerencie alunos, avaliações e organização da turma.
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-2 mt-3">
-
-                        {/* Ano */}
-                        <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1 rounded-full">
-                            {parsed.grade}
-                        </span>
-
-                        {/* Escolaridade */}
-                        <span
-                            className={`${educationBadgeClass} text-xs font-medium px-3 py-1 rounded-full`}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onViewAssessments(turma)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors cursor-pointer"
+                            title="Ver avaliações"
+                            type="button"
                         >
-                            {parsed.educationLevel}
-                        </span>
+                            <BookOpen size={18} />
+                        </button>
 
-                        {/* Data */}
-                        <span className="flex items-center gap-1 text-gray-500 text-xs bg-gray-100 px-3 py-1 rounded-full">
-                            <Calendar size={14} />
-                            {createdDate}
-                        </span>
+                        <button
+                            onClick={() => onEdit(turma)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors cursor-pointer"
+                            title="Editar"
+                            type="button"
+                        >
+                            <Pencil size={18} />
+                        </button>
 
+                        <button
+                            onClick={() => onDelete(turma)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            title="Excluir"
+                            type="button"
+                        >
+                            <Trash2 size={18} />
+                        </button>
                     </div>
                 </div>
+
+                <h3 className="mt-4 text-[15px] font-semibold leading-snug text-gray-900">
+                    {turma.name}
+                </h3>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {!!educationLabel && (
+                        <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+                            {educationLabel}
+                        </span>
+                    )}
+
+                    {!!parsed.grade && (
+                        <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+                            {parsed.grade}
+                        </span>
+                    )}
+                </div>
+
+                <div className="mt-4 border-t border-dashed border-gray-200" />
+
+                {!!since && (
+                    <div className="mt-4 flex items-center justify-end text-sm text-gray-500">
+                        desde <span className="ml-1 tabular-nums">{since}</span>
+                    </div>
+                )}
             </div>
-        </div >
+        </article>
     );
 }
