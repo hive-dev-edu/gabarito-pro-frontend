@@ -93,14 +93,14 @@ export default function Perfil() {
     // ── Loading ──
     if (carregando) {
         return (
-            <main className="flex-1 flex items-center justify-center">
+            <main className="flex-1 flex items-center justify-center bg-[#FAF8F5]">
                 <IconeCarregamento w={32} h={32} color="black" />
             </main>
         );
     }
 
     return (
-        <main>
+        <main className="bg-[#FAF8F5]">
             <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
                 {/* Header */}
                 <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">

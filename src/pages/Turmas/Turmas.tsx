@@ -230,7 +230,7 @@ export default function TurmasPage() {
 
   return (
     <>
-      <main>
+      <main className="bg-[#FAF8F5]">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div className="flex items-center gap-3 sm:gap-4">

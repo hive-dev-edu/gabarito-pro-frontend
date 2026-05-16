@@ -78,7 +78,7 @@ export default function RedefinirSenha() {
     }
 
     return (
-        <main className="relative w-full min-h-screen flex justify-center items-center">
+        <main className="relative w-full min-h-screen flex justify-center items-center bg-stone-50">
             <form
                 onSubmit={handleRedefinirSenha}
                 className="min-h-screen md:min-h-auto text-black w-full max-w-md px-4 py-4 flex flex-col justify-center items-center shadow-2xl rounded-xl bg-white"
