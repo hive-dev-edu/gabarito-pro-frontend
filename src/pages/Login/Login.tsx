@@ -222,7 +222,7 @@ export default function Login() {
                 >
                     <div className="text-center mb-8">
                         <p className="text-[11px] tracking-[0.28em] uppercase text-neutral-500">
-                            Bem-vinda de volta
+                            Bem-vindo de volta
                         </p>
                         <h1 className="mt-3 text-4xl leading-tight text-neutral-900">
                             Entre na sua{" "}
